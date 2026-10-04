@@ -3,6 +3,7 @@
   import TerraStatusBeacon from './TerraStatusBeacon.svelte'
   import TerraBarcode from './TerraBarcode.svelte'
   import TerraButton from './TerraButton.svelte'
+  import { i18n } from '../i18n'
 
   interface Props {
     codename: string
@@ -52,7 +53,7 @@
   <div class="flex items-center justify-between gap-2 pb-3 border-b border-[var(--terra-border)]">
     <div class="flex items-center gap-2">
       <TerraBadge label={clearance} code="SEC" variant="primary" />
-      <TerraBadge label="AUTHORIZED" code="SYS" variant="outline" />
+      <TerraBadge label={i18n.t.sec01.clearAuthorized} code="SYS" variant="outline" />
     </div>
 
     <div class="flex items-center gap-3">
@@ -127,19 +128,19 @@
       <!-- Swiss Grid Micro-specifications -->
       <div class="grid grid-cols-2 gap-2 py-2 px-3 bg-[var(--terra-bg-base)]/50 border border-[var(--terra-border)] font-mono text-[10px]">
         <div>
-          <span class="text-[var(--terra-text-muted)] block">DIVISION // ROLE</span>
+          <span class="text-[var(--terra-text-muted)] block">{i18n.t.profileCard.divisionRole}</span>
           <span class="text-[var(--terra-text-primary)] font-semibold truncate block">{assignment}</span>
         </div>
         <div>
-          <span class="text-[var(--terra-text-muted)] block">BIOMETRIC STATUS</span>
-          <span class="text-[var(--terra-text-primary)] font-semibold">SYNCHRONIZED</span>
+          <span class="text-[var(--terra-text-muted)] block">{i18n.t.profileCard.biometricStatus}</span>
+          <span class="text-[var(--terra-text-primary)] font-semibold">{i18n.t.profileCard.synchronized}</span>
         </div>
         <div>
-          <span class="text-[var(--terra-text-muted)] block">SERIAL IDENTIFIER</span>
+          <span class="text-[var(--terra-text-muted)] block">{i18n.t.profileCard.serialIdentifier}</span>
           <span class="text-[var(--terra-text-primary)] font-semibold">{uid}</span>
         </div>
         <div>
-          <span class="text-[var(--terra-text-muted)] block">ACTUATION READY</span>
+          <span class="text-[var(--terra-text-muted)] block">{i18n.t.profileCard.actuationReady}</span>
           <span class="text-[var(--terra-accent-primary)] font-semibold uppercase">{statusLabel}</span>
         </div>
       </div>
@@ -155,7 +156,7 @@
   <!-- Bottom Action Bar: Deploy & Telemetry Buttons -->
   <div class="pt-3 border-t border-[var(--terra-border)] flex flex-wrap items-center justify-between gap-3">
     <div class="font-mono text-[9px] text-[var(--terra-text-muted)] tracking-wider">
-      TERRA // TACTICAL UNIT PROFILE V0.7.0
+      {i18n.t.profileCard.profileVersion}
     </div>
     <div class="flex items-center gap-2">
       <TerraButton
@@ -164,7 +165,7 @@
         cut="none"
         onclick={ontelemetry}
       >
-        TELEMETRY LINK
+        {i18n.t.profileCard.telemetryLink}
       </TerraButton>
       <TerraButton
         variant="primary"
@@ -172,7 +173,7 @@
         cut="tr"
         onclick={ondeploy}
       >
-        ACTUATE UNIT
+        {i18n.t.profileCard.actuateUnit}
       </TerraButton>
     </div>
   </div>

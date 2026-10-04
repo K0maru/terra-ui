@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { i18n } from '../i18n'
 
   interface Props {
     active?: boolean
@@ -12,20 +13,26 @@
   }: Props = $props()
 
   let progress = $state(0)
-  let statusText = $state('AIC // KERNEL_LOAD')
   let curtainScale = $state(0)
   let screenOpacity = $state(1)
   let isRunning = $state(false)
 
   // Status message sequence corresponding to progress thresholds
-  const statusMilestones = [
-    { at: 0, text: 'AIC // KERNEL_LOAD' },
-    { at: 18, text: 'TERRA // GEODETIC_SURVEY_INIT' },
-    { at: 42, text: 'SECTOR_ALPHA // TOPOGRAPHIC_CONTOUR_SYNC' },
-    { at: 68, text: 'ENERGY_BUS // 480V_NOMINAL' },
-    { at: 88, text: 'TELEMETRY // ACTUATOR_ARRAY_ONLINE' },
-    { at: 100, text: 'SYSTEM_READY // COMMENCE_OPERATION' }
-  ]
+  const statusMilestones = $derived([
+    { at: 0, text: i18n.t.boot.status1 },
+    { at: 18, text: i18n.t.boot.status2 },
+    { at: 42, text: i18n.t.boot.status3 },
+    { at: 68, text: i18n.t.boot.status4 },
+    { at: 88, text: i18n.t.boot.status5 },
+    { at: 100, text: i18n.t.boot.statusReady }
+  ])
+
+  let currentMilestoneIndex = $state(0)
+  let statusText = $derived(
+    progress >= 100
+      ? `${i18n.t.boot.statusReady} // ${i18n.t.boot.slogan}`
+      : statusMilestones[currentMilestoneIndex]?.text || i18n.t.boot.status1
+  )
 
   export function triggerBoot() {
     active = true
@@ -38,7 +45,7 @@
     progress = 0
     curtainScale = 0
     screenOpacity = 1
-    statusText = 'AIC // KERNEL_LOAD'
+    currentMilestoneIndex = 0
 
     const startTime = performance.now()
     const targetDuration = 2200 // ~2.2s deliberate authentic boot sequence
@@ -64,7 +71,7 @@
       // Update milestone status
       for (let i = statusMilestones.length - 1; i >= 0; i--) {
         if (progress >= statusMilestones[i].at) {
-          statusText = statusMilestones[i].text
+          currentMilestoneIndex = i
           break
         }
       }
@@ -73,7 +80,6 @@
         requestAnimationFrame(tick)
       } else {
         progress = 100
-        statusText = 'SYSTEM_READY // COMMENCE_EXPEDITION'
         finishBoot()
       }
     }
@@ -157,7 +163,7 @@
         <span class="text-[var(--terra-accent-primary,#ffde00)] font-bold text-sm">◆</span>
         <span class="tracking-widest font-bold text-white">TERRA TACTICAL SYSTEM</span>
         <span class="hidden sm:inline text-white/30">//</span>
-        <span class="hidden sm:inline tracking-wider">AIC_INITIAL_LOADER</span>
+        <span class="hidden sm:inline tracking-wider">{i18n.t.boot.sub}</span>
       </div>
 
       <div class="flex items-center gap-4 text-[11px] tracking-widest">
@@ -176,7 +182,7 @@
         <!-- Slogan & Classification -->
         <div class="flex items-center gap-2 font-mono text-xs tracking-widest text-[var(--terra-accent-primary,#ffde00)] font-bold uppercase">
           <span class="w-2 h-2 bg-[var(--terra-accent-primary,#ffde00)] inline-block"></span>
-          <span>TERRA TACTICAL // INTEGRATED AUTOMATION SYSTEM</span>
+          <span>{i18n.t.boot.title}</span>
         </div>
 
         <!-- Huge Core Percentage Countdown -->
@@ -206,11 +212,11 @@
 
         <!-- Decorative Diamond Triangles & Geodetic Brackets -->
         <div class="flex items-center gap-4 text-white/40 font-mono text-[10px] tracking-widest pt-2">
-          <span>◤ AIC_BUS_NOMINAL ◢</span>
+          <span>{i18n.t.boot.busNominal}</span>
           <span>•</span>
-          <span>SHUTTER: ARMORED_SCALE_X</span>
+          <span>{i18n.t.boot.shutter}</span>
           <span>•</span>
-          <span>FREQ: 120Hz</span>
+          <span>{i18n.t.boot.freq}</span>
         </div>
 
       </div>
@@ -221,10 +227,10 @@
          ==================================================================== -->
     <footer class="absolute bottom-6 left-8 sm:left-12 right-6 sm:right-10 flex items-center justify-between z-10 font-mono text-[10px] text-white/40 tracking-wider">
       <div>
-        <span class="font-bold text-white/70">TERRA-UI</span> // PROTOCOL_04_STABLE
+        <span class="font-bold text-white/70">TERRA-UI</span> // {i18n.t.boot.footerProtocol}
       </div>
       <div>
-        TERRA-UI // FUNCTIONAL DESIGN SYSTEM
+        TERRA-UI // {i18n.t.boot.footerDesignSystem}
       </div>
     </footer>
 
