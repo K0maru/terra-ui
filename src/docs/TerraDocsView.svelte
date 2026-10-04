@@ -37,6 +37,7 @@
   let isMobileMenuOpen = $state(false)
   let docPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
   let docPanelCut = $state<'tr-bl' | 'tl-br' | 'tr' | 'br'>('tr-bl')
+  let docPanelChamferBorder = $state(true)
 
   // Sync with URL hash
   onMount(() => {
@@ -437,7 +438,7 @@
                       </button>
                     {/each}
                   </div>
-                  <div class="flex items-center gap-1">
+                  <div class="flex items-center gap-1 flex-wrap">
                     <span class="font-mono text-[9px] text-[var(--terra-text-muted)] uppercase">CUT:</span>
                     {#each (['tr-bl', 'tl-br', 'tr', 'br'] as const) as c}
                       <button
@@ -448,6 +449,13 @@
                         {c}
                       </button>
                     {/each}
+                    <button
+                      type="button"
+                      class="ml-1 px-1.5 py-0.5 font-mono text-[9px] uppercase border transition-colors {docPanelChamferBorder ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)]'}"
+                      onclick={() => docPanelChamferBorder = !docPanelChamferBorder}
+                    >
+                      {docPanelChamferBorder ? 'SEALED' : 'OPEN'}
+                    </button>
                   </div>
                 </div>
 
@@ -456,10 +464,11 @@
                   tag="// ACTIVE.NODE"
                   cut={docPanelCut}
                   decoration={docPanelDecoration}
+                  chamferBorder={docPanelChamferBorder}
                   warning={docPanelDecoration === 'endfield'}
                 >
                   <p class="text-xs font-mono text-slate-300">
-                    Industrial armor chassis with continuous 1px vector chamfer borders, {docPanelDecoration.toUpperCase()} preset styling, and zero decoration clipping.
+                    Industrial armor chassis with {docPanelChamferBorder ? 'sealed 1px continuous vector border' : 'open-cut chamfer (no diagonal stroke)'}, {docPanelDecoration.toUpperCase()} preset styling, and zero tooth/lug clutter.
                   </p>
                 </TerraPanel>
               </div>

@@ -54,6 +54,7 @@
   let cutSize = $state(10)
   let zoomFactor = $state(100)
   let labPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
+  let labChamferBorder = $state(true)
   let commandInput = $state('QUERY_CLUSTER_METRICS')
   let customMatrixInput = $state('TELEMETRY_SAMPLE_RATE')
 
@@ -1079,13 +1080,16 @@
     <div>
       <TerraCadPattern patternSize={110} opacity={0.14}>
         <TerraPanel
-            title={t.sec03.labTitle}
-            tag="// HUD.DEBUG"
-            cut="tr-bl"
-            cutSize={cutSize}
-            decoration={labPanelDecoration}
-          >
-            {#snippet actions()}
+          title={t.sec03.labTitle}
+          tag="// HUD.DEBUG"
+          cut="tr-bl"
+          cutSize={cutSize}
+          decoration={labPanelDecoration}
+          chamferBorder={labChamferBorder}
+        >
+          {#snippet actions()}
+            <div class="flex items-center gap-2">
+              <!-- Preset Selector -->
               <div class="flex items-center gap-1 bg-black/30 p-1 border border-[var(--terra-border)] rounded-xs">
                 <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mr-1 hidden sm:inline">PANEL:</span>
                 {#each (['endfield', 'rhodes', 'industrial', 'brackets', 'clean'] as const) as preset}
@@ -1098,7 +1102,18 @@
                   </button>
                 {/each}
               </div>
-            {/snippet}
+
+              <!-- Sealed vs Open Chamfer Border Toggle -->
+              <button
+                type="button"
+                class="px-2 py-1 font-mono text-[9px] uppercase border transition-colors {labChamferBorder ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
+                onclick={() => labChamferBorder = !labChamferBorder}
+                title="Toggle 45° Chamfer Border (Sealed vs Open Cut)"
+              >
+                {labChamferBorder ? '🛡️ SEALED' : '⚡ OPEN CUT'}
+              </button>
+            </div>
+          {/snippet}
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
               
