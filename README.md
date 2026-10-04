@@ -80,7 +80,7 @@ Terra-UI synthesizes two distinct cybernetic visual philosophies into a unified 
 
 ### 6. Atomic Primitives & Systems
 - `<TerraButton />`: 45° chamfered industrial button with GPU shimmer wave and four semantic states.
-- `<TerraPanel />`: Tactical container panel supporting corner brackets (`[ ]`), reticle crosshairs (`+`), and industrial equipment nameplates.
+- `<TerraPanel />`: Tactical container panel with continuous 1px vector chamfer borders, hazard stripes, telemetry header tags, and 5 modular decoration presets (`endfield`, `rhodes`, `industrial`, `brackets`, `clean`).
 - `<TerraBadge />`: Industrial status badge with micro security clearance codes (`ADM`, `AIC`, `GRID`, `OK`).
 - `<TerraStatusBeacon />`: Multi-state breathing beacon with GPU pulse glow.
 - `<TerraRollingNumber />`: Spring-physics rolling odometer counter for high-frequency telemetry.

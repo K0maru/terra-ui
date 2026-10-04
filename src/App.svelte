@@ -53,6 +53,7 @@
   let contourEnabled = $state(true)
   let cutSize = $state(10)
   let zoomFactor = $state(100)
+  let labPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
   let commandInput = $state('QUERY_CLUSTER_METRICS')
   let customMatrixInput = $state('TELEMETRY_SAMPLE_RATE')
 
@@ -594,7 +595,7 @@
 
       <!-- Swiss Operations Command Bay (6 cols) -->
       <div class="lg:col-span-6 flex flex-col justify-between space-y-6">
-        <TerraPanel title={t.sec01.profileTitle} tag="// SYS.OPS" cut="tr-bl" bracket={false}>
+        <TerraPanel title={t.sec01.profileTitle} tag="// SYS.OPS" cut="tr-bl" decoration="rhodes">
           <div class="space-y-4">
             
             <!-- Directive Input & Execution -->
@@ -681,7 +682,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
       <!-- 2D Histogram Bar Chart (6 cols) -->
       <div class="lg:col-span-6">
-        <TerraPanel title={t.sec01.chart1Title} tag={t.sec01.chart1Sub} cut="tr-bl">
+        <TerraPanel title={t.sec01.chart1Title} tag={t.sec01.chart1Sub} cut="tr-bl" decoration="rhodes">
           <TerraBarChart
             data={subsystemBarData}
             height={160}
@@ -692,7 +693,7 @@
 
       <!-- 2D Waveform Line Chart (6 cols) -->
       <div class="lg:col-span-6">
-        <TerraPanel title={t.sec01.chart2Title} tag={t.sec01.chart2Sub} cut="tl-br">
+        <TerraPanel title={t.sec01.chart2Title} tag={t.sec01.chart2Sub} cut="tl-br" decoration="rhodes">
           <TerraLineChart
             data={signalTelemetryData}
             height={160}
@@ -705,12 +706,12 @@
     <!-- 2D Developer & Observability Suite Display -->
     <div class="space-y-6 pt-2">
       <!-- Service SLA & Health Strip -->
-      <TerraPanel title="SYSTEM SLA & UPTIME MONITOR // 60-DAY RUNTIME" tag="// CLUSTER.SLA" cut="tr-bl">
+      <TerraPanel title="SYSTEM SLA & UPTIME MONITOR // 60-DAY RUNTIME" tag="// CLUSTER.SLA" cut="tr-bl" decoration="industrial">
         <TerraStatusStrip serviceName="GLOBAL_DATA_ROUTER_CLUSTER" days={60} />
       </TerraPanel>
 
       <!-- Annual Activity Heatmap -->
-      <TerraPanel title="ANNUAL DISPATCH & COMMIT ACTIVITY MATRIX" tag="// OPS.HEATMAP" cut="tl-br">
+      <TerraPanel title="ANNUAL DISPATCH & COMMIT ACTIVITY MATRIX" tag="// OPS.HEATMAP" cut="tl-br" decoration="industrial">
         <TerraActivityHeatmap weeks={48} title="ANNUAL SYSTEM OPERATIONS & COMMIT ACTIVITY" />
       </TerraPanel>
     </div>
@@ -856,7 +857,7 @@
 
     <!-- Energy Bus Section (Recessed Industrial Chassis) -->
     <div>
-      <TerraPanel title={t.sec02.busTitle} tag="// BUS.POWER" cut="tr-bl" bracket={true} warning={true}>
+      <TerraPanel title={t.sec02.busTitle} tag="// BUS.POWER" cut="tr-bl" decoration="endfield" warning={true}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div class="space-y-4">
             <TerraSegmentBar
@@ -923,7 +924,7 @@
       
       <!-- Track A: 2D Graphic Primitives & Charts (6 cols) -->
       <div class="lg:col-span-6 space-y-6">
-        <TerraPanel title={t.sec03.panel2DTitle} tag="// AXIS-2D" cut="tr-bl" bracket={false}>
+        <TerraPanel title={t.sec03.panel2DTitle} tag="// AXIS-2D" cut="tr-bl" decoration="rhodes">
           <div class="space-y-5">
             
             <!-- 1. Buttons Matrix -->
@@ -1005,7 +1006,7 @@
 
       <!-- Track B: 3D Spatial & Industrial Primitives (6 cols) -->
       <div class="lg:col-span-6 space-y-6">
-        <TerraPanel title={t.sec03.panel3DTitle} tag="// AXIS-3D" cut="tl-br" bracket={true}>
+        <TerraPanel title={t.sec03.panel3DTitle} tag="// AXIS-3D" cut="tl-br" decoration="endfield">
           <div class="space-y-5">
             
             <!-- 1. Mini Spatial Card Demonstration -->
@@ -1078,7 +1079,28 @@
     <div>
       <TerraCornerBrackets label="[SEC-03 // PARAMETRIC CALIBRATION LAB]" glow={true} active={true}>
         <TerraCadPattern patternSize={110} opacity={0.14}>
-          <TerraPanel title={t.sec03.labTitle} tag="// HUD.DEBUG" cut="tr-bl" bracket={false}>
+          <TerraPanel
+            title={t.sec03.labTitle}
+            tag="// HUD.DEBUG"
+            cut="tr-bl"
+            cutSize={cutSize}
+            decoration={labPanelDecoration}
+          >
+            {#snippet actions()}
+              <div class="flex items-center gap-1 bg-black/30 p-1 border border-[var(--terra-border)] rounded-xs">
+                <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mr-1 hidden sm:inline">PANEL:</span>
+                {#each (['endfield', 'rhodes', 'industrial', 'brackets', 'clean'] as const) as preset}
+                  <button
+                    type="button"
+                    class="px-1.5 py-0.5 font-mono text-[9px] uppercase border transition-colors {labPanelDecoration === preset ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-transparent text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
+                    onclick={() => labPanelDecoration = preset}
+                  >
+                    {preset}
+                  </button>
+                {/each}
+              </div>
+            {/snippet}
+
             <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
               
               <!-- Sector Navigation: 4 cols -->
