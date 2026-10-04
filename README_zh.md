@@ -80,7 +80,7 @@ Terra-UI 将两种截然不同但互相呼应的机能视觉哲学融合为一�
 
 ### 6. 系统引导与原子控制图元
 - `<TerraButton />`：支持 45° 几何切角、GPU 悬浮扫光（Shimmer）与四种语义形态的机能按钮。
-- `<TerraPanel />`：支持战术线框包角（Brackets `[ ]`）、四角准星（Reticle `+`）与出厂铭牌标题栏的容器面板。
+- `<TerraPanel />`：支持 100% 全闭合 1px 矢量斜切金属边框、工业警示斑马条、出厂铭牌标题栏与 5 种官方级边角装饰预设（`endfield` 终末地加强筋、`rhodes` 罗德岛微刻度、`industrial` 重工铆钉、`brackets` 战术包角、`clean` 极简纯净）的机能装甲容器面板。
 - `<TerraBadge />`：带微型安全等级标识（`ADM`, `AIC`, `GRID`, `OK`）的工业标签。
 - `<TerraStatusBeacon />`：多态呼吸脉冲状态指示灯。
 - `<TerraRollingNumber />`：平滑弹簧滚动数字计数器，适用于高频数据跳变展示。

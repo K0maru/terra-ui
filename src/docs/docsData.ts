@@ -527,20 +527,22 @@ import '@terra-ui/styles/tokens.css'
         tag: 'ATOMIC // CONTAINER',
         componentName: 'TerraPanel',
         category: 'primitives',
-        description: 'Armor panel container featuring 45° corner cuts, industrial title bar with telemetry tags, and optional reticle brackets.',
-        descriptionZh: '机能装甲面板容器，支持对角 45° 切角、出厂铭牌标题栏与四角瞄准准星。',
+        description: 'Armor panel container featuring continuous 1px vector chamfer borders, industrial title bar with telemetry tags, and 5 modular decoration presets (endfield, rhodes, industrial, brackets, clean).',
+        descriptionZh: '机能装甲面板容器，支持 100% 闭合的 1px 矢量斜切金属边框、出厂铭牌标题栏与 5 种官方级边角装饰预设（终末地加强筋、罗德岛微刻度、重工铆钉孔、经典包角、极简纯净）。',
         codeSnippet: `<script lang="ts">
   import { TerraPanel } from 'terra-ui'
 </script>
 
-<TerraPanel title="SYSTEM STATUS" tag="// SEC-01" cut="tl-br" bracket={true}>
+<TerraPanel title="SYSTEM STATUS" tag="// SEC-01" cut="tr-bl" decoration="endfield">
   <p class="text-sm font-mono text-slate-300">All nodes operational.</p>
 </TerraPanel>`,
         props: [
           { name: 'title', type: 'string', default: "''", description: 'Panel header title' },
           { name: 'tag', type: 'string', default: "''", description: 'Secondary telemetry tag' },
-          { name: 'cut', type: "'none' | 'tr' | 'tl-br' | 'tr-bl'", default: "'tl-br'", description: 'Chamfer corner cut geometry' },
-          { name: 'bracket', type: 'boolean', default: 'false', description: 'Render four corner targeting reticles' }
+          { name: 'cut', type: "'none' | 'tr' | 'tl-br' | 'tr-bl' | 'br'", default: "'tr'", description: 'Chamfer corner cut geometry' },
+          { name: 'decoration', type: "'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'", default: "'endfield'", description: 'Modular architectural decoration preset' },
+          { name: 'cutSize', type: 'number', default: '16', description: 'Chamfer cut depth in pixels' },
+          { name: 'warning', type: 'boolean', default: 'false', description: 'Render top industrial hazard warning stripe' }
         ]
       },
       {

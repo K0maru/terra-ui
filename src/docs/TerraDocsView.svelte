@@ -35,6 +35,8 @@
   let activePageId = $state('overview')
   let searchQuery = $state('')
   let isMobileMenuOpen = $state(false)
+  let docPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
+  let docPanelCut = $state<'tr-bl' | 'tl-br' | 'tr' | 'br'>('tr-bl')
 
   // Sync with URL hash
   onMount(() => {
@@ -420,10 +422,44 @@
                 <TerraButton variant="danger">DANGER</TerraButton>
               </div>
             {:else if activePage.id === 'panel'}
-              <div class="w-full max-w-md">
-                <TerraPanel title="SYSTEM STATUS" tag="// SEC-01" cut="tl-br" bracket={true}>
+              <div class="w-full max-w-md space-y-3">
+                <!-- Live Preset Switcher in Docs -->
+                <div class="flex flex-wrap items-center justify-between gap-2 p-2 bg-black/20 border border-[var(--terra-border)] rounded-xs">
+                  <div class="flex items-center gap-1 flex-wrap">
+                    <span class="font-mono text-[9px] text-[var(--terra-text-muted)] uppercase">PRESET:</span>
+                    {#each (['endfield', 'rhodes', 'industrial', 'brackets', 'clean'] as const) as style}
+                      <button
+                        type="button"
+                        class="px-1.5 py-0.5 font-mono text-[9px] uppercase border transition-colors {docPanelDecoration === style ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-transparent text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
+                        onclick={() => docPanelDecoration = style}
+                      >
+                        {style}
+                      </button>
+                    {/each}
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="font-mono text-[9px] text-[var(--terra-text-muted)] uppercase">CUT:</span>
+                    {#each (['tr-bl', 'tl-br', 'tr', 'br'] as const) as c}
+                      <button
+                        type="button"
+                        class="px-1 py-0.5 font-mono text-[9px] uppercase border transition-colors {docPanelCut === c ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] font-bold' : 'border-transparent text-[var(--terra-text-muted)]'}"
+                        onclick={() => docPanelCut = c}
+                      >
+                        {c}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+
+                <TerraPanel
+                  title="SYSTEM STATUS // AIC.01"
+                  tag="// ACTIVE.NODE"
+                  cut={docPanelCut}
+                  decoration={docPanelDecoration}
+                  warning={docPanelDecoration === 'endfield'}
+                >
                   <p class="text-xs font-mono text-slate-300">
-                    Industrial armor chassis with chamfer corners and corner reticles.
+                    Industrial armor chassis with continuous 1px vector chamfer borders, {docPanelDecoration.toUpperCase()} preset styling, and zero decoration clipping.
                   </p>
                 </TerraPanel>
               </div>
