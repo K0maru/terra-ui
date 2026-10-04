@@ -174,7 +174,7 @@
 
   <!-- Vertical Track Wrapper with Optional Fluid Fins -->
   <div class="relative flex flex-col items-center">
-    {#if fluidDecorations}
+    {#if fluidDecorations && !showButtons}
       <!-- Atlos Top Fluid Fin -->
       <div class="terra-fluid-fin terra-fluid-fin-top" aria-hidden="true"></div>
     {/if}
@@ -200,17 +200,17 @@
       style="--progress: {progress};"
     >
       <!-- Notch Ticks along Track -->
-      <div class="absolute inset-y-1 right-1 flex flex-col justify-between pointer-events-none z-10 opacity-40">
-        <span class="w-1.5 h-[1px] bg-white"></span>
-        <span class="w-1 h-[1px] bg-white"></span>
-        <span class="w-1.5 h-[1px] bg-white"></span>
-        <span class="w-1 h-[1px] bg-white"></span>
-        <span class="w-1.5 h-[1px] bg-white"></span>
+      <div class="absolute inset-y-1.5 right-1 flex flex-col justify-between pointer-events-none z-10 opacity-40 text-[var(--terra-text-primary,#ffffff)]">
+        <span class="w-1.5 h-[1px] bg-current"></span>
+        <span class="w-1 h-[1px] bg-current"></span>
+        <span class="w-1.5 h-[1px] bg-current"></span>
+        <span class="w-1 h-[1px] bg-current"></span>
+        <span class="w-1.5 h-[1px] bg-current"></span>
       </div>
 
       <!-- 100% GPU Compositor Filled Progress Bar -->
       <div
-        class="terra-slider-fill w-full rounded-sm"
+        class="terra-slider-fill w-full rounded-xs"
         aria-hidden="true"
       >
         <!-- Glowing Laser Head -->
@@ -218,7 +218,7 @@
       </div>
     </div>
 
-    {#if fluidDecorations}
+    {#if fluidDecorations && !showButtons}
       <!-- Atlos Bottom Fluid Fin -->
       <div class="terra-fluid-fin terra-fluid-fin-bottom" aria-hidden="true"></div>
     {/if}
@@ -243,22 +243,24 @@
     width: var(--slider-width, 1.5rem);
     height: var(--slider-width, 1.5rem);
     background-color: var(--terra-bg-surface, #12151b);
-    border: 1.5px solid var(--terra-border, rgba(255, 240, 0, 0.22));
+    border: 1px solid var(--terra-border, rgba(255, 240, 0, 0.22));
     color: var(--terra-text-primary, #ffffff);
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
-    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
     cursor: pointer;
+    user-select: none;
+    line-height: 1;
   }
 
   .terra-slider-btn:not(:disabled):hover {
     background-color: var(--terra-accent-primary, #fff000);
     color: #000000;
     border-color: var(--terra-accent-primary, #fff000);
-    box-shadow: 0 0 8px var(--terra-accent-primary-dim, rgba(255, 240, 0, 0.3));
+    box-shadow: 0 0 8px var(--terra-accent-primary-dim, rgba(255, 240, 0, 0.35));
   }
 
   .terra-slider-btn:not(:disabled):active {
-    transform: scale(0.94);
+    transform: scale(0.92);
   }
 
   .terra-slider-btn:disabled {
@@ -270,10 +272,10 @@
     width: var(--slider-width, 1.5rem);
     height: var(--slider-height, 10rem);
     background-color: var(--terra-bg-surface, rgba(18, 21, 27, 0.85));
-    border: 1.5px solid var(--terra-border, rgba(255, 240, 0, 0.22));
-    border-radius: 4px;
+    border: 1px solid var(--terra-border, rgba(255, 240, 0, 0.22));
+    border-radius: 3px;
     backdrop-filter: blur(8px);
-    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5), 0 0 6px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5), 0 0 6px rgba(0, 0, 0, 0.2);
   }
 
   .terra-slider-track:hover {
