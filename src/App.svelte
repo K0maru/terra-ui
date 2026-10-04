@@ -11,6 +11,10 @@
   import TerraContourLines from './components/TerraContourLines.svelte'
   import TerraCurtainTransition from './components/TerraCurtainTransition.svelte'
   import TerraInitialBootScreen from './components/TerraInitialBootScreen.svelte'
+  import TerraCadPattern from './components/TerraCadPattern.svelte'
+  import TerraCornerBrackets from './components/TerraCornerBrackets.svelte'
+  import TerraVerticalSlider from './components/TerraVerticalSlider.svelte'
+  import TerraVerticalTabs, { type TerraTabItem } from './components/TerraVerticalTabs.svelte'
 
   // Themes: 'dijiang' | 'wuling' | 'prts'
   let currentTheme = $state<'dijiang' | 'wuling' | 'prts'>('dijiang')
@@ -30,7 +34,42 @@
   // Interactive controls
   let contourEnabled = $state(true)
   let cutSize = $state(10)
+  let zoomFactor = $state(100)
   let customLabel = $state('AIC_SYSTEM_NORMAL')
+
+  // Tactical Sectors for Vertical Tabs
+  const sectorTabs: TerraTabItem[] = [
+    { key: 'valley4', label: 'VALLEY IV BASIN', shortCode: 'VL-04', badge: 'SECTOR-04' },
+    { key: 'dijiang', label: 'DIJIANG EXPEDITION', shortCode: 'DJ-01', badge: 'MOBILE-HQ' },
+    { key: 'wuling', label: 'WULING CITADEL', shortCode: 'WL-09', badge: 'CORE-HUB' }
+  ]
+  let selectedSector = $state('valley4')
+
+  const sectorTelemetry = $derived({
+    valley4: {
+      name: 'FOURTH VALLEY BASIN',
+      coord: 'LAT: 32°14\'N // LNG: 104°58\'E // ELEV: +1420M',
+      status: 'SURVEY IN PROGRESS',
+      density: 'HIGH AIC FIELD // 420 kV'
+    },
+    dijiang: {
+      name: 'DIJIANG LANDSHIP MOBILE HQ',
+      coord: 'VECTOR: 284° // SPEED: 14.2 KT // HULL: SEALED',
+      status: 'EXPEDITION TRANSIT',
+      density: 'FUSION CORE // 98.4% STABLE'
+    },
+    wuling: {
+      name: 'WULING CITADEL FORTIFICATION',
+      coord: 'GRID: WL-9901 // DEFENSE: MAXIMUM',
+      status: 'SHIELD ACTIVE',
+      density: 'EM BARRIER // ZERO DRIFT'
+    }
+  }[selectedSector] || {
+    name: 'TALOS-II SECTOR',
+    coord: 'LAT: 00°00\'N // LNG: 00°00\'E',
+    status: 'NORMAL',
+    density: 'STABLE'
+  })
 
   // Live telemetry simulation
   let metricEfficiency = $state(99.14)
@@ -603,61 +642,127 @@
     </div>
 
     <div class="transition-all duration-700 {visibleSections['03'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
-      <TerraPanel title="PARAMETRIC CALIBRATION" tag="// HUD.DEBUG" cut="tr-bl" bracket={currentTheme !== 'prts'}>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div class="space-y-5">
-            <div class="space-y-2">
-              <div class="flex justify-between font-mono text-xs text-[var(--terra-text-primary)]">
-                <span>CHAMFER CUT RATIO (斜切角几何尺寸):</span>
-                <strong class="text-[var(--terra-accent-primary)]">{cutSize}px</strong>
-              </div>
-              <input
-                type="range"
-                min="4"
-                max="24"
-                bind:value={cutSize}
-                class="w-full h-1.5 bg-[var(--terra-border)] appearance-none cursor-pointer accent-[var(--terra-accent-primary)]"
-              />
-              <p class="font-mono text-[10px] text-[var(--terra-text-muted)]">
-                实时修改全局 CSS 变量 <code>--terra-cut-size</code>，所有工业斜切角容器瞬间平滑重塑。
-              </p>
-            </div>
+      <TerraCornerBrackets label="[SEC-03 // PARAMETRIC LAB]" glow={true} active={true}>
+        <TerraCadPattern patternSize={110} opacity={0.14}>
+          <TerraPanel title="PARAMETRIC CALIBRATION & TACTICAL LAB" tag="// HUD.DEBUG" cut="tr-bl" bracket={false}>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+              <!-- Sector Navigation: 4 cols -->
+              <div class="md:col-span-4 space-y-4">
+                <div class="flex items-center justify-between font-mono text-xs">
+                  <span class="text-[var(--terra-text-muted)]">TACTICAL SECTORS // 战区切换:</span>
+                  <span class="text-[var(--terra-accent-primary)] font-bold">[{selectedSector.toUpperCase()}]</span>
+                </div>
+                <TerraVerticalTabs
+                  items={sectorTabs}
+                  bind:selectedKey={selectedSector}
+                  itemHeight="2.6rem"
+                  itemGap="0.4rem"
+                />
 
-            <div class="flex items-center justify-between pt-4 border-t border-[var(--terra-border)]">
-              <div>
-                <span class="font-mono text-xs text-[var(--terra-text-primary)] block">ENDFIELD CONTOUR LINES</span>
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">终末地山峦等高线测绘图层</span>
+                <div class="flex items-center justify-between pt-4 border-t border-[var(--terra-border)]">
+                  <div>
+                    <span class="font-mono text-xs text-[var(--terra-text-primary)] block">CONTOUR OVERLAY</span>
+                    <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">终末地山峦等高线测绘</span>
+                  </div>
+                  <TerraButton
+                    size="sm"
+                    variant={contourEnabled ? 'primary' : 'outline'}
+                    onclick={() => contourEnabled = !contourEnabled}
+                  >
+                    {contourEnabled ? 'VISIBLE' : 'HIDDEN'}
+                  </TerraButton>
+                </div>
               </div>
-              <TerraButton
-                size="sm"
-                variant={contourEnabled ? 'primary' : 'outline'}
-                onclick={() => contourEnabled = !contourEnabled}
-              >
-                {contourEnabled ? 'VISIBLE' : 'HIDDEN'}
-              </TerraButton>
-            </div>
-          </div>
 
-          <!-- Live Morphing Preview Box -->
-          <div class="p-6 bg-[var(--terra-bg-surface-hover)] border border-[var(--terra-border-strong)] terra-cut-tl-br {currentTheme !== 'prts' ? 'terra-bracket-corner' : ''} flex flex-col justify-between h-48 shadow-xl">
-            <div class="flex justify-between items-start">
-              <span class="font-mono text-xs text-[var(--terra-accent-primary)] font-bold">
-                {currentTheme === 'prts' ? '// SWISS_FLAT_SPEC' : '// 3D_CONTOUR_TARGET'}
-              </span>
-              <TerraBarcode code={currentTheme.toUpperCase()} serial={`${cutSize}PX-CHAMFER`} height={18} />
+              <!-- Vertical Tactical Sliders Bay: 3 cols -->
+              <div class="md:col-span-3 flex flex-col items-center justify-center p-4 bg-black/20 dark:bg-black/30 border border-[var(--terra-border)] rounded-xs">
+                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider mb-3">
+                  PRECISION VERTICAL CONTROLS
+                </span>
+                <div class="flex items-center justify-around w-full gap-4">
+                  <!-- Chamfer Cut Slider -->
+                  <TerraVerticalSlider
+                    bind:value={cutSize}
+                    min={4}
+                    max={24}
+                    step={1}
+                    height="10rem"
+                    width="1.6rem"
+                    label="CHAMFER"
+                    unit="px"
+                    fluidDecorations={true}
+                  />
+
+                  <!-- Zoom Factor Slider -->
+                  <TerraVerticalSlider
+                    bind:value={zoomFactor}
+                    min={50}
+                    max={150}
+                    step={5}
+                    height="10rem"
+                    width="1.6rem"
+                    label="ZOOM"
+                    unit="%"
+                    fluidDecorations={true}
+                  />
+                </div>
+                <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mt-3 text-center">
+                  GPU 硬件合成层 (Compositor 60fps)
+                </span>
+              </div>
+
+              <!-- Live Morphing Viewport Card: 5 cols -->
+              <div class="md:col-span-5">
+                <TerraCornerBrackets label="[{selectedSector.toUpperCase()} // REALTIME VIEWPORT]" size="sm" active={true}>
+                  <TerraCadPattern patternSize={60} opacity={0.25} hoverHighlight={true}>
+                    <div
+                      class="p-6 bg-[var(--terra-bg-surface-hover)] border border-[var(--terra-border-strong)] terra-cut-tl-br flex flex-col justify-between min-h-[16rem] shadow-xl overflow-hidden transition-all duration-200"
+                    >
+                      <div class="flex justify-between items-start">
+                        <div class="space-y-0.5">
+                          <span class="font-mono text-xs text-[var(--terra-accent-primary)] font-bold block">
+                            // {sectorTelemetry.name}
+                          </span>
+                          <span class="font-mono text-[9px] text-[var(--terra-text-muted)] tracking-wider">
+                            STATUS: <strong class="text-[var(--terra-text-primary)]">{sectorTelemetry.status}</strong>
+                          </span>
+                        </div>
+                        <TerraBarcode code={selectedSector.toUpperCase()} serial={`${cutSize}PX-${zoomFactor}%`} height={18} />
+                      </div>
+
+                      <!-- Interactive Zoomed Inner Frame -->
+                      <div
+                        class="my-3 p-3 bg-black/30 border border-dashed border-[var(--terra-border)] flex flex-col items-center justify-center transition-transform duration-150 origin-center"
+                        style="transform: scale({zoomFactor / 100});"
+                      >
+                        <div class="font-display text-xl font-bold tracking-widest text-[var(--terra-text-primary)] uppercase text-center">
+                          {sectorTelemetry.name}
+                        </div>
+                        <div class="font-mono text-[10px] text-[var(--terra-accent-primary)] tracking-tight mt-1 text-center">
+                          {sectorTelemetry.coord}
+                        </div>
+                        <div class="font-mono text-[9px] text-[var(--terra-text-secondary)] mt-0.5 text-center">
+                          FIELD: {sectorTelemetry.density}
+                        </div>
+                      </div>
+
+                      <div class="flex justify-between items-end border-t border-[var(--terra-border)] pt-2 font-mono text-[10px] text-[var(--terra-text-secondary)]">
+                        <div>
+                          CHAMFER: <span class="text-[var(--terra-accent-primary)] font-bold">{cutSize}px</span> |
+                          ZOOM: <span class="text-[var(--terra-accent-primary)] font-bold">{zoomFactor}%</span>
+                        </div>
+                        <div class="text-[var(--terra-text-muted)] uppercase">
+                          THEME: <span class="text-[var(--terra-text-primary)] font-bold">{currentTheme}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </TerraCadPattern>
+                </TerraCornerBrackets>
+              </div>
             </div>
-            <div class="space-y-1">
-              <h4 class="font-display text-2xl font-bold uppercase tracking-wider text-[var(--terra-text-primary)]">
-                {customLabel || 'AIC_ACTIVE'}
-              </h4>
-              <p class="font-mono text-xs text-[var(--terra-text-secondary)]">
-                MODE: <span class="uppercase font-bold text-[var(--terra-accent-primary)]">{currentMode}</span> | 
-                THEME: <span class="uppercase font-bold text-[var(--terra-accent-primary)]">{currentTheme}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </TerraPanel>
+          </TerraPanel>
+        </TerraCadPattern>
+      </TerraCornerBrackets>
     </div>
 
     <!-- ==================================================================
