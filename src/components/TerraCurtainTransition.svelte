@@ -9,7 +9,7 @@
 
   let {
     active = false,
-    label = 'ENDFIELD // INITIALIZING',
+    label = 'TERRA // INITIALIZING',
     oncomplete
   }: Props = $props()
 
@@ -55,7 +55,7 @@
 {#if phase !== 'idle'}
   <div class="fixed inset-0 z-[9999] pointer-events-none overflow-hidden select-none">
     
-    <!-- Solid Industrial Curtain Wipe (Direct from official Endfield CSS mechanics) -->
+    <!-- Solid Industrial Curtain Wipe -->
     <div
       class="absolute inset-0 bg-[var(--terra-accent-primary)] transition-transform duration-350"
       style="
@@ -81,10 +81,10 @@
 
       <!-- Corner Industrial Decors -->
       <div class="absolute top-6 left-6 font-mono text-xs text-black/60 font-bold tracking-widest uppercase">
-        TALOS-II // AIC PROTOCOL RECOVERY
+        TERRA // TACTICAL PROTOCOL RECOVERY
       </div>
       <div class="absolute bottom-6 right-6 font-mono text-xs text-black/60 font-bold tracking-widest uppercase">
-        HYPERGRYPH // ALL RIGHTS RESERVED
+        TERRA-UI // FUNCTIONAL DESIGN SYSTEM
       </div>
     </div>
 

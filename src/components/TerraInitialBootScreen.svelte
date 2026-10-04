@@ -20,11 +20,11 @@
   // Status message sequence corresponding to progress thresholds
   const statusMilestones = [
     { at: 0, text: 'AIC // KERNEL_LOAD' },
-    { at: 18, text: 'TALOS-II // GEODETIC_SURVEY_INIT' },
-    { at: 42, text: 'VALLEY_IV // TOPOGRAPHIC_CONTOUR_SYNC' },
+    { at: 18, text: 'TERRA // GEODETIC_SURVEY_INIT' },
+    { at: 42, text: 'SECTOR_ALPHA // TOPOGRAPHIC_CONTOUR_SYNC' },
     { at: 68, text: 'ENERGY_BUS // 480V_NOMINAL' },
     { at: 88, text: 'TELEMETRY // ACTUATOR_ARRAY_ONLINE' },
-    { at: 100, text: 'SYSTEM_READY // COMMENCE_EXPEDITION' }
+    { at: 100, text: 'SYSTEM_READY // COMMENCE_OPERATION' }
   ]
 
   export function triggerBoot() {
@@ -129,7 +129,7 @@
     <div class="absolute inset-0 opacity-10 pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]"></div>
 
     <!-- ====================================================================
-         1. LEFT-SIDE FULL-HEIGHT VERTICAL PROGRESS BAR (Official Endfield Layout)
+         1. LEFT-SIDE FULL-HEIGHT VERTICAL PROGRESS BAR
          `width: 0.8rem; height: 100%` filling from bottom to top
          ==================================================================== -->
     <div class="absolute left-0 top-0 bottom-0 w-[0.8rem] bg-white/5 border-r border-white/10 z-20 flex flex-col justify-end">
@@ -155,14 +155,14 @@
     <header class="absolute top-6 left-8 sm:left-12 right-6 sm:right-10 flex items-center justify-between z-10 font-mono text-xs text-white/60">
       <div class="flex items-center gap-3">
         <span class="text-[var(--terra-accent-primary,#ffde00)] font-bold text-sm">◆</span>
-        <span class="tracking-widest font-bold text-white">TALOS-II EXPEDITION</span>
+        <span class="tracking-widest font-bold text-white">TERRA TACTICAL SYSTEM</span>
         <span class="hidden sm:inline text-white/30">//</span>
         <span class="hidden sm:inline tracking-wider">AIC_INITIAL_LOADER</span>
       </div>
 
       <div class="flex items-center gap-4 text-[11px] tracking-widest">
         <span class="hidden md:inline">[ LAT 42°18'N // LONG 88°31'E ]</span>
-        <span class="px-2 py-0.5 bg-white/10 text-white font-bold border border-white/20">DATUM_TALOS_II</span>
+        <span class="px-2 py-0.5 bg-white/10 text-white font-bold border border-white/20">DATUM_TERRA</span>
       </div>
     </header>
 
@@ -176,7 +176,7 @@
         <!-- Slogan & Classification -->
         <div class="flex items-center gap-2 font-mono text-xs tracking-widest text-[var(--terra-accent-primary,#ffde00)] font-bold uppercase">
           <span class="w-2 h-2 bg-[var(--terra-accent-primary,#ffde00)] inline-block"></span>
-          <span>TALOS-II EXPEDITION // INTEGRATED AUTOMATION AIC</span>
+          <span>TERRA TACTICAL // INTEGRATED AUTOMATION SYSTEM</span>
         </div>
 
         <!-- Huge Core Percentage Countdown -->
@@ -224,7 +224,7 @@
         <span class="font-bold text-white/70">TERRA-UI</span> // PROTOCOL_04_STABLE
       </div>
       <div>
-        HYPERGRYPH // ENDFIELD ALL RIGHTS RESERVED
+        TERRA-UI // FUNCTIONAL DESIGN SYSTEM
       </div>
     </footer>
 
@@ -241,7 +241,7 @@
       "
     >
       <div class="w-full h-full flex items-center justify-center text-black font-display font-black text-6xl tracking-tight uppercase opacity-90">
-        ENDFIELD
+        TERRA-UI
       </div>
     </div>
 
