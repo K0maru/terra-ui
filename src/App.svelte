@@ -109,13 +109,13 @@
 
   // Chart Data: Telemetry Waveform Line Chart (Section 01)
   const signalTelemetryData = $state([
-    { timestamp: '00:00', value: 38, label: 'INGRESS' },
-    { timestamp: '04:00', value: 52, label: 'BURST' },
-    { timestamp: '08:00', value: 86, label: 'PEAK' },
-    { timestamp: '12:00', value: 68, label: 'BALANCED' },
-    { timestamp: '16:00', value: 92, label: 'SURGE' },
-    { timestamp: '20:00', value: 74, label: 'DAMP' },
-    { timestamp: '24:00', value: 59, label: 'STEADY' }
+    { timestamp: '18:00:12', value: 38, label: 'NODE-01' },
+    { timestamp: '18:15:30', value: 52, label: 'NODE-03' },
+    { timestamp: '18:30:45', value: 86, label: 'PEAK-05' },
+    { timestamp: '18:45:10', value: 68, label: 'BAL-07' },
+    { timestamp: '18:57:56', value: 92, label: 'NODE-10' },
+    { timestamp: '19:12:35', value: 74, label: 'DAMP-12' },
+    { timestamp: '19:28:40', value: 59, label: 'STEADY-15' }
   ])
 
   // Chart Data: Spatial Donut Chart (Section 02)
@@ -643,6 +643,7 @@
           <TerraLineChart
             data={signalTelemetryData}
             height={160}
+            unit="MB/s"
           />
         </TerraPanel>
       </div>
