@@ -15,6 +15,7 @@
     showGrid?: boolean
     showCrosshair?: boolean
     animated?: boolean
+    unit?: string
     class?: string
   }
 
@@ -26,6 +27,7 @@
     showGrid = true,
     showCrosshair = true,
     animated = true,
+    unit = 'VAL',
     class: className = ''
   }: Props = $props()
 
@@ -35,6 +37,8 @@
   const padRight = 16
   const padTop = 18
   const padBottom = 26
+  const tooltipWidth = 140
+  const tooltipHeight = 38
 
   let isMounted = $state(false)
   let hoveredPointIndex = $state<number | null>(null)
@@ -180,6 +184,11 @@
           <feMergeNode in="blur" />
           <feMergeNode in="SourceGraphic" />
         </feMerge>
+      </filter>
+
+      <!-- Tooltip Drop Shadow Filter -->
+      <filter id="tooltip-shadow-{chartId}" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.65" />
       </filter>
     </defs>
 
@@ -327,20 +336,63 @@
       />
 
       <!-- Tactical Tooltip Pin Box -->
-      <g transform="translate({Math.min(Math.max(activePoint.x - 45, padLeft), width - padRight - 90)}, {Math.max(activePoint.y - 42, padTop)})">
+      {@const tooltipX = Math.min(Math.max(activePoint.x - tooltipWidth / 2, padLeft), width - padRight - tooltipWidth)}
+      {@const tooltipY = activePoint.y - tooltipHeight - 10 < padTop ? activePoint.y + 12 : activePoint.y - tooltipHeight - 10}
+      <g
+        transform="translate({tooltipX}, {tooltipY})"
+        filter="url(#tooltip-shadow-{chartId})"
+      >
+        <!-- Box Chassis -->
         <rect
-          width="90"
-          height="32"
+          width={tooltipWidth}
+          height={tooltipHeight}
           fill="var(--terra-bg-surface)"
-          stroke="var(--terra-border-accent)"
+          stroke="var(--terra-border-strong)"
           stroke-width="1"
-          class="shadow-lg"
         />
-        <text x="6" y="13" class="font-mono text-[8px] fill-[var(--terra-text-muted)] tracking-wider">
+        <!-- Left Tactical Indicator Bar -->
+        <rect
+          x="0"
+          y="0"
+          width="3"
+          height={tooltipHeight}
+          fill="var(--terra-accent-primary)"
+        />
+        <!-- Top-Right Micro Chamfer Accent -->
+        <polygon
+          points="{tooltipWidth - 8},0 {tooltipWidth},0 {tooltipWidth},8"
+          fill="var(--terra-accent-primary)"
+          opacity="0.6"
+        />
+        <!-- Timestamp & Node Label (Row 1) -->
+        <text
+          x="10"
+          y="15"
+          fill="var(--terra-text-secondary, #94a3b8)"
+          font-family="var(--terra-font-mono, monospace)"
+          font-size="8.5px"
+          letter-spacing="0.04em"
+        >
           {activePoint.timestamp} // {activePoint.label}
         </text>
-        <text x="6" y="26" class="font-mono text-[11px] font-bold fill-[var(--terra-text-primary)]">
-          {activePoint.val.toFixed(1)} <tspan class="text-[8px] fill-[var(--terra-accent-primary)] font-normal">VAL</tspan>
+        <!-- Telemetry Metric Value & Unit (Row 2) -->
+        <text
+          x="10"
+          y="30"
+          fill="var(--terra-text-primary, #ffffff)"
+          font-family="var(--terra-font-mono, monospace)"
+          font-size="12px"
+          font-weight="700"
+        >
+          {activePoint.val.toFixed(1)}
+          <tspan
+            dx="4"
+            font-size="8px"
+            font-weight="600"
+            fill="var(--terra-accent-primary, #00d8ff)"
+          >
+            {unit}
+          </tspan>
         </text>
       </g>
     {/if}
