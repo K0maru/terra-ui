@@ -8,7 +8,8 @@
   import TerraRollingNumber from './components/TerraRollingNumber.svelte'
   import TerraInput from './components/TerraInput.svelte'
   import TerraSegmentBar from './components/TerraSegmentBar.svelte'
-  import TerraShutterTransition from './components/TerraShutterTransition.svelte'
+  import TerraContourLines from './components/TerraContourLines.svelte'
+  import TerraCurtainTransition from './components/TerraCurtainTransition.svelte'
 
   // Themes: 'dijiang' | 'wuling' | 'prts'
   let currentTheme = $state<'dijiang' | 'wuling' | 'prts'>('dijiang')
@@ -17,9 +18,10 @@
   
   // Navigation tabs for official website page-turning demo
   let activeTab = $state<'primitives' | 'telemetry' | 'spec'>('primitives')
-  let shutterActive = $state(false)
+  let curtainActive = $state(false)
+  let transitionLabel = $state('ENDFIELD // LOADING PROTOCOL')
 
-  let dotMatrixEnabled = $state(true)
+  let contourEnabled = $state(true)
   let cutSize = $state(10)
   let customLabel = $state('AIC_SYSTEM_NORMAL')
 
@@ -47,40 +49,45 @@
     }
     handle = requestAnimationFrame(updateFps)
 
-    // Set initial theme and mode
     document.documentElement.setAttribute('data-theme', currentTheme)
     document.documentElement.setAttribute('data-mode', currentMode)
 
     return () => cancelAnimationFrame(handle)
   })
 
-  // Theme switcher handler with tactical shutter wipe
+  // Theme switcher handler with official Endfield curtain transition
   function switchTheme(theme: 'dijiang' | 'wuling' | 'prts') {
     if (currentTheme === theme) return
-    triggerShutter()
+    transitionLabel = theme === 'prts' ? 'RHODES_ISLAND // PRTS_REBOOT' :
+                      theme === 'wuling' ? 'WULING_CITADEL // JADE_SYNC' :
+                      'ENDFIELD // DIJIANG_COMMENCE'
+    triggerCurtain()
     currentTheme = theme
     document.documentElement.setAttribute('data-theme', theme)
   }
 
   // Light / Dark mode switcher handler
   function toggleMode() {
-    triggerShutter()
+    transitionLabel = currentMode === 'dark' ? 'SYSTEM // LIGHT_MODE_INIT' : 'SYSTEM // DARK_MODE_INIT'
+    triggerCurtain()
     currentMode = currentMode === 'dark' ? 'light' : 'dark'
     document.documentElement.setAttribute('data-mode', currentMode)
   }
 
-  // Tab switcher with page-turning laser sweep
+  // Tab switcher with page-turning curtain
   function setTab(tab: 'primitives' | 'telemetry' | 'spec') {
     if (activeTab === tab) return
-    triggerShutter()
+    transitionLabel = tab === 'primitives' ? 'AIC // ACTUATOR_MATRIX' :
+                      tab === 'telemetry' ? 'TALOS-II // TELEMETRY_STREAM' :
+                      'CALIBRATION // PARAMETRIC_LAB'
+    triggerCurtain()
     activeTab = tab
   }
 
-  function triggerShutter() {
-    shutterActive = false
-    // Force reactive trigger
+  function triggerCurtain() {
+    curtainActive = false
     setTimeout(() => {
-      shutterActive = true
+      curtainActive = true
     }, 10)
   }
 
@@ -97,14 +104,34 @@
   }
 </script>
 
-<!-- Official Website Tactical Laser Shutter Transition -->
-<TerraShutterTransition active={shutterActive} oncomplete={() => shutterActive = false} />
+<!-- Official Endfield Industrial Curtain Wipe (Reproduced from official site) -->
+<TerraCurtainTransition
+  active={curtainActive}
+  label={transitionLabel}
+  oncomplete={() => curtainActive = false}
+/>
 
-<!-- Breathing GPU Dot Matrix Background (Proper Stacking Context above body bg) -->
-{#if dotMatrixEnabled}
-  <div class="terra-dot-matrix-container">
-    <div class="terra-dot-matrix"></div>
-    <div class="terra-dot-matrix-secondary"></div>
+<!-- Endfield Specific: Topographic Contour Elevation Overlay (Replaces generic global dots) -->
+{#if (currentTheme === 'dijiang' || currentTheme === 'wuling') && contourEnabled}
+  <TerraContourLines
+    elevation={currentTheme === 'wuling' ? '+2180m' : '+1420m'}
+    zone={currentTheme === 'wuling' ? 'WULING_CITADEL // SECTOR_EAST' : 'VALLEY_IV // MINING_BASIN'}
+    opacity={currentMode === 'dark' ? 0.3 : 0.18}
+  />
+{/if}
+
+<!-- PRTS Specific: Focused 2D Swiss Grid & Targeted Coordinates (Not cluttered everywhere) -->
+{#if currentTheme === 'prts'}
+  <div class="pointer-events-none fixed inset-0 z-0 opacity-15 overflow-hidden">
+    <div class="w-full h-full border-r border-b border-[var(--terra-accent-primary)] grid grid-cols-6 grid-rows-6">
+      {#each Array(36) as _, i}
+        <div class="border-t border-l border-[var(--terra-accent-primary)] flex items-start justify-start p-1 text-[8px] font-mono text-[var(--terra-accent-primary)]">
+          {#if i % 7 === 0}
+            <span>[{String(i).padStart(2, '0')}]</span>
+          {/if}
+        </div>
+      {/each}
+    </div>
   </div>
 {/if}
 
@@ -119,10 +146,14 @@
       <div>
         <h1 class="font-mono font-bold tracking-widest text-base sm:text-lg uppercase text-[var(--terra-text-primary)] flex items-center gap-2">
           <span>TERRA // OPERATOR HUD</span>
-          <span class="text-[10px] px-1.5 py-0.5 bg-[var(--terra-accent-primary-dim)] text-[var(--terra-accent-primary)] border border-[var(--terra-border-strong)]">v0.3.0</span>
+          <span class="text-[10px] px-1.5 py-0.5 bg-[var(--terra-accent-primary-dim)] text-[var(--terra-accent-primary)] border border-[var(--terra-border-strong)]">v0.4.0</span>
         </h1>
         <p class="font-mono text-[11px] text-[var(--terra-text-muted)] tracking-wider">
-          ZERO-VDOM // SVELTE 5 // TALOS-II EXPEDITION // GPU COMPOSITOR
+          {#if currentTheme === 'prts'}
+            明日方舟 // 瑞士平面战术终端 // 2D SWISS GRAPHIC
+          {:else}
+            终末地 // 塔卫二拓荒 // 3D TOPOGRAPHIC INDUSTRIAL
+          {/if}
         </p>
       </div>
     </div>
@@ -151,7 +182,7 @@
           onclick={() => switchTheme('prts')}
           class="px-2.5 py-1 text-xs font-mono font-bold transition-all {currentTheme === 'prts' ? 'bg-[var(--terra-accent-primary)] text-black shadow-sm' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
         >
-          方舟·PRTS
+          方舟·PRTS (平面)
         </button>
       </div>
 
@@ -170,7 +201,7 @@
 
       <!-- Real-time Performance Indicator -->
       <div class="hidden sm:flex items-center gap-3 px-3 py-1.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] font-mono text-[11px] terra-cut-tr shadow-sm">
-        <TerraStatusBeacon status="online" label="CORE_LINK" />
+        <TerraStatusBeacon status="online" label="STABLE" />
         <span class="text-[var(--terra-text-muted)]">|</span>
         <span class="text-[var(--terra-text-secondary)]">FPS: <strong class="text-[var(--terra-accent-primary)]">{fps}</strong></span>
       </div>
@@ -178,7 +209,7 @@
   </header>
 
   <!-- ======================================================================
-       2. OFFICIAL WEBSITE STYLE PAGE-TURNING TABS
+       2. OFFICIAL WEBSITE STYLE TABS
        ====================================================================== -->
   <nav class="flex items-center gap-2 border-b border-[var(--terra-border)] pb-2 overflow-x-auto select-none">
     <button
@@ -193,7 +224,7 @@
       onclick={() => setTab('telemetry')}
       class="px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-all relative border-b-2 {activeTab === 'telemetry' ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)]' : 'border-transparent text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
     >
-      02 // AIC TELEMETRY & ENERGY (工业遥测与能流)
+      02 // AIC TELEMETRY & CONTOURS (工业遥测与等高线)
     </button>
     <button
       type="button"
@@ -205,7 +236,7 @@
   </nav>
 
   <!-- ======================================================================
-       3. HERO // HARDWARE TYPOGRAPHY
+       3. HERO // DISCIPLINED TYPOGRAPHY
        ====================================================================== -->
   <section class="space-y-3">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -214,35 +245,41 @@
           {#if currentTheme === 'dijiang'}
             <span>// ENDFIELD_INDUSTRIES // LANDSHIP_DIJIANG</span>
             <span>•</span>
-            <span>VALLEY_IV_OPERATIONAL</span>
+            <span>TOPOGRAPHIC_VALLEY_IV</span>
           {:else if currentTheme === 'wuling'}
             <span>// WULING_HUB // EASTERN_INDUSTRIAL_DISTRICT</span>
             <span>•</span>
-            <span>JADE_ENERGY_MATRIX</span>
+            <span>JADE_ELEVATION_SURVEY</span>
           {:else}
             <span>// RHODES_ISLAND // PRTS_TACTICAL_TERMINAL</span>
             <span>•</span>
-            <span>DOCTOR_AUTHENTICATED</span>
+            <span>SWISS_STYLE_EDITORIAL</span>
           {/if}
           <span>•</span>
           <span class="font-bold">[{currentMode.toUpperCase()}]</span>
         </div>
+        
         <h2 class="font-display text-4xl sm:text-6xl font-bold tracking-tight uppercase leading-none text-[var(--terra-text-primary)]">
           {#if currentTheme === 'dijiang'}
             ENDFIELD // DIJIANG
           {:else if currentTheme === 'wuling'}
             WULING // CITADEL
           {:else}
-            RHODES // TACTICAL
+            RHODES // SWISS 2D
           {/if}
         </h2>
       </div>
 
       <div class="flex flex-col items-start md:items-end gap-2">
-        <TerraBarcode code={currentTheme === 'wuling' ? 'WL-HUB-2026' : 'ENDFIELD-04'} serial={`${currentMode.toUpperCase()}-SYS`} height={28} />
+        <TerraBarcode code={currentTheme === 'wuling' ? 'WL-HUB-2026' : currentTheme === 'prts' ? 'RHODES-PRTS' : 'ENDFIELD-04'} serial={`${currentMode.toUpperCase()}-SYS`} height={28} />
         <div class="flex gap-2">
-          <TerraBadge label="ZERO-VDOM" code="SVELTE5" variant="primary" />
-          <TerraBadge label="120FPS" code="GPU" variant="outline" />
+          {#if currentTheme === 'prts'}
+            <TerraBadge label="2D FLAT SWISS" code="GRID" variant="primary" />
+            <TerraBadge label="ZERO 3D CLUTTER" code="MIN" variant="outline" />
+          {:else}
+            <TerraBadge label="3D TOPOGRAPHIC" code="CONTOUR" variant="primary" />
+            <TerraBadge label="AIC PIPELINE" code="AIC" variant="outline" />
+          {/if}
         </div>
       </div>
     </div>
@@ -252,11 +289,11 @@
        4. TAB CONTENT: 01 PRIMITIVES
        ====================================================================== -->
   {#if activeTab === 'primitives'}
-    <section class="space-y-6 animate-fadeIn">
+    <section class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- Button Showcase -->
-        <TerraPanel title="TACTICAL ACTUATORS" tag="// COMP-01" cut="tr" bracket={true}>
+        <TerraPanel title="TACTICAL ACTUATORS" tag="// COMP-01" cut="tr" bracket={currentTheme !== 'prts'}>
           <div class="space-y-4">
             <div class="flex flex-wrap items-center gap-3">
               <TerraButton variant="primary" cut="tr-bl">EXECUTE COMMAND</TerraButton>
@@ -272,13 +309,13 @@
               <TerraButton size="sm" variant="outline" disabled>LOCKED</TerraButton>
             </div>
             <p class="font-mono text-[10px] text-[var(--terra-text-muted)]">
-              * 搭载纯 GPU 硬件流光扫描（Shimmer），点击微反馈缩放，绝无 JS 主线程卡顿。
+              * GPU 合成层流光扫描，100% 避免主线程 Layout 强制重排。
             </p>
           </div>
         </TerraPanel>
 
         <!-- Badge & Status Matrix -->
-        <TerraPanel title="STATUS MATRIX & SECURITY" tag="// COMP-02" cut="tr" bracket={true}>
+        <TerraPanel title="SECURITY CLEARANCE & TAGS" tag="// COMP-02" cut="tr" bracket={currentTheme !== 'prts'}>
           <div class="space-y-4">
             <div class="flex flex-wrap items-center gap-2">
               <TerraBadge label="AUTHORIZED" code="ADM" variant="primary" />
@@ -305,16 +342,17 @@
   {/if}
 
   <!-- ======================================================================
-       5. TAB CONTENT: 02 TELEMETRY & ENERGY
+       5. TAB CONTENT: 02 TELEMETRY & CONTOUR SURVEY
        ====================================================================== -->
   {#if activeTab === 'telemetry'}
-    <section class="space-y-6 animate-fadeIn">
-      <!-- Energy Bus Section -->
-      <TerraPanel title="AIC INDUSTRIAL ENERGY BUS" tag="// AIC.POWER" cut="tr-bl" bracket={true} warning={true}>
+    <section class="space-y-6">
+      
+      <!-- Energy Bus Section (Endfield In-game Feature) -->
+      <TerraPanel title="AIC INDUSTRIAL ENERGY BUS" tag="// AIC.POWER" cut="tr-bl" bracket={currentTheme !== 'prts'} warning={true}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div class="space-y-3">
-            <TerraSegmentBar value={energyBusValue} total={10} label="AIC_MAIN_GRID (自动化工业主干网)" />
-            <TerraSegmentBar value={9} total={12} label="TACTICAL_BURST_CELL (角色战技充能矩阵)" />
+            <TerraSegmentBar value={energyBusValue} total={10} label="AIC_MAIN_GRID (自动化工业主干网负荷)" />
+            <TerraSegmentBar value={9} total={12} label="TACTICAL_BURST_CELL (战术技力储备矩阵)" />
           </div>
           <div class="flex items-center justify-end gap-3">
             <TerraButton variant="outline" size="sm" onclick={cycleMetrics}>
@@ -326,7 +364,7 @@
 
       <!-- Metric Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <TerraPanel title="CONVEYOR FLOW" tag="// AIC.BUS-01" cut="tr-bl" bracket={true}>
+        <TerraPanel title="CONVEYOR FLOW" tag="// AIC.BUS-01" cut="tr-bl" bracket={currentTheme !== 'prts'}>
           <div class="space-y-2">
             <div class="flex items-baseline justify-between">
               <TerraRollingNumber value={metricEfficiency} decimals={2} suffix="%" class="text-3xl sm:text-4xl text-[var(--terra-accent-primary)]" />
@@ -338,7 +376,7 @@
           </div>
         </TerraPanel>
 
-        <TerraPanel title="PROTOCOL LATENCY" tag="// AIC.PING-02" cut="tr" bracket={true}>
+        <TerraPanel title="PROTOCOL LATENCY" tag="// AIC.PING-02" cut="tr" bracket={currentTheme !== 'prts'}>
           <div class="space-y-2">
             <div class="flex items-baseline justify-between">
               <TerraRollingNumber value={metricLatency} decimals={1} suffix="ms" class="text-3xl sm:text-4xl text-[var(--terra-accent-primary)]" />
@@ -350,7 +388,7 @@
           </div>
         </TerraPanel>
 
-        <TerraPanel title="RESOURCE EXTRACTION" tag="// AIC.VOL-03" cut="tl-br" bracket={true}>
+        <TerraPanel title="RESOURCE EXTRACTION" tag="// AIC.VOL-03" cut="tl-br" bracket={currentTheme !== 'prts'}>
           <div class="space-y-2">
             <div class="flex items-baseline justify-between">
               <TerraRollingNumber value={metricThroughput} decimals={0} suffix="t/h" class="text-3xl sm:text-4xl text-[var(--terra-accent-primary)]" />
@@ -369,8 +407,8 @@
        6. TAB CONTENT: 03 PARAMETRIC PLAYGROUND
        ====================================================================== -->
   {#if activeTab === 'spec'}
-    <section class="space-y-6 animate-fadeIn">
-      <TerraPanel title="PARAMETRIC CALIBRATION" tag="// HUD.DEBUG" cut="all" bracket={true}>
+    <section class="space-y-6">
+      <TerraPanel title="PARAMETRIC CALIBRATION" tag="// HUD.DEBUG" cut="all" bracket={currentTheme !== 'prts'}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div class="space-y-5">
             <div class="space-y-2">
@@ -392,23 +430,25 @@
 
             <div class="flex items-center justify-between pt-4 border-t border-[var(--terra-border)]">
               <div>
-                <span class="font-mono text-xs text-[var(--terra-text-primary)] block">GPU BREATHING DOT MATRIX</span>
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">双层错峰呼吸点阵背景</span>
+                <span class="font-mono text-xs text-[var(--terra-text-primary)] block">ENDFIELD CONTOUR LINES</span>
+                <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">终末地地形等高线测绘图层</span>
               </div>
               <TerraButton
                 size="sm"
-                variant={dotMatrixEnabled ? 'primary' : 'outline'}
-                onclick={() => dotMatrixEnabled = !dotMatrixEnabled}
+                variant={contourEnabled ? 'primary' : 'outline'}
+                onclick={() => contourEnabled = !contourEnabled}
               >
-                {dotMatrixEnabled ? 'ENABLED' : 'DISABLED'}
+                {contourEnabled ? 'VISIBLE' : 'HIDDEN'}
               </TerraButton>
             </div>
           </div>
 
           <!-- Live Morphing Preview Box -->
-          <div class="p-6 bg-[var(--terra-bg-surface-hover)] border border-[var(--terra-border-strong)] terra-cut-tl-br terra-bracket-corner flex flex-col justify-between h-48 shadow-xl">
+          <div class="p-6 bg-[var(--terra-bg-surface-hover)] border border-[var(--terra-border-strong)] terra-cut-tl-br {currentTheme !== 'prts' ? 'terra-bracket-corner' : ''} flex flex-col justify-between h-48 shadow-xl">
             <div class="flex justify-between items-start">
-              <span class="font-mono text-xs text-[var(--terra-accent-primary)] font-bold">// TACTICAL_BRACKET_TARGET</span>
+              <span class="font-mono text-xs text-[var(--terra-accent-primary)] font-bold">
+                {currentTheme === 'prts' ? '// SWISS_FLAT_SPEC' : '// 3D_CONTOUR_TARGET'}
+              </span>
               <TerraBarcode code={currentTheme.toUpperCase()} serial={`${cutSize}PX-CHAMFER`} height={18} />
             </div>
             <div class="space-y-1">
@@ -435,9 +475,9 @@
       <span>TERRA-UI // TALOS-II EXPEDITION DESIGN SYSTEM</span>
     </div>
     <div class="flex items-center gap-4">
-      <span>THEMES: PRTS / DIJIANG / WULING</span>
-      <span>MODES: DARK / LIGHT</span>
-      <span>TRANSITION: LASER WIPE</span>
+      <span>THEMES: DIJIANG / WULING / PRTS</span>
+      <span>TRANSITION: OFFICIAL SCALE-X CURTAIN</span>
+      <span>TERRAIN: TOPOGRAPHIC CONTOURS</span>
     </div>
   </footer>
 
