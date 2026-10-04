@@ -1,7 +1,7 @@
 # 🛡️ TERRA UI // Functional Cybernetic Design System
 
-> **Zero-VDOM // Svelte 5 Native Runes // GPU 硬件合成加速 // 工业遥测机能美学**  
-> 专为工业遥测监控、开发者基础设施、可观测性仪表盘与机能赛博界面打造的高性能 Svelte 5 组件库与设计系统。
+> **Zero-VDOM // Svelte 5 Native Runes // GPU 硬件合成加速 // 机能监控美学**  
+> 专为系统指标监控、开发者基础设施、可观测性仪表盘与机能赛博界面打造的高性能 Svelte 5 组件库与设计系统。
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Online-00f076?style=flat&logo=githubpages&logoColor=white)](https://k0maru.github.io/terra-ui/)
 
@@ -17,9 +17,9 @@
 > **Terra-UI** 为独立研发的非商业开源学术研究与前端技术探索项目。  
 > 本系统的美学风格、排版逻辑、几何切角及交互范式直接汲取并参考自上海鹰角网络科技有限公司（Shanghai HYPERGRYPH Network Technology Co., Ltd.）开发的作品 **《明日方舟》（Arknights）** 与 **《明日方舟：终末地》（Arknights: Endfield）**。
 
-- **知识产权归属**：所有与《明日方舟》及《明日方舟：终末地》相关的商标、著作权、外观设计、美术风格原案与世界观设定均完全归属于 **上海鹰角网络科技有限公司 (Shanghai HYPERGRYPH Network Technology Co., Ltd.)** 及其关联方。
-- **学术与非商业性质**：本项目纯粹用于开源社区前端工程技术研究、Svelte 5 响应式性能基准探索与 UI/UX 美学呈现，不包含任何商业变现或商业用途。
-- **无私有解包资源**：本项目全量代码（Svelte 组件、SVG 矢量图元、CSS 样式系统与布局引擎）均为全新独立编写实现，**未提取、未解包、未分发任何官方私有美术切片、音频模型或专有加密资源**。
+- **知识产权归属**：所有与《明日方舟》及《明日方舟：终末地》相关的商标、Logo、游戏名称、官方美术原案与世界观设计均完全归属于 **上海鹰角网络科技有限公司 (Shanghai HYPERGRYPH Network Technology Co., Ltd.)** 及其关联方。
+- **独立原创与干净重写 (Clean-Room Implementation)**：Terra-UI 是一套从零独立编写的开源 UI 组件库（遵循 MIT 许可证）。所有组件代码、CSS 设计令牌与 SVG 矢量图元均为自主实现，仅在视觉美学与排版风格上汲取灵感作为设计参考，**未提取、未解包、未分发任何官方私有美术切片、音频模型或专有加密资源**。
+- **非官方与无商业关联**：本项目纯粹用于开源社区前端工程技术研究与 UI/UX 美学呈现，非官方产品，亦未获得鹰角网络的商业赞助、授权或背书，不包含任何商业变现或侵权使用。
 
 ### 🔗 核心参考源与设计致谢 (Primary References)
 
@@ -57,9 +57,9 @@ Terra-UI 将两种截然不同但互相呼应的机能视觉哲学融合为一�
 - `<TerraContourLines />`：终末地塔卫二地形等高线测绘底衬，带动态海拔坐标与 CAD 测绘十字准星。
 - `<TerraSegmentBar />`：-20° 下沉式工业 AIC 电网负荷母线 / 战术技能储备指示器，支持动态充能脉冲波。
 
-### 2. 遥测数据图表套件 (Zero-Dependency SVG)
+### 2. 原生数据图表套件 (Zero-Dependency SVG)
 - `<TerraDonutChart />`：战术环形资源分布图，支持中心聚焦度量与四通道配比。
-- `<TerraLineChart />`：零依赖纯原生矢量遥测折线图，支持双数据流波形、渐变填充与动态极值标注。
+- `<TerraLineChart />`：零依赖纯原生矢量数据流折线图，支持双数据流波形、渐变填充与动态极值标注。
 - `<TerraBarChart />`：分段直方柱状图，支持双向柱状对比与平滑更新。
 
 ### 3. 战术标尺、HUD 与精密控制
@@ -135,7 +135,7 @@ npm run build
       accentColor="var(--terra-amber)"
     />
 
-    <!-- 遥测数据环形图 -->
+    <!-- 环形数据分布图 -->
     <div class="mt-6 flex justify-center">
       <TerraDonutChart
         segments={[

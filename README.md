@@ -17,9 +17,9 @@
 > **Terra-UI** is an independent, non-commercial open-source engineering research and UI/UX design exploration project.  
 > The visual aesthetics, typography layout, geometric chamfers, and interaction paradigms of this design system are directly inspired by and reference **"Arknights" (明日方舟)** and **"Arknights: Endfield" (明日方舟：终末地)**, developed and published by **Shanghai HYPERGRYPH Network Technology Co., Ltd. (上海鹰角网络科技有限公司)**.
 
-- **Intellectual Property Rights**: All trademarks, copyrights, trade dress, graphic assets, and world-building concepts related to *Arknights* and *Arknights: Endfield* remain the sole property of **Shanghai HYPERGRYPH Network Technology Co., Ltd.** and its affiliates.
-- **Academic & Non-Commercial Purpose**: This project is developed strictly for frontend architectural research, Svelte 5 reactive performance benchmarks, and open-source UI/UX showcase. It is not intended for commercial monetization or production deployment of third-party intellectual property.
-- **Clean-Room Implementation**: All components, SVG glyphs, layout engines, and CSS token systems are authored from scratch. **No proprietary game packages were unpacked, extracted, reverse-engineered, or distributed in this repository.**
+- **Intellectual Property Rights**: All trademarks, logos, game titles, and original game art/worldview designs associated with *Arknights* and *Arknights: Endfield* remain the sole property of **Shanghai HYPERGRYPH Network Technology Co., Ltd.** and its affiliates.
+- **Independent Clean-Room Implementation**: Terra-UI is an original open-source UI component library (MIT License). All Svelte 5 components, CSS design tokens, and SVG graphics were authored independently from scratch as design references. **No proprietary game packages were unpacked, extracted, reverse-engineered, or distributed in this repository.**
+- **Non-Affiliation & Academic Purpose**: This project is an independent community project developed strictly for frontend architectural research, Svelte 5 reactive performance benchmarks, and open-source UI/UX showcase. It is not affiliated with, endorsed by, or sponsored by HYPERGRYPH, and is not intended for commercial monetization.
 
 ### 🔗 Primary References & Design Credits
 
