@@ -23,9 +23,13 @@
     TerraLineChart,
     TerraBarChart
   } from './components'
+  import TerraDocsView from './docs/TerraDocsView.svelte'
   import { i18n } from './i18n'
 
   const t = $derived(i18n.t)
+
+  // View Mode: 'demo' (Long-scroll operational showcase) | 'docs' (GitBook-style interactive documentation)
+  let viewMode = $state<'demo' | 'docs'>('demo')
 
   // Functional Color Spectrum Themes: 'cyan' (Blueprint) | 'amber' (Industrial) | 'emerald' (Telemetry)
   let currentTheme = $state<'cyan' | 'amber' | 'emerald'>('cyan')
@@ -129,8 +133,8 @@
   // Section reveal visibility tracking
   let visibleSections = $state<Record<string, boolean>>({
     '01': true,
-    '02': false,
-    '03': false
+    '02': true,
+    '03': true
   })
 
   // Real FPS meter & IntersectionObserver
@@ -153,7 +157,6 @@
     document.documentElement.setAttribute('data-theme', currentTheme)
     document.documentElement.setAttribute('data-mode', currentMode)
 
-    const sections = document.querySelectorAll<HTMLElement>('section[data-section]')
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -164,14 +167,30 @@
           }
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.05, rootMargin: '-10% 0px -10% 0px' }
     )
 
-    sections.forEach((sec) => observer.observe(sec))
+    function attachObserver() {
+      const sections = document.querySelectorAll<HTMLElement>('section[data-section]')
+      sections.forEach((sec) => observer.observe(sec))
+    }
+    attachObserver()
+
+    function checkHashMode() {
+      if (window.location.hash.startsWith('#/docs')) {
+        viewMode = 'docs'
+      } else if (window.location.hash === '#/demo' || !window.location.hash) {
+        viewMode = 'demo'
+        setTimeout(attachObserver, 50)
+      }
+    }
+    checkHashMode()
+    window.addEventListener('hashchange', checkHashMode)
 
     return () => {
       cancelAnimationFrame(handle)
       observer.disconnect()
+      window.removeEventListener('hashchange', checkHashMode)
     }
   })
 
@@ -281,38 +300,58 @@
       </div>
     </div>
 
-    <!-- Quick Jump Section Navigation Links -->
-    <nav class="hidden md:flex items-center gap-1 bg-[var(--terra-bg-surface)] p-1 border border-[var(--terra-border)] terra-cut-tr">
+    <!-- View Mode Switcher: [LIVE DEMO | DOCS // PLAYPEN] -->
+    <div class="flex items-center p-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border-strong)] terra-cut-tr shadow-sm">
       <button
         type="button"
-        onclick={() => scrollToSection('section-01')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '01' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        onclick={() => { viewMode = 'demo'; if (window.location.hash.startsWith('#/docs')) window.location.hash = '' }}
+        class="px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all {viewMode === 'demo' ? 'bg-[var(--terra-accent-primary)] text-black shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
       >
-        {t.nav.sec01}
+        {i18n.locale === 'zh' ? '实机展台' : 'LIVE DEMO'}
       </button>
       <button
         type="button"
-        onclick={() => scrollToSection('section-02')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '02' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        onclick={() => { viewMode = 'docs'; window.location.hash = '#/docs/overview' }}
+        class="px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all {viewMode === 'docs' ? 'bg-[var(--terra-accent-primary)] text-black shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
       >
-        {t.nav.sec02}
+        {i18n.locale === 'zh' ? '交互文档' : 'DOCS // PLAYPEN'}
       </button>
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-03')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '03' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-      >
-        {t.nav.sec03}
-      </button>
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-legal')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all text-[var(--terra-accent-primary)] hover:bg-[var(--terra-accent-primary)] hover:text-black border-l border-[var(--terra-border)] ml-1 pl-2"
-        title="View Legal Disclaimer & Attribution"
-      >
-        [{t.nav.legal}]
-      </button>
-    </nav>
+    </div>
+
+    <!-- Quick Jump Section Navigation Links (Only in Demo Mode) -->
+    {#if viewMode === 'demo'}
+      <nav class="hidden md:flex items-center gap-1 bg-[var(--terra-bg-surface)] p-1 border border-[var(--terra-border)] terra-cut-tr">
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-01')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '01' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        >
+          {t.nav.sec01}
+        </button>
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-02')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '02' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        >
+          {t.nav.sec02}
+        </button>
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-03')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '03' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        >
+          {t.nav.sec03}
+        </button>
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-legal')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all text-[var(--terra-accent-primary)] hover:bg-[var(--terra-accent-primary)] hover:text-black border-l border-[var(--terra-border)] ml-1 pl-2"
+          title="View Legal Disclaimer & Attribution"
+        >
+          [{t.nav.legal}]
+        </button>
+      </nav>
+    {/if}
 
     <!-- Theme, Mode, Language & Replay Controls -->
     <div class="flex flex-wrap items-center gap-2">
@@ -407,6 +446,17 @@
   </div>
 </header>
 
+{#if viewMode === 'docs'}
+  <TerraDocsView
+    locale={i18n.locale}
+    onSwitchToDemo={() => {
+      viewMode = 'demo'
+      if (window.location.hash.startsWith('#/docs')) {
+        window.location.hash = ''
+      }
+    }}
+  />
+{:else}
 <!-- ======================================================================
      2. RIGHT-SIDE FIXED VERTICAL INDICATOR TRACK (Snap Scroll Rail)
      ====================================================================== -->
@@ -532,7 +582,7 @@
     </div>
 
     <!-- 2D Operations Command Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['01'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Developer Profile Card (6 cols) -->
       <div class="lg:col-span-6 flex flex-col justify-between">
@@ -609,7 +659,7 @@
                 <span>{t.sec01.logTitle}</span>
                 <span class="text-[8px] text-[var(--terra-text-muted)]">{t.sec01.logStream}</span>
               </div>
-              <div class="space-y-1 pt-1 max-h-24 overflow-y-auto">
+              <div class="space-y-1 pt-1 h-24 overflow-y-auto">
                 {#each dispatchLogs as log}
                   <div class="text-[var(--terra-text-secondary)] tracking-tight">
                     {log}
@@ -692,7 +742,7 @@
     </div>
 
     <!-- 3D Spatial Cards Grid: Prominently Showcasing TerraSpatialCard -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['02'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Card A: 3D Tactical Donut Radar Chart in Spatial Card (7 cols) -->
       <div class="lg:col-span-7">
@@ -783,7 +833,7 @@
     </div>
 
     <!-- Energy Bus Section (Recessed Industrial Chassis) -->
-    <div class="transition-all duration-700 delay-100 {visibleSections['02'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div>
       <TerraPanel title={t.sec02.busTitle} tag="// BUS.POWER" cut="tr-bl" bracket={true} warning={true}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div class="space-y-4">
@@ -847,7 +897,7 @@
     </div>
 
     <!-- Dual-Track Primitives Matrix (Left: 2D Flat / Right: 3D Spatial) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['03'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Track A: 2D Graphic Primitives & Charts (6 cols) -->
       <div class="lg:col-span-6 space-y-6">
@@ -1003,7 +1053,7 @@
     </div>
 
     <!-- Interactive Parametric Calibration Lab -->
-    <div class="transition-all duration-700 {visibleSections['03'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div>
       <TerraCornerBrackets label="[SEC-03 // PARAMETRIC CALIBRATION LAB]" glow={true} active={true}>
         <TerraCadPattern patternSize={110} opacity={0.14}>
           <TerraPanel title={t.sec03.labTitle} tag="// HUD.DEBUG" cut="tr-bl" bracket={false}>
@@ -1214,3 +1264,4 @@
   </section>
 
 </main>
+{/if}
