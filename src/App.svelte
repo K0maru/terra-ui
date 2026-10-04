@@ -23,9 +23,13 @@
     TerraLineChart,
     TerraBarChart
   } from './components'
+  import TerraDocsView from './docs/TerraDocsView.svelte'
   import { i18n } from './i18n'
 
   const t = $derived(i18n.t)
+
+  // View Mode: 'demo' (Long-scroll operational showcase) | 'docs' (GitBook-style interactive documentation)
+  let viewMode = $state<'demo' | 'docs'>('demo')
 
   // Functional Color Spectrum Themes: 'cyan' (Blueprint) | 'amber' (Industrial) | 'emerald' (Telemetry)
   let currentTheme = $state<'cyan' | 'amber' | 'emerald'>('cyan')
@@ -169,9 +173,20 @@
 
     sections.forEach((sec) => observer.observe(sec))
 
+    function checkHashMode() {
+      if (window.location.hash.startsWith('#/docs')) {
+        viewMode = 'docs'
+      } else if (window.location.hash === '#/demo' || !window.location.hash) {
+        viewMode = 'demo'
+      }
+    }
+    checkHashMode()
+    window.addEventListener('hashchange', checkHashMode)
+
     return () => {
       cancelAnimationFrame(handle)
       observer.disconnect()
+      window.removeEventListener('hashchange', checkHashMode)
     }
   })
 
@@ -281,38 +296,58 @@
       </div>
     </div>
 
-    <!-- Quick Jump Section Navigation Links -->
-    <nav class="hidden md:flex items-center gap-1 bg-[var(--terra-bg-surface)] p-1 border border-[var(--terra-border)] terra-cut-tr">
+    <!-- View Mode Switcher: [LIVE DEMO | DOCS // PLAYPEN] -->
+    <div class="flex items-center p-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border-strong)] terra-cut-tr shadow-sm">
       <button
         type="button"
-        onclick={() => scrollToSection('section-01')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '01' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        onclick={() => { viewMode = 'demo'; if (window.location.hash.startsWith('#/docs')) window.location.hash = '' }}
+        class="px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all {viewMode === 'demo' ? 'bg-[var(--terra-accent-primary)] text-black shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
       >
-        {t.nav.sec01}
+        {i18n.locale === 'zh' ? '实机展台' : 'LIVE DEMO'}
       </button>
       <button
         type="button"
-        onclick={() => scrollToSection('section-02')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '02' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        onclick={() => { viewMode = 'docs'; window.location.hash = '#/docs/overview' }}
+        class="px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all {viewMode === 'docs' ? 'bg-[var(--terra-accent-primary)] text-black shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
       >
-        {t.nav.sec02}
+        {i18n.locale === 'zh' ? '交互文档' : 'DOCS // PLAYPEN'}
       </button>
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-03')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '03' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-      >
-        {t.nav.sec03}
-      </button>
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-legal')}
-        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all text-[var(--terra-accent-primary)] hover:bg-[var(--terra-accent-primary)] hover:text-black border-l border-[var(--terra-border)] ml-1 pl-2"
-        title="View Legal Disclaimer & Attribution"
-      >
-        [{t.nav.legal}]
-      </button>
-    </nav>
+    </div>
+
+    <!-- Quick Jump Section Navigation Links (Only in Demo Mode) -->
+    {#if viewMode === 'demo'}
+      <nav class="hidden md:flex items-center gap-1 bg-[var(--terra-bg-surface)] p-1 border border-[var(--terra-border)] terra-cut-tr">
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-01')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '01' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        >
+          {t.nav.sec01}
+        </button>
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-02')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '02' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        >
+          {t.nav.sec02}
+        </button>
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-03')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '03' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
+        >
+          {t.nav.sec03}
+        </button>
+        <button
+          type="button"
+          onclick={() => scrollToSection('section-legal')}
+          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all text-[var(--terra-accent-primary)] hover:bg-[var(--terra-accent-primary)] hover:text-black border-l border-[var(--terra-border)] ml-1 pl-2"
+          title="View Legal Disclaimer & Attribution"
+        >
+          [{t.nav.legal}]
+        </button>
+      </nav>
+    {/if}
 
     <!-- Theme, Mode, Language & Replay Controls -->
     <div class="flex flex-wrap items-center gap-2">
@@ -407,6 +442,17 @@
   </div>
 </header>
 
+{#if viewMode === 'docs'}
+  <TerraDocsView
+    locale={i18n.locale}
+    onSwitchToDemo={() => {
+      viewMode = 'demo'
+      if (window.location.hash.startsWith('#/docs')) {
+        window.location.hash = ''
+      }
+    }}
+  />
+{:else}
 <!-- ======================================================================
      2. RIGHT-SIDE FIXED VERTICAL INDICATOR TRACK (Snap Scroll Rail)
      ====================================================================== -->
@@ -1214,3 +1260,4 @@
   </section>
 
 </main>
+{/if}
