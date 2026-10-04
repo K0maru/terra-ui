@@ -161,14 +161,14 @@
     <header class="absolute top-6 left-8 sm:left-12 right-6 sm:right-10 flex items-center justify-between z-10 font-mono text-xs text-white/60">
       <div class="flex items-center gap-3">
         <span class="text-[var(--terra-accent-primary,#ffde00)] font-bold text-sm">◆</span>
-        <span class="tracking-widest font-bold text-white">TERRA TACTICAL SYSTEM</span>
+        <span class="tracking-widest font-bold text-white">TERRA UI // SYSTEM BOOT</span>
         <span class="hidden sm:inline text-white/30">//</span>
         <span class="hidden sm:inline tracking-wider">{i18n.t.boot.sub}</span>
       </div>
 
       <div class="flex items-center gap-4 text-[11px] tracking-widest">
-        <span class="hidden md:inline">[ LAT 42°18'N // LONG 88°31'E ]</span>
-        <span class="px-2 py-0.5 bg-white/10 text-white font-bold border border-white/20">DATUM_TERRA</span>
+        <span class="hidden md:inline">[ HARDWARE // GPU_COMPOSITOR ]</span>
+        <span class="px-2 py-0.5 bg-white/10 text-white font-bold border border-white/20">TERRA_RUNES</span>
       </div>
     </header>
 

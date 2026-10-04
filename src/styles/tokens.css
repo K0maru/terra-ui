@@ -6,7 +6,7 @@
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. CYAN // BLUEPRINT (战术工程蓝图 · 默认基准)
+   1. CYAN // BLUEPRINT (工程蓝图 · 默认基准)
    Aliased with 'prts' for backward compatibility
    -------------------------------------------------------------------------- */
 :root,
@@ -24,9 +24,9 @@
   --terra-text-secondary: #94a3b8;
   --terra-text-muted: #526071;
 
-  --terra-accent-primary: #00d8ff; /* 战术蓝图青光 */
+  --terra-accent-primary: #00d8ff; /* 蓝图青光 */
   --terra-accent-primary-dim: rgba(0, 216, 255, 0.18);
-  --terra-accent-secondary: #f59e0b; /* 战术告警橙 */
+  --terra-accent-secondary: #f59e0b; /* 系统告警橙 */
   --terra-accent-warning: #f59e0b;
   --terra-accent-danger: #ff3344;
   --terra-accent-success: #10b981;
@@ -71,7 +71,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. AMBER // HAZARD (工业高压重型工程)
+   2. AMBER // INDUSTRIAL (工业高压重型工程)
    Aliased with 'dijiang' for backward compatibility
    -------------------------------------------------------------------------- */
 [data-theme="amber"][data-mode="dark"],
@@ -135,7 +135,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. EMERALD // BIO-CYBER (生化遥测冷玉翡翠)
+   3. EMERALD // TELEMETRY (系统遥测冷玉翡翠)
    Aliased with 'wuling' for backward compatibility
    -------------------------------------------------------------------------- */
 [data-theme="emerald"][data-mode="dark"],
@@ -156,7 +156,7 @@
   --terra-accent-primary-dim: rgba(0, 245, 184, 0.18);
   --terra-accent-secondary: #d4af37; /* 冷金砂 */
   --terra-accent-warning: #f59e0b;
-  --terra-accent-danger: #ff3b30; /* 丹砂朱印 */
+  --terra-accent-danger: #ff3b30; /* 告警朱红 */
   --terra-accent-success: #00f5b8;
 
   --terra-border: rgba(0, 245, 184, 0.22);
