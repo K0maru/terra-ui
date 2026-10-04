@@ -347,7 +347,7 @@
                   variant="nominal"
                 />
                 <TerraSegmentBar
-                  label="TACTICAL_BURST_CELL (战术技力储备矩阵)"
+                  label="SECONDARY_POWER_CELL (高能电容缓冲阵列)"
                   sublabel="⚡ DUAL-INVERTER BUFFER // 1000V"
                   value={9}
                   total={12}
@@ -379,8 +379,8 @@
             {:else if activePage.id === 'corner-brackets'}
               <TerraCornerBrackets label="[SEC-01 // TELEMETRY]" glow={true}>
                 <div class="p-6 bg-black/40 text-[var(--terra-text-primary)] font-mono text-xs space-y-1">
-                  <div>TARGET ACQUIRED: AIC-NODE-99</div>
-                  <div class="text-[var(--terra-accent-primary)]">STATUS: TRACKING NOMINAL</div>
+                  <div>CLUSTER LINKED: AIC-NODE-99</div>
+                  <div class="text-[var(--terra-accent-primary)]">STATUS: TELEMETRY NOMINAL</div>
                 </div>
               </TerraCornerBrackets>
             {:else if activePage.id === 'button'}
@@ -394,7 +394,7 @@
               <div class="w-full max-w-md">
                 <TerraPanel title="SYSTEM STATUS" tag="// SEC-01" cut="tl-br" bracket={true}>
                   <p class="text-xs font-mono text-slate-300">
-                    Tactical armor chassis with chamfer corners and corner reticles.
+                    Industrial armor chassis with chamfer corners and corner reticles.
                   </p>
                 </TerraPanel>
               </div>

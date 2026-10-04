@@ -81,7 +81,7 @@
 
       <!-- Corner Industrial Decors -->
       <div class="absolute top-6 left-6 font-mono text-xs text-black/60 font-bold tracking-widest uppercase">
-        TERRA // TACTICAL PROTOCOL RECOVERY
+        TERRA // SYSTEM PROTOCOL RECOVERY
       </div>
       <div class="absolute bottom-6 right-6 font-mono text-xs text-black/60 font-bold tracking-widest uppercase">
         TERRA-UI // FUNCTIONAL DESIGN SYSTEM

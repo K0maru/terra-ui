@@ -189,8 +189,8 @@ import '@terra-ui/styles/tokens.css'
         tag: 'SVG // TELEMETRY',
         componentName: 'TerraLineChart',
         category: 'charts',
-        description: 'Native SVG telemetry line and area waveform chart. Features smooth cubic bezier curves, gradient area fill, CAD crosshair inspection, adaptive X-axis tick sampling, and PRTS tactical HUD tooltip.',
-        descriptionZh: '纯原生矢量遥测折线图，包含贝塞尔平滑波形、渐变网格、十字准星探针、自适应 X 轴刻度抽样与 PRTS 战术悬浮提示框。',
+        description: 'Native SVG telemetry line and area waveform chart. Features smooth cubic bezier curves, gradient area fill, CAD crosshair inspection, adaptive X-axis tick sampling, and high-contrast HUD tooltip pin box.',
+        descriptionZh: '纯原生矢量遥测折线图，包含贝塞尔平滑波形、渐变网格、十字准星探针、自适应 X 轴刻度抽样与高对比度悬浮读数提示框。',
         codeSnippet: `<script lang="ts">
   import { TerraLineChart } from 'terra-ui'
 
@@ -213,7 +213,7 @@ import '@terra-ui/styles/tokens.css'
         props: [
           { name: 'data', type: 'Array<{ timestamp?: string; value: number; label?: string }>', default: '[]', required: true, description: 'Telemetry time-series data points array' },
           { name: 'height', type: 'number', default: '160', description: 'SVG canvas height in pixels' },
-          { name: 'unit', type: 'string', default: "'VAL'", description: 'Custom measurement unit displayed in the tactical tooltip' },
+          { name: 'unit', type: 'string', default: "'VAL'", description: 'Custom measurement unit displayed in the tooltip pin box' },
           { name: 'color', type: 'string', default: "'var(--terra-accent-primary)'", description: 'Stroke and accent color' },
           { name: 'fillOpacity', type: 'number', default: '0.18', description: 'Gradient area fill opacity' },
           { name: 'showGrid', type: 'boolean', default: 'true', description: 'Render CAD background grid lines and ticks' },
@@ -223,12 +223,12 @@ import '@terra-ui/styles/tokens.css'
       {
         id: 'donut-chart',
         title: 'TerraDonutChart',
-        titleZh: '战术环形雷达图',
+        titleZh: '环形度量分布图',
         tag: 'SVG // POLAR',
         componentName: 'TerraDonutChart',
         category: 'charts',
-        description: 'Circular tactical donut chart with polar guide reticles, dynamic haloPadding safety margin (no square clipping), and center readout.',
-        descriptionZh: '极坐标战术环形资源分布图，配备外层引导准星、动态安全内边距（杜绝光晕方形硬切）与中心度量读数。',
+        description: 'Circular polar telemetry donut chart with polar guide reticles, dynamic haloPadding safety margin (no square clipping), and center readout.',
+        descriptionZh: '极坐标环形资源度量分布图，配备外层引导刻度、动态安全内边距（杜绝光晕方形硬切）与中心度量读数。',
         codeSnippet: `<script lang="ts">
   import { TerraDonutChart } from 'terra-ui'
 
@@ -261,8 +261,8 @@ import '@terra-ui/styles/tokens.css'
         tag: 'SVG // HISTOGRAM',
         componentName: 'TerraBarChart',
         category: 'charts',
-        description: 'Tactical histogram bar chart with 45° chamfer cut tops, multi-tier threshold color coding (normal/warning/critical), and staggered entry animation.',
-        descriptionZh: '战术直方柱状图，顶部采用 45° 切角几何，支持阈值语义警示分色与交错进场动效。',
+        description: 'Segmented histogram bar chart with 45° chamfer cut tops, multi-tier threshold color coding (normal/warning/critical), and staggered entry animation.',
+        descriptionZh: '分段直方柱状图，顶部采用 45° 切角几何，支持阈值语义警示分色与交错进场动效。',
         codeSnippet: `<script lang="ts">
   import { TerraBarChart } from 'terra-ui'
 
@@ -295,8 +295,8 @@ import '@terra-ui/styles/tokens.css'
         tag: 'CONTROL // SLIDER',
         componentName: 'TerraVerticalSlider',
         category: 'controls',
-        description: 'High-contrast tactile vertical scale with GPU-composited scaleY fill, Atlos tactical frame buttons (+/-), pointer drag tracking, and keyboard arrow navigation.',
-        descriptionZh: '精密战术垂直标尺控制器，100% 由 GPU scaleY 合成层驱动，配备 Atlos 风格微切角步进按键与全套无障碍滑块语义。',
+        description: 'High-contrast tactile vertical scale with GPU-composited scaleY fill, stepped frame buttons (+/-), pointer drag tracking, and keyboard arrow navigation.',
+        descriptionZh: '工业精密垂直滑块控制器，100% 由 GPU scaleY 合成层驱动，配备微切角步进按键与全套无障碍滑块语义。',
         codeSnippet: `<script lang="ts">
   import { TerraVerticalSlider } from 'terra-ui'
   let zoom = $state(1.2)
@@ -326,7 +326,7 @@ import '@terra-ui/styles/tokens.css'
       {
         id: 'vertical-tabs',
         title: 'TerraVerticalTabs',
-        titleZh: '战术悬浮指示滑块标签',
+        titleZh: '垂直悬浮游标标签页',
         tag: 'NAVIGATION // TABS',
         componentName: 'TerraVerticalTabs',
         category: 'controls',
@@ -352,12 +352,12 @@ import '@terra-ui/styles/tokens.css'
       {
         id: 'corner-brackets',
         title: 'TerraCornerBrackets',
-        titleZh: '战术线框包角聚焦器',
+        titleZh: '四角包角线框容器',
         tag: 'HUD // BRACKETS',
         componentName: 'TerraCornerBrackets',
         category: 'controls',
-        description: 'Tactical HUD four-corner brackets wrapping container with optional status label and glowing reticle accents.',
-        descriptionZh: '战术 HUD 四角包角聚焦外框，支持头部状态标签与发光强调角标。',
+        description: 'Four-corner brackets wrapping container with optional status label and glowing reticle accents.',
+        descriptionZh: '四角包角聚焦外框，支持头部状态标签与发光强调角标。',
         codeSnippet: `<script lang="ts">
   import { TerraCornerBrackets } from 'terra-ui'
 </script>
@@ -403,18 +403,18 @@ import '@terra-ui/styles/tokens.css'
           { name: 'variant', type: "'primary' | 'outline' | 'ghost' | 'danger'", default: "'primary'", description: 'Button visual and semantic style' },
           { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Padding and font scale' },
           { name: 'disabled', type: 'boolean', default: 'false', description: 'Disabled interaction state' },
-          { name: 'loading', type: 'boolean', default: 'false', description: 'Displays tactical scanning spinner' }
+          { name: 'loading', type: 'boolean', default: 'false', description: 'Displays scanning spinner' }
         ]
       },
       {
         id: 'panel',
         title: 'TerraPanel',
-        titleZh: '战术装甲面板',
+        titleZh: '机能装甲面板',
         tag: 'ATOMIC // CONTAINER',
         componentName: 'TerraPanel',
         category: 'primitives',
-        description: 'Tactical armor panel container featuring 45° corner cuts, industrial title bar with telemetry tags, and optional reticle brackets.',
-        descriptionZh: '战术机能装甲面板容器，支持对角 45° 切角、出厂铭牌标题栏与四角瞄准准星。',
+        description: 'Armor panel container featuring 45° corner cuts, industrial title bar with telemetry tags, and optional reticle brackets.',
+        descriptionZh: '机能装甲面板容器，支持对角 45° 切角、出厂铭牌标题栏与四角瞄准准星。',
         codeSnippet: `<script lang="ts">
   import { TerraPanel } from 'terra-ui'
 </script>
