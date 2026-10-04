@@ -15,6 +15,8 @@
     decoration?: PanelDecoration
     /** Focus for decorations: 'auto' (mutually exclusive), 'chamfer', 'corner', 'both' */
     focus?: DecorationFocus
+    /** Whether the 45° chamfer cut has a 1px border (true = sealed, false = open cut) */
+    chamferBorder?: boolean
     /** Legacy alias for 'brackets' */
     bracket?: boolean
     /** Legacy alias for reticle crosshairs (auto-migrated) */
@@ -32,6 +34,7 @@
     cutSize = 16,
     decoration,
     focus = 'auto',
+    chamferBorder = true,
     bracket = false,
     reticle = false,
     warning = false,
@@ -51,7 +54,7 @@
   // Enforce a solid minimal chamfer depth
   const c = $derived(Math.max(14, cutSize))
 
-  // Calculate polygon perimeter path points for continuous vector border and background fill
+  // Complete closed polygon path (for background fill & sealed 1px border)
   const polygonPath = $derived.by(() => {
     if (!w || !h) return ''
     if (cut === 'tr') {
@@ -65,6 +68,24 @@
     }
     if (cut === 'tl-br') {
       return `M ${c},0 L ${w},0 L ${w},${h - c} L ${w - c},${h} L 0,${h} L 0,${c} Z`
+    }
+    return `M 0,0 L ${w},0 L ${w},${h} L 0,${h} Z`
+  })
+
+  // Open-cut border path segments (used when chamferBorder === false)
+  const openBorderSegments = $derived.by(() => {
+    if (!w || !h) return ''
+    if (cut === 'tr') {
+      return `M 0,0 L ${w - c},0 M ${w},${c} L ${w},${h} L 0,${h} L 0,0`
+    }
+    if (cut === 'br') {
+      return `M 0,0 L ${w},0 L ${w},${h - c} M ${w - c},${h} L 0,${h} L 0,0`
+    }
+    if (cut === 'tr-bl') {
+      return `M 0,0 L ${w - c},0 M ${w},${c} L ${w},${h} L ${c},${h} M 0,${h - c} L 0,0`
+    }
+    if (cut === 'tl-br') {
+      return `M ${c},0 L ${w},0 L ${w},${h - c} M ${w - c},${h} L 0,${h} L 0,${c}`
     }
     return `M 0,0 L ${w},0 L ${w},${h} L 0,${h} Z`
   })
@@ -122,7 +143,7 @@
   bind:clientHeight={h}
   class="relative select-none transition-colors duration-200 {className}"
 >
-  <!-- Unified SVG Vector Chassis: Background Fill + 1px Vector Perimeter Border + Decorators -->
+  <!-- Unified SVG Vector Chassis: Background Fill + Border Stroke + Razor-Clean Decorators -->
   {#if w > 0 && h > 0}
     <svg
       class="absolute inset-0 w-full h-full pointer-events-none overflow-visible z-0"
@@ -137,127 +158,103 @@
         </filter>
       </defs>
 
-      <!-- 1. Unified Background Fill & Continuous 1px Perimeter Border (Zero Desync) -->
+      <!-- 1. Background Surface Fill (Always follows full polygon geometry) -->
       <path
         d={polygonPath}
         fill="var(--terra-bg-surface)"
-        stroke="var(--terra-border)"
-        stroke-width="1"
-        vector-effect="non-scaling-stroke"
+        stroke="none"
       />
 
+      <!-- 2. Perimeter Border Stroke (Sealed vs Open Cut) -->
+      {#if chamferBorder}
+        <!-- Sealed: Full 1px continuous closed border around all edges including 45° chamfers -->
+        <path
+          d={polygonPath}
+          fill="none"
+          stroke="var(--terra-border)"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
+      {:else}
+        <!-- Open Cut: Border stops at chamfer vertices, leaving 45° cut completely open -->
+        <path
+          d={openBorderSegments}
+          fill="none"
+          stroke="var(--terra-border)"
+          stroke-width="1"
+          vector-effect="non-scaling-stroke"
+        />
+      {/if}
+
       <!-- ===================================================================
-           PRESET 1: ENDFIELD (Talos-II AIC Industrial Heavy-Armour)
+           PRESET 1: ENDFIELD (Talos-II AIC Industrial Heavy-Armour · Razor Clean)
            =================================================================== -->
       {#if activeDecoration === 'endfield'}
-        <!-- 45° Chamfer Armor Rails (Decorated when shouldDecorateChamfer) -->
-        {#if shouldDecorateChamfer}
+        <!-- 45° Chamfer Armor Rails (Decorated when shouldDecorateChamfer and chamferBorder) -->
+        {#if shouldDecorateChamfer && chamferBorder}
           {#if isCutTR}
             <line
-              x1={w - c + 2}
-              y1={2}
-              x2={w - 2}
-              y2={c - 2}
+              x1={w - c}
+              y1={0}
+              x2={w}
+              y2={c}
               stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
+              stroke-width="2"
               stroke-linecap="square"
               filter="url(#terra-armor-glow)"
             />
-            <rect x={w - c - 1} y="0" width="4" height="2" fill="var(--terra-accent-primary)" />
-            <rect x={w - 2} y={c - 3} width="2" height="4" fill="var(--terra-accent-primary)" />
           {/if}
-
           {#if isCutBL}
             <line
-              x1={c - 2}
-              y1={h - 2}
-              x2={2}
-              y2={h - c + 2}
+              x1={c}
+              y1={h}
+              x2={0}
+              y2={h - c}
               stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
+              stroke-width="2"
               stroke-linecap="square"
               filter="url(#terra-armor-glow)"
             />
-            <rect x={c - 3} y={h - 2} width="4" height="2" fill="var(--terra-accent-primary)" />
-            <rect x="0" y={h - c - 1} width="2" height="4" fill="var(--terra-accent-primary)" />
           {/if}
-
           {#if isCutTL}
             <line
-              x1={2}
-              y1={c - 2}
-              x2={c - 2}
-              y2={2}
+              x1={0}
+              y1={c}
+              x2={c}
+              y2={0}
               stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
+              stroke-width="2"
               stroke-linecap="square"
               filter="url(#terra-armor-glow)"
             />
-            <rect x="0" y={c - 3} width="2" height="4" fill="var(--terra-accent-primary)" />
-            <rect x={c - 3} y="0" width="4" height="2" fill="var(--terra-accent-primary)" />
           {/if}
-
           {#if isCutBR}
             <line
-              x1={w - c + 2}
-              y1={h - 2}
-              x2={w - 2}
-              y2={h - c + 2}
+              x1={w - c}
+              y1={h}
+              x2={w}
+              y2={h - c}
               stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
+              stroke-width="2"
               stroke-linecap="square"
               filter="url(#terra-armor-glow)"
             />
-            <rect x={w - c - 1} y={h - 2} width="4" height="2" fill="var(--terra-accent-primary)" />
-            <rect x={w - 2} y={h - c - 3} width="2" height="4" fill="var(--terra-accent-primary)" />
           {/if}
         {/if}
 
         <!-- 90° Intact Corner Brackets (Decorated only when shouldDecorateCorner) -->
         {#if shouldDecorateCorner}
           {#if !isCutTL}
-            <path
-              d="M 2,22 L 2,2 L 22,2"
-              fill="none"
-              stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
-              stroke-linecap="square"
-              filter="url(#terra-armor-glow)"
-            />
-            <rect x="5" y="5" width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
+            <path d="M 2,20 L 2,2 L 20,2" fill="none" stroke="var(--terra-accent-primary)" stroke-width="2.5" stroke-linecap="square" filter="url(#terra-armor-glow)" />
           {/if}
           {#if !isCutTR}
-            <path
-              d={`M ${w - 22},2 L ${w - 2},2 L ${w - 2},22`}
-              fill="none"
-              stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
-              stroke-linecap="square"
-              filter="url(#terra-armor-glow)"
-            />
-            <rect x={w - 8} y="5" width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
+            <path d={`M ${w - 20},2 L ${w - 2},2 L ${w - 2},20`} fill="none" stroke="var(--terra-accent-primary)" stroke-width="2.5" stroke-linecap="square" filter="url(#terra-armor-glow)" />
           {/if}
           {#if !isCutBL}
-            <path
-              d={`M 2,${h - 22} L 2,${h - 2} L 22,${h - 2}`}
-              fill="none"
-              stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
-              stroke-linecap="square"
-              filter="url(#terra-armor-glow)"
-            />
-            <rect x="5" y={h - 8} width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
+            <path d={`M 2,${h - 20} L 2,${h - 2} L 20,${h - 2}`} fill="none" stroke="var(--terra-accent-primary)" stroke-width="2.5" stroke-linecap="square" filter="url(#terra-armor-glow)" />
           {/if}
           {#if !isCutBR}
-            <path
-              d={`M ${w - 22},${h - 2} L ${w - 2},${h - 2} L ${w - 2},${h - 22}`}
-              fill="none"
-              stroke="var(--terra-accent-primary)"
-              stroke-width="2.5"
-              stroke-linecap="square"
-              filter="url(#terra-armor-glow)"
-            />
-            <rect x={w - 8} y={h - 8} width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
+            <path d={`M ${w - 20},${h - 2} L ${w - 2},${h - 2} L ${w - 2},${h - 22}`} fill="none" stroke="var(--terra-accent-primary)" stroke-width="2.5" stroke-linecap="square" filter="url(#terra-armor-glow)" />
           {/if}
         {/if}
 
@@ -265,26 +262,18 @@
            PRESET 2: RHODES (PRTS Tactical Calibration Caliper & Stamp)
            =================================================================== -->
       {:else if activeDecoration === 'rhodes'}
-        {#if shouldDecorateChamfer}
+        {#if shouldDecorateChamfer && chamferBorder}
           {#if isCutTR}
-            <line x1={w - c + 3} y1={3} x2={w - 3} y2={c - 3} stroke="var(--terra-accent-primary)" stroke-width="2" />
-            <rect x={w - c - 1} y="0" width="3" height="2" fill="var(--terra-accent-primary)" />
-            <rect x={w - 2} y={c - 2} width="2" height="3" fill="var(--terra-accent-primary)" />
+            <line x1={w - c} y1={0} x2={w} y2={c} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
           {#if isCutBL}
-            <line x1={c - 3} y1={h - 3} x2={3} y2={h - c + 3} stroke="var(--terra-accent-primary)" stroke-width="2" />
-            <rect x={c - 2} y={h - 2} width="3" height="2" fill="var(--terra-accent-primary)" />
-            <rect x="0" y={h - c - 1} width="2" height="3" fill="var(--terra-accent-primary)" />
+            <line x1={c} y1={h} x2={0} y2={h - c} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
           {#if isCutTL}
-            <line x1={3} y1={c - 3} x2={c - 3} y2={3} stroke="var(--terra-accent-primary)" stroke-width="2" />
-            <rect x="0" y={c - 2} width="2" height="3" fill="var(--terra-accent-primary)" />
-            <rect x={c - 2} y="0" width="3" height="2" fill="var(--terra-accent-primary)" />
+            <line x1={0} y1={c} x2={c} y2={0} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
           {#if isCutBR}
-            <line x1={w - c + 3} y1={h - 3} x2={w - 3} y2={h - c + 3} stroke="var(--terra-accent-primary)" stroke-width="2" />
-            <rect x={w - c - 1} y={h - 2} width="3" height="2" fill="var(--terra-accent-primary)" />
-            <rect x={w - 2} y={h - c - 2} width="2" height="3" fill="var(--terra-accent-primary)" />
+            <line x1={w - c} y1={h} x2={w} y2={h - c} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
         {/if}
 
@@ -323,22 +312,22 @@
            PRESET 3: INDUSTRIAL (Center-Symmetric 10px Hex Fasteners)
            =================================================================== -->
       {:else if activeDecoration === 'industrial'}
-        {#if shouldDecorateChamfer}
+        {#if shouldDecorateChamfer && chamferBorder}
           {#if isCutTR}
-            <line x1={w - c + 3} y1={3} x2={w - 3} y2={c - 3} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={w - c} y1={0} x2={w} y2={c} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
           {#if isCutBL}
-            <line x1={c - 3} y1={h - 3} x2={3} y2={h - c + 3} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={c} y1={h} x2={0} y2={h - c} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
           {#if isCutTL}
-            <line x1={3} y1={c - 3} x2={c - 3} y2={3} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={0} y1={c} x2={c} y2={0} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
           {#if isCutBR}
-            <line x1={w - c + 3} y1={h - 3} x2={w - 3} y2={h - c + 3} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={w - c} y1={h} x2={w} y2={h - c} stroke="var(--terra-accent-primary)" stroke-width="1.8" />
           {/if}
         {/if}
 
-        <!-- 100% Center-Symmetric Hex Bolts on Intact 90° Corners (Equidistant 14px from edges) -->
+        <!-- 100% Center-Symmetric Hex Bolts on Intact 90° Corners -->
         {#if shouldDecorateCorner}
           {#if !isCutTL}
             <circle cx="14" cy="14" r="5.5" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1.2" />
@@ -381,25 +370,25 @@
           {/if}
         {/if}
 
-        {#if shouldDecorateChamfer}
+        {#if shouldDecorateChamfer && chamferBorder}
           {#if isCutTR}
-            <line x1={w - c + 2} y1={2} x2={w - 2} y2={c - 2} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={w - c} y1={0} x2={w} y2={c} stroke="var(--terra-accent-primary)" stroke-width="2" />
           {/if}
           {#if isCutBL}
-            <line x1={c - 2} y1={h - 2} x2={2} y2={h - c + 2} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={c} y1={h} x2={0} y2={h - c} stroke="var(--terra-accent-primary)" stroke-width="2" />
           {/if}
           {#if isCutTL}
-            <line x1={2} y1={c - 2} x2={c - 2} y2={2} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={0} y1={c} x2={c} y2={0} stroke="var(--terra-accent-primary)" stroke-width="2" />
           {/if}
           {#if isCutBR}
-            <line x1={w - c + 2} y1={h - 2} x2={w - 2} y2={h - c + 2} stroke="var(--terra-accent-primary)" stroke-width="2" />
+            <line x1={w - c} y1={h} x2={w} y2={h - c} stroke="var(--terra-accent-primary)" stroke-width="2" />
           {/if}
         {/if}
       {/if}
     </svg>
   {/if}
 
-  <!-- Inner Clipped Content Container (Synchronized with exact same c value) -->
+  <!-- Inner Clipped Content Container (Synchronously shares exact same c value) -->
   <div
     class="relative z-10 w-full h-full"
     style="clip-path: {innerClipPath};"

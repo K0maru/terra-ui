@@ -540,7 +540,9 @@ import '@terra-ui/styles/tokens.css'
           { name: 'title', type: 'string', default: "''", description: 'Panel header title' },
           { name: 'tag', type: 'string', default: "''", description: 'Secondary telemetry tag' },
           { name: 'cut', type: "'none' | 'tr' | 'tl-br' | 'tr-bl' | 'br'", default: "'tr'", description: 'Chamfer corner cut geometry' },
+          { name: 'chamferBorder', type: 'boolean', default: 'true', description: 'Whether the 45° chamfer cut has a 1px border (true = sealed, false = open cut)' },
           { name: 'decoration', type: "'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'", default: "'endfield'", description: 'Modular architectural decoration preset' },
+          { name: 'focus', type: "'auto' | 'chamfer' | 'corner' | 'both'", default: "'auto'", description: 'Mutually exclusive decorator placement target' },
           { name: 'cutSize', type: 'number', default: '16', description: 'Chamfer cut depth in pixels' },
           { name: 'warning', type: 'boolean', default: 'false', description: 'Render top industrial hazard warning stripe' }
         ]
