@@ -62,18 +62,23 @@ Terra-UI synthesizes two distinct cybernetic visual philosophies into a unified 
 - `<TerraLineChart />`: Zero-dependency SVG telemetry line chart with dual-stream waveforms, gradient fills, and dynamic peak callouts.
 - `<TerraBarChart />`: Segmented histogram bar chart with dual comparative metrics and smooth transitions.
 
-### 3. Precision Controls & HUD
+### 3. Developer & Observability Suite
+- `<TerraActivityHeatmap />` / `<TerraHeatmap />`: 2D calendar activity and commit frequency heatmap with 5-level energy grading and HUD tooltip pin box.
+- `<TerraStatusStrip />`: 1D horizontal SLA uptime and service health strip with 4 status levels and incident tooltips.
+- `<TerraSparkline />`: Zero-margin inline SVG waveform chart for KPI metrics, data tables, and headers with live pulse dot.
+
+### 4. Precision Controls & HUD
 - `<TerraVerticalSlider />`: Industrial precision vertical slider with calibration ticks and bidirectional setpoint adjustments.
 - `<TerraVerticalTabs />`: Tactical floating-cursor vertical tab navigation with fluid indicator tracking.
 - `<TerraCornerBrackets />`: Tactical wireframe corner framing with HUD status flags and extended corner guides.
 - `<TerraCadPattern />`: Interactive CAD coordinate grid layer with cursor proximity highlight.
 
-### 4. Identity & Dossier
+### 5. Identity & Dossier
 - `<TerraProfileCard />`: Swiss typographic developer and operator credential card.
 - `<TerraTacticalProfile />`: High-fidelity tactical dossier card with security clearance badges and operational serial tags.
 - `<TerraDossierCard />`: Multi-state intelligence dossier docket.
 
-### 5. Atomic Primitives & Systems
+### 6. Atomic Primitives & Systems
 - `<TerraButton />`: 45° chamfered industrial button with GPU shimmer wave and four semantic states.
 - `<TerraPanel />`: Tactical container panel supporting corner brackets (`[ ]`), reticle crosshairs (`+`), and industrial equipment nameplates.
 - `<TerraBadge />`: Industrial status badge with micro security clearance codes (`ADM`, `AIC`, `GRID`, `OK`).
