@@ -21,7 +21,10 @@
     TerraSpatialCard,
     TerraDonutChart,
     TerraLineChart,
-    TerraBarChart
+    TerraBarChart,
+    TerraSparkline,
+    TerraStatusStrip,
+    TerraActivityHeatmap
   } from './components'
   import TerraDocsView from './docs/TerraDocsView.svelte'
   import { i18n } from './i18n'
@@ -699,6 +702,19 @@
       </div>
     </div>
 
+    <!-- 2D Developer & Observability Suite Display -->
+    <div class="space-y-6 pt-2">
+      <!-- Service SLA & Health Strip -->
+      <TerraPanel title="SYSTEM SLA & UPTIME MONITOR // 60-DAY RUNTIME" tag="// CLUSTER.SLA" cut="tr-bl">
+        <TerraStatusStrip serviceName="GLOBAL_DATA_ROUTER_CLUSTER" days={60} />
+      </TerraPanel>
+
+      <!-- Annual Activity Heatmap -->
+      <TerraPanel title="ANNUAL DISPATCH & COMMIT ACTIVITY MATRIX" tag="// OPS.HEATMAP" cut="tl-br">
+        <TerraActivityHeatmap weeks={48} title="ANNUAL SYSTEM OPERATIONS & COMMIT ACTIVITY" />
+      </TerraPanel>
+    </div>
+
     <!-- Scroll Down Prompt -->
     <div class="flex items-center justify-center pt-4">
       <button
@@ -808,6 +824,9 @@
                   <TerraRollingNumber value={metricEfficiency} decimals={2} suffix="%" class="text-3xl font-black text-[var(--terra-accent-primary)]" />
                   <TerraBadge label={t.sec02.flowBadge} variant="primary" />
                 </div>
+                <div class="mt-2 pt-1 border-t border-[var(--terra-border-subtle,rgba(255,255,255,0.06))]">
+                  <TerraSparkline data={[82, 85, 88, 86, 92, 90, 96, 94]} height={22} variant="accent" />
+                </div>
               </div>
 
               <div class="p-3 bg-[var(--terra-bg-base)]/60 border border-[var(--terra-border)]">
@@ -815,6 +834,9 @@
                 <div class="flex items-baseline justify-between mt-1">
                   <TerraRollingNumber value={metricLatency} decimals={1} suffix="ms" class="text-3xl font-black text-[var(--terra-accent-secondary)]" />
                   <TerraBadge label={t.sec02.latencyBadge} variant="success" />
+                </div>
+                <div class="mt-2 pt-1 border-t border-[var(--terra-border-subtle,rgba(255,255,255,0.06))]">
+                  <TerraSparkline data={[1.8, 1.4, 1.6, 1.2, 1.1, 0.9, 0.8, 0.7]} height={22} variant="success" />
                 </div>
               </div>
             </div>

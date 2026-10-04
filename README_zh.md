@@ -62,18 +62,23 @@ Terra-UI 将两种截然不同但互相呼应的机能视觉哲学融合为一�
 - `<TerraLineChart />`：零依赖纯原生矢量数据流折线图，支持双数据流波形、渐变填充与动态极值标注。
 - `<TerraBarChart />`：分段直方柱状图，支持双向柱状对比与平滑更新。
 
-### 3. 战术标尺、HUD 与精密控制
+### 3. 现代开发者与系统可观测性套件 (Developer & Observability Suite)
+- `<TerraActivityHeatmap />` / `<TerraHeatmap />`：GitHub 同款 2D 时序活动与提交频率热力图，带 5 阶能级梯度与战术 HUD 悬浮读数提示框。
+- `<TerraStatusStrip />`：GitHub / Cloudflare Status 同款 1D 连续服务可用率状态细条，支持 4 档健康等级与事件探针。
+- `<TerraSparkline />`：超轻量零边距行内走势波形图，适用于 KPI 指标卡片、数据表格与头部读数，带末端动态呼吸脉冲点。
+
+### 4. 战术标尺、HUD 与精密控制
 - `<TerraVerticalSlider />`：工业精密垂直滑块控制台，支持刻度标记与双向参数标定。
 - `<TerraVerticalTabs />`：悬浮游标垂直标签导航，平滑跟踪当前激活项。
 - `<TerraCornerBrackets />`：战术线框包角聚焦器，带 HUD 状态标签与角标延伸线。
 - `<TerraCadPattern />`：交互式 CAD 坐标栅格层，支持光标悬浮高亮反馈。
 
-### 4. 机能人员档案与技术简报
+### 5. 机能人员档案与技术简报
 - `<TerraProfileCard />`：极简瑞士排印风格的开发者与运维人员凭证卡。
 - `<TerraTacticalProfile />`：高仿真战术干员档案简报卡，带安全权限徽章与序列号。
 - `<TerraDossierCard />`：多状态情报档案卷宗展示卡。
 
-### 5. 系统引导与原子控制图元
+### 6. 系统引导与原子控制图元
 - `<TerraButton />`：支持 45° 几何切角、GPU 悬浮扫光（Shimmer）与四种语义形态的机能按钮。
 - `<TerraPanel />`：支持战术线框包角（Brackets `[ ]`）、四角准星（Reticle `+`）与出厂铭牌标题栏的容器面板。
 - `<TerraBadge />`：带微型安全等级标识（`ADM`, `AIC`, `GRID`, `OK`）的工业标签。
