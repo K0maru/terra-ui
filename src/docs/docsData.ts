@@ -12,6 +12,7 @@ export interface DocPage {
   codeSnippet?: string
   props?: PropItem[]
   features?: string[]
+  featuresZh?: string[]
   notes?: string
 }
 
@@ -465,9 +466,14 @@ import '@terra-ui/styles/tokens.css'
         description: 'Terra-UI is an independent open-source frontend research project. Its aesthetic style, typography density, and interactive patterns are inspired by Shanghai HYPERGRYPH Network Technology Co., Ltd. (上海鹰角网络科技有限公司) works "Arknights" (明日方舟) and "Arknights: Endfield" (明日方舟：终末地).',
         descriptionZh: '本项目为独立研发的开源学术与前端技术探索项目。美学风格、排版逻辑及交互灵感直接汲取并参考自上海鹰角网络科技有限公司（HYPERGRYPH）开发的作品《明日方舟》与《明日方舟：终末地》。',
         features: [
-          'All trademarks, trade dress, and intellectual property belong to Shanghai HYPERGRYPH Network Technology Co., Ltd.',
-          'Non-commercial & Academic Exploration: Created strictly for open-source UI/UX showcase and Svelte 5 component architecture exploration.',
-          'Clean-Room Implementation: 100% of code, SVGs, and CSS written independently from scratch. Zero proprietary assets, decrypted code, audio, or game models extracted or redistributed.'
+          'Trademarks & Game IP: All trademarks, logos, game titles, and original game art/worldview designs associated with "Arknights" and "Arknights: Endfield" are the sole property of Shanghai HYPERGRYPH Network Technology Co., Ltd.',
+          'Independent Clean-Room Implementation: Terra-UI is an original open-source UI component library (MIT License). All Svelte 5 components, CSS design tokens, and SVG graphics were authored independently from scratch as design references, with zero extraction, copying, or redistribution of official proprietary game assets.',
+          'Non-Affiliation Notice: This project is an independent developer community creation and is not affiliated with, endorsed by, or sponsored by HYPERGRYPH. References to game titles are strictly for nominative design attribution.'
+        ],
+        featuresZh: [
+          '鹰角网络专有权利：所有与《明日方舟》及《明日方舟：终末地》相关的商标、Logo、游戏名称、官方美术原案与世界观设计均完全归属于上海鹰角网络科技有限公司。',
+          '独立原创与干净重写：Terra-UI 是一套从零独立编写的开源 UI 组件库（遵循 MIT 许可证）。所有 Svelte 5 代码、CSS 设计令牌与 SVG 图标均为自主开发实现，仅在视觉风格上进行参考与致敬，未直接复制、解包或提取任何官方专有切片或加密数据。',
+          '非官方与无关联声明：本项目为独立开源技术探索，非官方产品，亦未获得鹰角网络的商业赞助、授权或背书，提及相关游戏名称仅用于指明美学设计灵感来源。'
         ]
       }
     ]

@@ -264,14 +264,14 @@
       </div>
 
       <!-- Features Checklist (If defined) -->
-      {#if activePage.features && activePage.features.length > 0}
+      {#if (locale === 'zh' ? (activePage.featuresZh || activePage.features) : activePage.features)?.length}
         <div class="p-4 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)]/50 space-y-2">
           <h3 class="font-mono text-xs font-bold text-[var(--terra-text-primary)] uppercase tracking-wider flex items-center gap-2">
             <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)]"></span>
-            KEY SPECIFICATIONS // 核心规约
+            {locale === 'zh' ? '核心规约与说明 // SPECIFICATIONS' : 'KEY SPECIFICATIONS // COMPLIANCE'}
           </h3>
           <ul class="space-y-1.5 text-xs text-[var(--terra-text-secondary)] font-sans">
-            {#each activePage.features as feature}
+            {#each (locale === 'zh' ? (activePage.featuresZh || activePage.features) : activePage.features) || [] as feature}
               <li class="flex items-start gap-2">
                 <span class="text-[var(--terra-accent-primary)] font-mono">▪</span>
                 <span>{feature}</span>

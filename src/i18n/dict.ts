@@ -386,7 +386,7 @@ export const translations: Record<Locale, TranslationSchema> = {
       transition: 'AXES: 2D FLAT INTERFACE + 3D SPATIAL COMPLEX',
       interaction: 'ZERO-VDOM // SVELTE 5 NATIVE RUNES',
       disclaimerTag: 'LEGAL NOTICE // ATTRIBUTION & INSPIRATION',
-      disclaimerText: 'Terra-UI is an independent, non-commercial open-source design system. The visual aesthetics, typography, and interaction patterns are inspired by "Arknights" and "Arknights: Endfield", developed and owned by Shanghai HYPERGRYPH Network Technology Co., Ltd. All related trademarks, trade dress, and intellectual property belong to HYPERGRYPH. This project is created strictly for academic research, engineering exploration, and design system demonstration. No official proprietary assets, code, or artwork are extracted, redistributed, or claimed as our own.',
+      disclaimerText: 'Terra-UI is an independent, open-source functional design system (MIT License). The visual aesthetics, typography, and interaction patterns reference and are inspired by "Arknights" and "Arknights: Endfield", developed and published by Shanghai HYPERGRYPH Network Technology Co., Ltd. All trademarks, logos, and original game designs associated with Arknights belong to HYPERGRYPH. Terra-UI is an original clean-room implementation written completely from scratch; it is not an official product and is not affiliated with, endorsed by, or sponsored by HYPERGRYPH. No proprietary code, decrypted assets, or official artwork are extracted, copied, or redistributed.',
       refTitle: 'PRIMARY DESIGN INSPIRATION & REFERENCES',
       refLinks: [
         { label: 'HYPERGRYPH OFFICIAL', url: 'https://www.hypergryph.com/', badge: 'CORPORATE' },
@@ -615,7 +615,7 @@ export const translations: Record<Locale, TranslationSchema> = {
       transition: '设计双轴: 2D 平面界面 + 3D 空间交互',
       interaction: '零虚拟 DOM // SVELTE 5 原生响应式',
       disclaimerTag: '法律声明 // 设计灵感与致敬来源',
-      disclaimerText: 'Terra-UI 是一套独立研发的开源机能设计系统与组件库。本项目的美学风格、排印规范与交互逻辑灵感来源于上海鹰角网络科技有限公司（HYPERGRYPH）开发的作品《明日方舟》与《明日方舟：终末地》。相关游戏商标、商业外观及知识产权均归属于鹰角网络所有。本项目仅用于前端工程技术验证、学术交流与非商业展示，全量代码均为独立重构编写，未提取、未分发任何官方私有美术切片、音频或工程资产。',
+      disclaimerText: 'Terra-UI 是一套独立研发并遵循 MIT 协议的开源机能设计系统与组件库。本项目在排印规范与交互逻辑上参考并致敬了上海鹰角网络科技有限公司（HYPERGRYPH）开发的作品《明日方舟》与《明日方舟：终末地》。所有与上述游戏相关的商标、标识、世界观及官方美术原案完全归属于鹰角网络所有。Terra-UI 属于从零编写的独立重构实现（Clean-Room Implementation），仅为视觉设计灵感参考，未直接复制任何官方专有切片、解包数据或加密资产；本项目为非商业开源技术探索，非官方产品，亦未获得鹰角网络的商业赞助、授权或背书。',
       refTitle: '核心设计灵感与参考源',
       refLinks: [
         { label: '鹰角网络官网', url: 'https://www.hypergryph.com/', badge: '公司主页' },
