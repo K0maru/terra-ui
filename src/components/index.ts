@@ -24,3 +24,9 @@ export { default as TerraSpatialCard } from './TerraSpatialCard.svelte'
 export { default as TerraDonutChart } from './TerraDonutChart.svelte'
 export { default as TerraLineChart } from './TerraLineChart.svelte'
 export { default as TerraBarChart } from './TerraBarChart.svelte'
+
+// Developer & System Observability Suite (v0.9.0)
+export { default as TerraSparkline } from './TerraSparkline.svelte'
+export { default as TerraStatusStrip, type StatusDayRecord } from './TerraStatusStrip.svelte'
+export { default as TerraActivityHeatmap, type ActivityRecord } from './TerraActivityHeatmap.svelte'
+export { default as TerraHeatmap } from './TerraActivityHeatmap.svelte'

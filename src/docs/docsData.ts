@@ -281,6 +281,119 @@ import '@terra-ui/styles/tokens.css'
           { name: 'barWidth', type: 'number', default: '22', description: 'Width of each individual bar' },
           { name: 'unit', type: 'string', default: "'%'", description: 'Value unit string' }
         ]
+      },
+      {
+        id: 'activity-heatmap',
+        title: 'TerraActivityHeatmap',
+        titleZh: '时序活动矩阵热力图',
+        tag: 'SVG // MATRIX',
+        componentName: 'TerraActivityHeatmap',
+        category: 'charts',
+        description: '2D calendar activity and commit frequency heatmap inspired by GitHub. Features pure native Date calculations, 5-level energy grading, HUD tooltip pin box, and responsive SVG layout.',
+        descriptionZh: 'GitHub 同款 2D 时序活动与提交频率热力图。纯原生 JS 日期运算，5 阶能级梯度，战术 HUD 悬浮读数提示框，全响应式矢量网格。',
+        codeSnippet: `<script lang="ts">
+  import { TerraActivityHeatmap } from 'terra-ui'
+
+  // Optional custom activity records
+  const data = [
+    { date: '2026-09-18', count: 12 },
+    { date: '2026-09-19', count: 4 },
+    { date: '2026-09-20', count: 28 }
+  ]
+</script>
+
+<TerraActivityHeatmap
+  {data}
+  weeks={52}
+  cellSize={11}
+  cellGap={3}
+  showOverview={true}
+  showLegend={true}
+/>`,
+        props: [
+          { name: 'data', type: 'ActivityRecord[]', default: 'mockData', description: 'Activity/commit sequence by ISO date' },
+          { name: 'weeks', type: 'number', default: '52', description: 'Number of week columns (1~53)' },
+          { name: 'cellSize', type: 'number', default: '11', description: 'Square cell size in pixels' },
+          { name: 'cellGap', type: 'number', default: '3', description: 'Gap between cells in pixels' },
+          { name: 'showMonthLabels', type: 'boolean', default: 'true', description: 'Render top month labels (JAN~DEC)' },
+          { name: 'showWeekdayLabels', type: 'boolean', default: 'true', description: 'Render left weekday labels (MON, WED, FRI)' },
+          { name: 'showLegend', type: 'boolean', default: 'true', description: 'Render bottom-right LESS...MORE scale' },
+          { name: 'showOverview', type: 'boolean', default: 'true', description: 'Render top metrics summary bar' }
+        ]
+      },
+      {
+        id: 'status-strip',
+        title: 'TerraStatusStrip',
+        titleZh: '服务可用率状态细条',
+        tag: 'SLA // STATUS',
+        componentName: 'TerraStatusStrip',
+        category: 'charts',
+        description: '1D continuous SLA uptime and service health strip inspired by GitHub and Cloudflare Status. Features 4 status grades, aggregated uptime calculation, and pinpoint event tooltips.',
+        descriptionZh: 'GitHub 与 Cloudflare Status 同款 1D 连续服务可用率状态条。支持 4 档健康等级、周期总可用率统计与悬浮事件探针。',
+        codeSnippet: `<script lang="ts">
+  import { TerraStatusStrip } from 'terra-ui'
+
+  // Optional status records by day
+  const statusData = [
+    { date: '2026-09-18', status: 'operational', uptime: 100 },
+    { date: '2026-09-19', status: 'degraded', uptime: 98.4, description: 'High latency' }
+  ]
+</script>
+
+<TerraStatusStrip
+  data={statusData}
+  serviceName="CORE_GATEWAY_SERVICE"
+  days={90}
+  showSummary={true}
+  showTimelineLabels={true}
+/>`,
+        props: [
+          { name: 'data', type: 'StatusDayRecord[]', default: 'mockData', description: 'Daily uptime records' },
+          { name: 'serviceName', type: 'string', default: "'CLUSTER_SERVICE_GATEWAY'", description: 'Service or node label' },
+          { name: 'days', type: 'number', default: '90', description: 'Number of daily status bars (30/60/90)' },
+          { name: 'barHeight', type: 'number', default: '30', description: 'Bar strip height in pixels' },
+          { name: 'showSummary', type: 'boolean', default: 'true', description: 'Show top health beacon and overall uptime' },
+          { name: 'showTimelineLabels', type: 'boolean', default: 'true', description: 'Show bottom 90 DAYS AGO / TODAY labels' }
+        ]
+      },
+      {
+        id: 'sparkline',
+        title: 'TerraSparkline',
+        titleZh: '微型行内走势波形',
+        tag: 'SVG // INLINE',
+        componentName: 'TerraSparkline',
+        category: 'charts',
+        description: 'Ultra-lightweight zero-margin inline waveform chart for KPI metrics, data tables, and headers. Features smooth cubic Bezier splines, gradient area fill, and terminal live pulse dot.',
+        descriptionZh: '超轻量零边距行内走势波形图，适用于 KPI 指标卡片、数据表格与头部读数。支持贝塞尔平滑波形、渐变阴影填充与末端实时呼吸脉冲点。',
+        codeSnippet: `<script lang="ts">
+  import { TerraSparkline } from 'terra-ui'
+
+  const stream = [45, 52, 48, 65, 78, 70, 92, 88, 104]
+</script>
+
+<!-- Embedded inside any stat card or table cell -->
+<div class="flex items-center gap-4 p-4 border border-[var(--terra-border)]">
+  <div>
+    <span class="text-xs text-slate-400">LATENCY</span>
+    <span class="text-xl font-bold text-cyan-400">0.82ms</span>
+  </div>
+  <TerraSparkline
+    data={stream}
+    width={120}
+    height={32}
+    variant="accent"
+    showPulse={true}
+  />
+</div>`,
+        props: [
+          { name: 'data', type: 'number[]', default: '[24, 38, ...]', required: true, description: 'Numeric sequence values' },
+          { name: 'width', type: 'number | string', default: "'100%'", description: 'Width in pixels or CSS dimension' },
+          { name: 'height', type: 'number', default: '32', description: 'Canvas height in pixels' },
+          { name: 'variant', type: "'accent' | 'success' | 'warning' | 'danger'", default: "'accent'", description: 'Color theme variant' },
+          { name: 'fill', type: 'boolean', default: 'true', description: 'Render translucent gradient area fill' },
+          { name: 'smooth', type: 'boolean', default: 'true', description: 'Smooth cubic Bezier vs straight CAD polyline' },
+          { name: 'showPulse', type: 'boolean', default: 'true', description: 'Render animated ping dot at last data point' }
+        ]
       }
     ]
   },

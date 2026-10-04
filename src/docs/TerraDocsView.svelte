@@ -18,6 +18,9 @@
   import TerraVerticalTabs from '../components/TerraVerticalTabs.svelte'
   import TerraCornerBrackets from '../components/TerraCornerBrackets.svelte'
   import TerraProfileCard from '../components/TerraProfileCard.svelte'
+  import TerraSparkline from '../components/TerraSparkline.svelte'
+  import TerraStatusStrip from '../components/TerraStatusStrip.svelte'
+  import TerraActivityHeatmap from '../components/TerraActivityHeatmap.svelte'
 
   interface Props {
     locale?: 'en' | 'zh'
@@ -335,6 +338,32 @@
             {:else if activePage.id === 'bar-chart'}
               <div class="w-full max-w-md">
                 <TerraBarChart data={sampleBarData} height={140} barWidth={24} unit="%" />
+              </div>
+            {:else if activePage.id === 'activity-heatmap'}
+              <div class="w-full max-w-2xl">
+                <TerraActivityHeatmap weeks={38} cellSize={11} cellGap={3} />
+              </div>
+            {:else if activePage.id === 'status-strip'}
+              <div class="w-full max-w-xl space-y-4">
+                <TerraStatusStrip serviceName="CORE_GATEWAY_ROUTER" days={60} />
+                <TerraStatusStrip serviceName="PAYMENT_AUTH_SERVICE" days={60} />
+              </div>
+            {:else if activePage.id === 'sparkline'}
+              <div class="w-full max-w-md grid grid-cols-2 gap-4">
+                <div class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1">
+                  <div class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]">
+                    <span>CPU LOAD</span>
+                    <span class="text-[var(--terra-accent-primary)] font-bold">64.2%</span>
+                  </div>
+                  <TerraSparkline data={[20, 28, 42, 35, 58, 48, 72, 64]} height={28} variant="accent" />
+                </div>
+                <div class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1">
+                  <div class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]">
+                    <span>I/O BUFFER</span>
+                    <span class="text-[var(--terra-accent-success,#00f076)] font-bold">98.8%</span>
+                  </div>
+                  <TerraSparkline data={[60, 68, 75, 82, 80, 88, 95, 99]} height={28} variant="success" />
+                </div>
               </div>
             {:else if activePage.id === 'segment-bar'}
               <div class="w-full max-w-md space-y-4">
