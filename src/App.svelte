@@ -697,8 +697,8 @@
           <div class="py-2" style="transform: translateZ(40px);">
             <TerraDonutChart
               data={spatialDonutData}
-              size={210}
-              thickness={24}
+              size={220}
+              thickness={22}
               title={t.sec02.donutTitle}
               unit="%"
             />
