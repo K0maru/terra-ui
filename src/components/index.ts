@@ -10,9 +10,16 @@ export { default as TerraContourLines } from './TerraContourLines.svelte'
 export { default as TerraCurtainTransition } from './TerraCurtainTransition.svelte'
 export { default as TerraInitialBootScreen } from './TerraInitialBootScreen.svelte'
 
-// Atlos Generic Primitives
+// Atlos Generic Primitives & HUD elements
 export { default as TerraCadPattern } from './TerraCadPattern.svelte'
 export { default as TerraCornerBrackets } from './TerraCornerBrackets.svelte'
 export { default as TerraVerticalSlider } from './TerraVerticalSlider.svelte'
 export { default as TerraVerticalTabs, type TerraTabItem } from './TerraVerticalTabs.svelte'
+export { default as TerraTacticalProfile } from './TerraTacticalProfile.svelte'
 export { default as TerraDossierCard } from './TerraDossierCard.svelte'
+
+// 3D Spatial & Tactical Chart Suite (v0.7.0)
+export { default as TerraSpatialCard } from './TerraSpatialCard.svelte'
+export { default as TerraDonutChart } from './TerraDonutChart.svelte'
+export { default as TerraLineChart } from './TerraLineChart.svelte'
+export { default as TerraBarChart } from './TerraBarChart.svelte'

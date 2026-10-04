@@ -2,16 +2,83 @@
 
 /* ==========================================================================
    TERRA-UI DESIGN TOKENS // CSS CUSTOM PROPERTIES
-   Matrix: 3 Themes (PRTS, Dijiang, Wuling) × 2 Modes (Dark, Light)
+   Matrix: 3 Functional Themes (Cyan Blueprint, Amber Hazard, Emerald Bio) × 2 Modes (Dark, Light)
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. DIJIANG / VALLEY (终末地 帝江号工程拓荒舰 / 四号谷地)
+   1. CYAN // BLUEPRINT (战术工程蓝图 · 默认基准)
+   Aliased with 'prts' for backward compatibility
    -------------------------------------------------------------------------- */
 :root,
+[data-theme="cyan"][data-mode="dark"],
+[data-theme="cyan"],
+[data-theme="prts"][data-mode="dark"],
+[data-theme="prts"] {
+  --terra-theme-id: "cyan";
+  --terra-bg-base: #090b0e;
+  --terra-bg-surface: #11141c;
+  --terra-bg-surface-hover: #191f2b;
+  --terra-bg-surface-active: #232a3a;
+
+  --terra-text-primary: #ffffff;
+  --terra-text-secondary: #94a3b8;
+  --terra-text-muted: #526071;
+
+  --terra-accent-primary: #00d8ff; /* 战术蓝图青光 */
+  --terra-accent-primary-dim: rgba(0, 216, 255, 0.18);
+  --terra-accent-secondary: #f59e0b; /* 战术告警橙 */
+  --terra-accent-warning: #f59e0b;
+  --terra-accent-danger: #ff3344;
+  --terra-accent-success: #10b981;
+
+  --terra-border: rgba(255, 255, 255, 0.15);
+  --terra-border-strong: rgba(255, 255, 255, 0.35);
+  --terra-border-accent: #00d8ff;
+
+  --terra-dot-rgb: 0, 216, 255;
+  --terra-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+
+  --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+  --terra-font-display: 'Oswald', sans-serif;
+  --terra-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --terra-cut-size: 10px;
+}
+
+[data-theme="cyan"][data-mode="light"],
+[data-theme="prts"][data-mode="light"] {
+  --terra-bg-base: #f4f6f8; /* 纯净仪器无菌白 */
+  --terra-bg-surface: #ffffff;
+  --terra-bg-surface-hover: #e8ecf1;
+  --terra-bg-surface-active: #dde3ea;
+
+  --terra-text-primary: #0f172a;
+  --terra-text-secondary: #475569;
+  --terra-text-muted: #7f8fa4;
+
+  --terra-accent-primary: #0088b3; /* 日照高对比工程蓝 */
+  --terra-accent-primary-dim: rgba(0, 136, 179, 0.15);
+  --terra-accent-secondary: #d97706;
+  --terra-accent-warning: #d97706;
+  --terra-accent-danger: #dc2626;
+  --terra-accent-success: #059669;
+
+  --terra-border: #cbd5e1;
+  --terra-border-strong: #0f172a;
+  --terra-border-accent: #0088b3;
+
+  --terra-dot-rgb: 15, 23, 42;
+  --terra-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   2. AMBER // HAZARD (工业高压重型工程)
+   Aliased with 'dijiang' for backward compatibility
+   -------------------------------------------------------------------------- */
+[data-theme="amber"][data-mode="dark"],
+[data-theme="amber"],
 [data-theme="dijiang"][data-mode="dark"],
 [data-theme="dijiang"] {
-  --terra-theme-id: "dijiang";
+  --terra-theme-id: "amber";
   --terra-bg-base: #0a0c0f; /* 重轧冷钢基底 */
   --terra-bg-surface: #12151b; /* 工业舱板 */
   --terra-bg-surface-hover: #1c202a;
@@ -23,7 +90,7 @@
 
   --terra-accent-primary: #fff000; /* 高电压工装荧光黄 */
   --terra-accent-primary-dim: rgba(255, 240, 0, 0.18);
-  --terra-accent-secondary: #00e5ff; /* AIC电网青蓝 */
+  --terra-accent-secondary: #00e5ff; /* 电网青蓝 */
   --terra-accent-warning: #ff8800;
   --terra-accent-danger: #ff2a44;
   --terra-accent-success: #00f076;
@@ -41,6 +108,7 @@
   --terra-cut-size: 10px;
 }
 
+[data-theme="amber"][data-mode="light"],
 [data-theme="dijiang"][data-mode="light"] {
   --terra-bg-base: #f1f3f6; /* 工装轻白/蓝图底色 */
   --terra-bg-surface: #ffffff; /* 纯白模组 */
@@ -67,11 +135,14 @@
 }
 
 /* --------------------------------------------------------------------------
-   2. WULING (终末地 武陵枢纽 / 东方未来工业)
+   3. EMERALD // BIO-CYBER (生化遥测冷玉翡翠)
+   Aliased with 'wuling' for backward compatibility
    -------------------------------------------------------------------------- */
+[data-theme="emerald"][data-mode="dark"],
+[data-theme="emerald"],
 [data-theme="wuling"][data-mode="dark"],
 [data-theme="wuling"] {
-  --terra-theme-id: "wuling";
+  --terra-theme-id: "emerald";
   --terra-bg-base: #060b0d; /* 苍山冷砚黑 */
   --terra-bg-surface: #0c1417; /* 墨玉冷光工业面板 */
   --terra-bg-surface-hover: #142226;
@@ -81,9 +152,9 @@
   --terra-text-secondary: #7fa49d;
   --terra-text-muted: #486660;
 
-  --terra-accent-primary: #00f5b8; /* 武陵高纯度翡翠翠光 */
+  --terra-accent-primary: #00f5b8; /* 高纯度翡翠翠光 */
   --terra-accent-primary-dim: rgba(0, 245, 184, 0.18);
-  --terra-accent-secondary: #d4af37; /* 汉白冷金砂 */
+  --terra-accent-secondary: #d4af37; /* 冷金砂 */
   --terra-accent-warning: #f59e0b;
   --terra-accent-danger: #ff3b30; /* 丹砂朱印 */
   --terra-accent-success: #00f5b8;
@@ -94,8 +165,14 @@
 
   --terra-dot-rgb: 0, 245, 184;
   --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 245, 184, 0.4);
+
+  --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+  --terra-font-display: 'Oswald', sans-serif;
+  --terra-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --terra-cut-size: 10px;
 }
 
+[data-theme="emerald"][data-mode="light"],
 [data-theme="wuling"][data-mode="light"] {
   --terra-bg-base: #eef4f2; /* 汉白玉微青瓷底色 */
   --terra-bg-surface: #ffffff; /* 凝脂玉面板 */
@@ -119,61 +196,6 @@
 
   --terra-dot-rgb: 9, 26, 22;
   --terra-shadow: 0 4px 20px rgba(9, 26, 22, 0.08);
-}
-
-/* --------------------------------------------------------------------------
-   3. PRTS (明日方舟 罗德岛战术协议)
-   -------------------------------------------------------------------------- */
-[data-theme="prts"][data-mode="dark"],
-[data-theme="prts"] {
-  --terra-theme-id: "prts";
-  --terra-bg-base: #090b0e;
-  --terra-bg-surface: #11141c;
-  --terra-bg-surface-hover: #191f2b;
-  --terra-bg-surface-active: #232a3a;
-
-  --terra-text-primary: #ffffff;
-  --terra-text-secondary: #94a3b8;
-  --terra-text-muted: #526071;
-
-  --terra-accent-primary: #00d8ff; /* 罗德岛冷蓝 */
-  --terra-accent-primary-dim: rgba(0, 216, 255, 0.18);
-  --terra-accent-secondary: #f59e0b; /* 战术橙 */
-  --terra-accent-warning: #f59e0b;
-  --terra-accent-danger: #ff3344;
-  --terra-accent-success: #10b981;
-
-  --terra-border: rgba(255, 255, 255, 0.15);
-  --terra-border-strong: rgba(255, 255, 255, 0.35);
-  --terra-border-accent: #00d8ff;
-
-  --terra-dot-rgb: 0, 216, 255;
-  --terra-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
-}
-
-[data-theme="prts"][data-mode="light"] {
-  --terra-bg-base: #f4f6f8; /* 医疗舱无菌冷白 */
-  --terra-bg-surface: #ffffff;
-  --terra-bg-surface-hover: #e8ecf1;
-  --terra-bg-surface-active: #dde3ea;
-
-  --terra-text-primary: #0f172a;
-  --terra-text-secondary: #475569;
-  --terra-text-muted: #7f8fa4;
-
-  --terra-accent-primary: #0088b3; /* 医用战术蓝 */
-  --terra-accent-primary-dim: rgba(0, 136, 179, 0.15);
-  --terra-accent-secondary: #d97706;
-  --terra-accent-warning: #d97706;
-  --terra-accent-danger: #dc2626;
-  --terra-accent-success: #059669;
-
-  --terra-border: #cbd5e1;
-  --terra-border-strong: #0f172a;
-  --terra-border-accent: #0088b3;
-
-  --terra-dot-rgb: 15, 23, 42;
-  --terra-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 }
 
 /* ==========================================================================

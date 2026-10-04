@@ -226,7 +226,7 @@
       <text x="540" y="328" font-size="8" fill="var(--terra-text-muted)">TRIANGULATION BENCHMARK BM-02</text>
 
       <text x="755" y="375" font-size="9">+1640m (SADDLE PASS)</text>
-      <text x="675" y="835" font-weight="bold">+980m (TALOS-II LOWLAND)</text>
+      <text x="675" y="835" font-weight="bold">+980m (BASIN LOWLAND)</text>
     </g>
   </svg>
 
@@ -239,7 +239,7 @@
       <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)]"></span>
       <span class="font-bold">+2680m (PEAK ALPHA)</span>
     </div>
-    <span class="mt-0.5 text-[8px] text-[var(--terra-text-muted)]">SECTOR_TALOS_II // HIGH_CREST</span>
+    <span class="mt-0.5 text-[8px] text-[var(--terra-text-muted)]">SECTOR_ALPHA // HIGH_CREST</span>
   </div>
 
   <!-- Mid Left: Beta Crest Index -->
@@ -281,7 +281,7 @@
       <span>{zone}</span>
     </div>
     <div class="text-[8px] mt-0.5 text-[var(--terra-text-muted)]">
-      DATUM: TALOS-II GEODETIC // CONTOUR INTERVAL: 50m // INDEX: 200m
+      DATUM: TERRA GEODETIC // CONTOUR INTERVAL: 50m // INDEX: 200m
     </div>
   </div>
 </div>
