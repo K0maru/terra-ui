@@ -6,6 +6,7 @@
     tag?: string
     cut?: 'tl-br' | 'tr-bl' | 'tr' | 'br' | 'none'
     reticle?: boolean
+    bracket?: boolean
     warning?: boolean
     children?: Snippet
     actions?: Snippet
@@ -17,6 +18,7 @@
     tag = '',
     cut = 'tr',
     reticle = true,
+    bracket = false,
     warning = false,
     children,
     actions,
@@ -33,18 +35,19 @@
 
 <div
   class="relative bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] shadow-[var(--terra-shadow)] transition-colors duration-200 {cutClass} {className}"
-  class:terra-reticle-corner={reticle}
+  class:terra-reticle-corner={reticle && !bracket}
+  class:terra-bracket-corner={bracket}
 >
   {#if warning}
     <!-- Industrial Hazard Stripe Top Bar -->
-    <div class="h-1.5 w-full terra-warning-stripe opacity-80"></div>
+    <div class="h-1.5 w-full terra-warning-stripe opacity-90"></div>
   {/if}
 
   {#if title || tag || actions}
-    <div class="flex items-center justify-between px-4 py-2.5 border-b border-[var(--terra-border)] bg-black/5 dark:bg-white/5">
+    <div class="flex items-center justify-between px-4 py-2.5 border-b border-[var(--terra-border)] bg-black/10 dark:bg-white/5">
       <div class="flex items-center gap-2.5 min-w-0">
         {#if warning}
-          <span class="w-1.5 h-3 bg-[var(--terra-accent-warning)] inline-block"></span>
+          <span class="w-1.5 h-3 bg-[var(--terra-accent-primary)] inline-block"></span>
         {/if}
         {#if title}
           <h3 class="font-mono text-xs font-bold tracking-widest uppercase text-[var(--terra-text-primary)] truncate">

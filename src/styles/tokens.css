@@ -2,24 +2,29 @@
 
 /* ==========================================================================
    TERRA-UI DESIGN TOKENS // CSS CUSTOM PROPERTIES
-   Themes: PRTS (Tactical Dark), Endfield AIC (Light Industrial), Rhine Lab (Parchment Gold)
+   Themes: 
+   1. PRTS (明日方舟 罗德岛战术深色)
+   2. DIJIANG / VALLEY (终末地 帝江号工程舰 / 四号谷地重工拓荒)
+   3. WULING (终末地 武陵枢纽 / 东方未来工业翡玉)
    ========================================================================== */
 
 :root {
   /* Default: PRTS Protocol (明日方舟罗德岛战术暗色) */
-  --terra-bg-base: #0a0c10;
-  --terra-bg-surface: #12151c;
-  --terra-bg-surface-hover: #1a1e28;
-  --terra-bg-surface-active: #232938;
+  --terra-theme-id: "prts";
+  --terra-bg-base: #090b0e;
+  --terra-bg-surface: #11141c;
+  --terra-bg-surface-hover: #181d28;
+  --terra-bg-surface-active: #222938;
 
   --terra-text-primary: #ffffff;
   --terra-text-secondary: #94a3b8;
-  --terra-text-muted: #64748b;
+  --terra-text-muted: #526071;
 
-  --terra-accent-primary: #00d8ff;
+  --terra-accent-primary: #00d8ff; /* 罗德岛冷蓝 */
   --terra-accent-primary-dim: rgba(0, 216, 255, 0.15);
+  --terra-accent-secondary: #f59e0b; /* 战术橙 */
   --terra-accent-warning: #f59e0b;
-  --terra-accent-danger: #ef4444;
+  --terra-accent-danger: #ff3344;
   --terra-accent-success: #10b981;
 
   --terra-border: rgba(255, 255, 255, 0.12);
@@ -27,7 +32,7 @@
   --terra-border-accent: #00d8ff;
 
   --terra-dot-rgb: 0, 216, 255;
-  --terra-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --terra-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
 
   --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
   --terra-font-display: 'Oswald', sans-serif;
@@ -37,57 +42,63 @@
 }
 
 /* --------------------------------------------------------------------------
-   THEME: ENDFIELD AIC (明日方舟：终末地 工装轻工业浅白/荧光黄)
+   THEME: DIJIANG / VALLEY (终末地 帝江号工程拓荒舰 / 四号谷地工业区)
+   沉重合金装甲炭灰 + 标志性高能荧光硫磺黄 + AIC电网青蓝 + 黑黄警示斜纹
    -------------------------------------------------------------------------- */
-[data-theme="endfield"] {
-  --terra-bg-base: #fafafa;
-  --terra-bg-surface: #ffffff;
-  --terra-bg-surface-hover: #f4f4f5;
-  --terra-bg-surface-active: #e4e4e7;
+[data-theme="dijiang"] {
+  --terra-theme-id: "dijiang";
+  --terra-bg-base: #0a0c0f; /* 重轧冷钢基底 */
+  --terra-bg-surface: #12151b; /* 舰桥/工业舱板 */
+  --terra-bg-surface-hover: #1a1e27;
+  --terra-bg-surface-active: #242a36;
 
-  --terra-text-primary: #18181b;
-  --terra-text-secondary: #52525b;
-  --terra-text-muted: #a1a1aa;
+  --terra-text-primary: #f8fafc;
+  --terra-text-secondary: #94a3b8;
+  --terra-text-muted: #556275;
 
-  --terra-accent-primary: #fbfb45; /* 终末地标志高能荧光黄 */
-  --terra-accent-primary-dim: rgba(251, 251, 69, 0.22);
-  --terra-accent-warning: #f97316;
-  --terra-accent-danger: #e11d48;
-  --terra-accent-success: #059669;
+  --terra-accent-primary: #fff000; /* 终末地标志高电压工装荧光黄 */
+  --terra-accent-primary-dim: rgba(255, 240, 0, 0.18);
+  --terra-accent-secondary: #00e5ff; /* AIC自动化电网流光青 */
+  --terra-accent-warning: #ff8800;
+  --terra-accent-danger: #ff2a44;
+  --terra-accent-success: #00f076;
 
-  --terra-border: #e4e4e7;
-  --terra-border-strong: #a1a1aa;
-  --terra-border-accent: #18181b;
+  --terra-border: rgba(255, 240, 0, 0.18);
+  --terra-border-strong: rgba(255, 240, 0, 0.5);
+  --terra-border-accent: #fff000;
 
-  --terra-dot-rgb: 24, 24, 27;
-  --terra-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --terra-dot-rgb: 255, 240, 0;
+  --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 240, 0, 0.3);
 }
 
 /* --------------------------------------------------------------------------
-   THEME: RHINE LAB (莱茵生命 科考暖灰/暖杏金)
+   THEME: WULING (终末地 武陵枢纽 / 东方未来工业)
+   苍砚幽墨黑 + 碧玉翡翠高能翠光 + 汉白金砂 + 丹砂赤印
    -------------------------------------------------------------------------- */
-[data-theme="rhine"] {
-  --terra-bg-base: #ece8e1;
-  --terra-bg-surface: #e2ddd5;
-  --terra-bg-surface-hover: #d7d1c7;
-  --terra-bg-surface-active: #cbc4b8;
+[data-theme="wuling"] {
+  --terra-theme-id: "wuling";
+  --terra-bg-base: #060b0d; /* 苍山冷砚黑 */
+  --terra-bg-surface: #0c1417; /* 墨玉冷光工业面板 */
+  --terra-bg-surface-hover: #131e22;
+  --terra-bg-surface-active: #1a2a30;
 
-  --terra-text-primary: #1c1a17;
-  --terra-text-secondary: #635f56;
-  --terra-text-muted: #969083;
+  --terra-text-primary: #f0fdf9;
+  --terra-text-secondary: #7fa49d;
+  --terra-text-muted: #486660;
 
-  --terra-accent-primary: #c98836; /* 莱茵生命暖杏金 */
-  --terra-accent-primary-dim: rgba(201, 136, 54, 0.18);
-  --terra-accent-warning: #c25e34;
-  --terra-accent-danger: #b91c1c;
-  --terra-accent-success: #15803d;
+  --terra-accent-primary: #00f5b8; /* 武陵高纯度碧玉翡翠翠光 */
+  --terra-accent-primary-dim: rgba(0, 245, 184, 0.16);
+  --terra-accent-secondary: #d4af37; /* 汉白金砂/冷青铜色 */
+  --terra-accent-warning: #f59e0b;
+  --terra-accent-danger: #ff3b30; /* 东方丹砂朱红印章 */
+  --terra-accent-success: #00f5b8;
 
-  --terra-border: rgba(28, 26, 23, 0.16);
-  --terra-border-strong: rgba(28, 26, 23, 0.35);
-  --terra-border-accent: #c98836;
+  --terra-border: rgba(0, 245, 184, 0.18);
+  --terra-border-strong: rgba(0, 245, 184, 0.45);
+  --terra-border-accent: #00f5b8;
 
-  --terra-dot-rgb: 28, 26, 23;
-  --terra-shadow: 0 4px 18px rgba(28, 26, 23, 0.08);
+  --terra-dot-rgb: 0, 245, 184;
+  --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 245, 184, 0.35);
 }
 
 /* ==========================================================================
@@ -155,7 +166,7 @@ html, body {
   inset: -8%;
   z-index: -10;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(var(--terra-dot-rgb), 0.28) 1.2px, transparent 1.3px);
+  background-image: radial-gradient(circle, rgba(var(--terra-dot-rgb), 0.25) 1.2px, transparent 1.3px);
   background-size: 32px 32px;
   background-position: center center;
   opacity: 0.35;
@@ -168,7 +179,7 @@ html, body {
   inset: -8%;
   z-index: -9;
   pointer-events: none;
-  background-image: radial-gradient(circle, rgba(var(--terra-dot-rgb), 0.18) 1px, transparent 1.1px);
+  background-image: radial-gradient(circle, rgba(var(--terra-dot-rgb), 0.16) 1px, transparent 1.1px);
   background-size: 54px 54px;
   background-position: 18px 18px;
   opacity: 0.25;
@@ -178,11 +189,11 @@ html, body {
 
 @keyframes terraBreathe {
   0%, 100% { opacity: 0.25; transform: scale(1) translate3d(0, 0, 0); }
-  50% { opacity: 0.48; transform: scale(1.02) translate3d(0, -0.4%, 0); }
+  50% { opacity: 0.52; transform: scale(1.02) translate3d(0, -0.4%, 0); }
 }
 
 @keyframes terraBreatheAlt {
-  0%, 100% { opacity: 0.35; transform: scale(1.02) translate3d(0, 0.4%, 0); }
+  0%, 100% { opacity: 0.38; transform: scale(1.02) translate3d(0, 0.4%, 0); }
   50% { opacity: 0.18; transform: scale(1) translate3d(0, 0, 0); }
 }
 
@@ -194,15 +205,15 @@ html, body {
 }
 
 /* ==========================================================================
-   INDUSTRIAL DECORATIVE UTILITIES
+   TACTICAL & INDUSTRIAL DECORATIVE UTILITIES
    ========================================================================== */
 .terra-warning-stripe {
   background: repeating-linear-gradient(
     -45deg,
     var(--terra-accent-primary),
     var(--terra-accent-primary) 8px,
-    transparent 8px,
-    transparent 16px
+    var(--terra-bg-base) 8px,
+    var(--terra-bg-base) 16px
   );
 }
 
@@ -211,10 +222,38 @@ html, body {
   content: '+';
   position: absolute;
   font-family: var(--terra-font-mono);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1;
-  color: var(--terra-text-muted);
+  color: var(--terra-accent-primary);
+  opacity: 0.6;
   pointer-events: none;
 }
 .terra-reticle-corner::before { top: 4px; left: 6px; }
 .terra-reticle-corner::after { bottom: 4px; right: 6px; }
+
+/* In-game bracket corners [ ] */
+.terra-bracket-corner {
+  position: relative;
+}
+.terra-bracket-corner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--terra-accent-primary);
+  border-left: 2px solid var(--terra-accent-primary);
+  pointer-events: none;
+}
+.terra-bracket-corner::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 8px;
+  height: 8px;
+  border-bottom: 2px solid var(--terra-accent-primary);
+  border-right: 2px solid var(--terra-accent-primary);
+  pointer-events: none;
+}
