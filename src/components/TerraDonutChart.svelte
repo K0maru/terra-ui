@@ -55,9 +55,11 @@
 
   const isExpanded = $derived(!animated || isMounted)
   const total = $derived(data.reduce((sum, item) => sum + item.value, 0))
-  const radius = $derived((size - thickness) / 2)
-  const circumference = $derived(2 * Math.PI * radius)
+  const haloPadding = $derived(Math.max(16, thickness * 0.75))
   const center = $derived(size / 2)
+  const radius = $derived((size - thickness - haloPadding * 2) / 2)
+  const circumference = $derived(2 * Math.PI * radius)
+  const outerReticleRadius = $derived(center - 4)
 
   // Compute SVG segment stroke offsets
   const segments = $derived.by(() => {
@@ -110,27 +112,32 @@
   <!-- Donut SVG Radar Instrument -->
   <div class="relative shrink-0 flex items-center justify-center" style="width: {size}px; height: {size}px;">
     <!-- Outer Polar HUD Ring -->
-    <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 {size} {size}">
+    <svg
+      class="absolute inset-0 w-full h-full pointer-events-none opacity-40 overflow-visible"
+      style="overflow: visible;"
+      viewBox="0 0 {size} {size}"
+    >
       <!-- Outer dashed guide circle -->
       <circle
         cx={center}
         cy={center}
-        r={center - 2}
+        r={outerReticleRadius}
         fill="none"
         stroke="var(--terra-border)"
         stroke-width="1"
         stroke-dasharray="3 3"
       />
       <!-- Polar crosshairs -->
-      <line x1={center} y1={2} x2={center} y2={8} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
-      <line x1={center} y1={size - 8} x2={center} y2={size - 2} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
-      <line x1={2} y1={center} x2={8} y2={center} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
-      <line x1={size - 8} y1={center} x2={size - 2} y2={center} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+      <line x1={center} y1={center - outerReticleRadius} x2={center} y2={center - outerReticleRadius + 6} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+      <line x1={center} y1={center + outerReticleRadius - 6} x2={center} y2={center + outerReticleRadius} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+      <line x1={center - outerReticleRadius} y1={center} x2={center - outerReticleRadius + 6} y2={center} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+      <line x1={center + outerReticleRadius - 6} y1={center} x2={center + outerReticleRadius} y2={center} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
     </svg>
 
     <!-- Interactive Segments Circle -->
     <svg
-      class="w-full h-full transform -rotate-90"
+      class="w-full h-full transform -rotate-90 overflow-visible"
+      style="overflow: visible;"
       viewBox="0 0 {size} {size}"
     >
       <!-- Background Track Circle -->
@@ -159,7 +166,7 @@
           stroke-linecap="butt"
           class="cursor-pointer transition-all duration-300"
           style="
-            filter: {isActive ? `drop-shadow(0 0 8px ${seg.color})` : 'none'};
+            filter: {isActive ? `drop-shadow(0 0 10px ${seg.color}) drop-shadow(0 0 4px ${seg.color})` : 'none'};
             transition: stroke-dasharray 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.2s ease;
           "
           onpointerenter={() => activeIndex = seg.index}
@@ -180,7 +187,7 @@
       <div class="font-display font-black text-2xl sm:text-3xl tracking-tight leading-none text-[var(--terra-text-primary)]">
         {currentDisplay.value}<span class="font-mono text-xs font-normal text-[var(--terra-text-secondary)] ml-0.5">{unit}</span>
       </div>
-      <div class="font-mono text-[10px] font-bold tracking-wider mt-1 truncate max-w-[110px]" style="color: {currentDisplay.color};">
+      <div class="font-mono text-[10px] font-bold tracking-wider mt-1 truncate max-w-[100px]" style="color: {currentDisplay.color};">
         {currentDisplay.label}
       </div>
       <div class="font-mono text-[9px] text-[var(--terra-text-muted)] mt-0.5">
