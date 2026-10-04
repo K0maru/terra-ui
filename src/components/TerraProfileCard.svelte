@@ -25,7 +25,7 @@
   let {
     avatarUrl = 'https://avatars.githubusercontent.com/u/93422639?v=4',
     username = 'K0maru',
-    nickname = '不困',
+    nickname = '',
     role = 'Lead Maintainer & Architect',
     roleZh = '核心主创 & 架构师',
     status = 'online',

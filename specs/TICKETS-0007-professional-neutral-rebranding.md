@@ -12,9 +12,9 @@
   - `src/components/TerraProfileCard.svelte` (新创建)
   - `src/components/index.ts` (导出新组件，保留向后兼容别名)
 - **实现要求**：
-  1. 真实呈现 GitHub 用户 `K0maru`（不困）的主创开发者档案：
+  1. 真实呈现 GitHub 用户 `K0maru` 的主创开发者档案：
      - 头像：`https://avatars.githubusercontent.com/u/93422639?v=4`，内嵌微缩瞄准角与扫描线；
-     - 用户名：`K0maru`（中文昵称：`不困`）；
+     - 用户名：`K0maru`；
      - 职责定位：`Lead Maintainer // 核心主创 & 架构师`；
      - 资质认证标签：`<TerraBadge variant="primary" label="MAINTAINER" code="CORE" />`；
      - 活跃状态：`<TerraStatusBeacon status="online" label="ACTIVE" />`；
