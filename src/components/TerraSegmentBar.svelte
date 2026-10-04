@@ -6,7 +6,7 @@
     total?: number
     /** 主标题，如 'AIC_MAIN_GRID (自动化工业主干网负荷)' */
     label?: string
-    /** 底部技术遥测微标语，如 '⚡ 480V THREE-PHASE // AIC-BUS LOAD 70% // NOMINAL' */
+    /** 底部技术状态微标语，如 '⚡ 480V THREE-PHASE // AIC-BUS LOAD 70% // NOMINAL' */
     sublabel?: string
     /** 状态风格变体：'nominal' | 'warning' | 'danger' | 'success' | 'accent' */
     variant?: 'nominal' | 'warning' | 'danger' | 'success' | 'accent'

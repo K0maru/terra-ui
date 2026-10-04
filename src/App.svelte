@@ -133,8 +133,8 @@
   // Section reveal visibility tracking
   let visibleSections = $state<Record<string, boolean>>({
     '01': true,
-    '02': false,
-    '03': false
+    '02': true,
+    '03': true
   })
 
   // Real FPS meter & IntersectionObserver
@@ -157,7 +157,6 @@
     document.documentElement.setAttribute('data-theme', currentTheme)
     document.documentElement.setAttribute('data-mode', currentMode)
 
-    const sections = document.querySelectorAll<HTMLElement>('section[data-section]')
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -168,16 +167,21 @@
           }
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.05, rootMargin: '-10% 0px -10% 0px' }
     )
 
-    sections.forEach((sec) => observer.observe(sec))
+    function attachObserver() {
+      const sections = document.querySelectorAll<HTMLElement>('section[data-section]')
+      sections.forEach((sec) => observer.observe(sec))
+    }
+    attachObserver()
 
     function checkHashMode() {
       if (window.location.hash.startsWith('#/docs')) {
         viewMode = 'docs'
       } else if (window.location.hash === '#/demo' || !window.location.hash) {
         viewMode = 'demo'
+        setTimeout(attachObserver, 50)
       }
     }
     checkHashMode()
@@ -578,7 +582,7 @@
     </div>
 
     <!-- 2D Operations Command Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['01'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Developer Profile Card (6 cols) -->
       <div class="lg:col-span-6 flex flex-col justify-between">
@@ -655,7 +659,7 @@
                 <span>{t.sec01.logTitle}</span>
                 <span class="text-[8px] text-[var(--terra-text-muted)]">{t.sec01.logStream}</span>
               </div>
-              <div class="space-y-1 pt-1 max-h-24 overflow-y-auto">
+              <div class="space-y-1 pt-1 h-24 overflow-y-auto">
                 {#each dispatchLogs as log}
                   <div class="text-[var(--terra-text-secondary)] tracking-tight">
                     {log}
@@ -738,7 +742,7 @@
     </div>
 
     <!-- 3D Spatial Cards Grid: Prominently Showcasing TerraSpatialCard -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['02'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Card A: 3D Tactical Donut Radar Chart in Spatial Card (7 cols) -->
       <div class="lg:col-span-7">
@@ -829,7 +833,7 @@
     </div>
 
     <!-- Energy Bus Section (Recessed Industrial Chassis) -->
-    <div class="transition-all duration-700 delay-100 {visibleSections['02'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div>
       <TerraPanel title={t.sec02.busTitle} tag="// BUS.POWER" cut="tr-bl" bracket={true} warning={true}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
           <div class="space-y-4">
@@ -893,7 +897,7 @@
     </div>
 
     <!-- Dual-Track Primitives Matrix (Left: 2D Flat / Right: 3D Spatial) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['03'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
       <!-- Track A: 2D Graphic Primitives & Charts (6 cols) -->
       <div class="lg:col-span-6 space-y-6">
@@ -1049,7 +1053,7 @@
     </div>
 
     <!-- Interactive Parametric Calibration Lab -->
-    <div class="transition-all duration-700 {visibleSections['03'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
+    <div>
       <TerraCornerBrackets label="[SEC-03 // PARAMETRIC CALIBRATION LAB]" glow={true} active={true}>
         <TerraCadPattern patternSize={110} opacity={0.14}>
           <TerraPanel title={t.sec03.labTitle} tag="// HUD.DEBUG" cut="tr-bl" bracket={false}>

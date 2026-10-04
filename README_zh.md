@@ -1,7 +1,7 @@
 # 🛡️ TERRA UI // Functional Cybernetic Design System
 
-> **Zero-VDOM // Svelte 5 Native Runes // GPU 硬件合成加速 // 工业遥测机能美学**  
-> 专为工业遥测监控、开发者基础设施、可观测性仪表盘与机能赛博界面打造的高性能 Svelte 5 组件库与设计系统。
+> **Zero-VDOM // Svelte 5 Native Runes // GPU 硬件合成加速 // 机能监控美学**  
+> 专为系统指标监控、开发者基础设施、可观测性仪表盘与机能赛博界面打造的高性能 Svelte 5 组件库与设计系统。
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Online-00f076?style=flat&logo=githubpages&logoColor=white)](https://k0maru.github.io/terra-ui/)
 
@@ -57,9 +57,9 @@ Terra-UI 将两种截然不同但互相呼应的机能视觉哲学融合为一�
 - `<TerraContourLines />`：终末地塔卫二地形等高线测绘底衬，带动态海拔坐标与 CAD 测绘十字准星。
 - `<TerraSegmentBar />`：-20° 下沉式工业 AIC 电网负荷母线 / 战术技能储备指示器，支持动态充能脉冲波。
 
-### 2. 遥测数据图表套件 (Zero-Dependency SVG)
+### 2. 原生数据图表套件 (Zero-Dependency SVG)
 - `<TerraDonutChart />`：战术环形资源分布图，支持中心聚焦度量与四通道配比。
-- `<TerraLineChart />`：零依赖纯原生矢量遥测折线图，支持双数据流波形、渐变填充与动态极值标注。
+- `<TerraLineChart />`：零依赖纯原生矢量数据流折线图，支持双数据流波形、渐变填充与动态极值标注。
 - `<TerraBarChart />`：分段直方柱状图，支持双向柱状对比与平滑更新。
 
 ### 3. 战术标尺、HUD 与精密控制
@@ -135,7 +135,7 @@ npm run build
       accentColor="var(--terra-amber)"
     />
 
-    <!-- 遥测数据环形图 -->
+    <!-- 环形数据分布图 -->
     <div class="mt-6 flex justify-center">
       <TerraDonutChart
         segments={[

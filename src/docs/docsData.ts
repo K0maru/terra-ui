@@ -35,7 +35,7 @@ export const docCategories: DocCategory[] = [
         tag: 'ARCHITECTURE // CORE',
         category: 'getting-started',
         description: 'Terra-UI is a high-performance Svelte 5 functional cybernetic design system built for telemetry dashboards and developer tools. It pioneers a dual-axis design philosophy: 2D Flat Graphic Primitives (Swiss Typographic Grid) and 3D Spatial Topology.',
-        descriptionZh: 'Terra-UI 是专为系统遥测大盘、开发者中枢与赛博机能控制台打造的 Svelte 5 高性能设计系统。首创双轴设计哲学：2D 纯平面图形图元（瑞士高密度排印网格）与 3D 空间交互拓扑。',
+        descriptionZh: 'Terra-UI 是专为数据监控大盘、开发者中枢与机能控制台打造的 Svelte 5 高性能设计系统。首创双轴设计哲学：2D 纯平面图形图元（瑞士高密度排印网格）与 3D 空间交互拓扑。',
         features: [
           'Zero-VDOM: Pure native Svelte 5 reactive compile-time runes ($state, $derived, $props)',
           '100% GPU Hardware Accelerated Compositing (clip-path, transform, opacity)',
@@ -71,7 +71,7 @@ import '@terra-ui/styles/tokens.css'
         tag: 'THEMING // TOKENS',
         category: 'getting-started',
         description: 'Terra-UI provides 3 functional themes (Blueprint Cyan, Industrial Hazard Amber, Telemetry Emerald) across both Dark Mode and Light Mode, governed by CSS custom properties.',
-        descriptionZh: 'Terra-UI 提供 3 大功能主题（工程蓝图青光、工业高压琥珀、系统遥测绿晶），全面支持深色与浅色双模切换，全量由 CSS 自定义属性驱动。',
+        descriptionZh: 'Terra-UI 提供 3 大功能主题（工程蓝图青光、工业高压琥珀、数据监控绿晶），全面支持深色与浅色双模切换，全量由 CSS 自定义属性驱动。',
         codeSnippet: `/* Toggle themes via data-theme and data-mode attributes */
 <html data-theme="cyan" data-mode="dark">
   ...
@@ -180,17 +180,17 @@ import '@terra-ui/styles/tokens.css'
   {
     id: 'charts',
     title: '03 // TELEMETRY SVG CHARTS',
-    titleZh: '03 // 零依赖原生遥测矢量图表',
+    titleZh: '03 // 零依赖原生矢量图表',
     items: [
       {
         id: 'line-chart',
         title: 'TerraLineChart',
-        titleZh: '波形遥测折线图',
+        titleZh: '数据流折线图',
         tag: 'SVG // TELEMETRY',
         componentName: 'TerraLineChart',
         category: 'charts',
         description: 'Native SVG telemetry line and area waveform chart. Features smooth cubic bezier curves, gradient area fill, CAD crosshair inspection, adaptive X-axis tick sampling, and high-contrast HUD tooltip pin box.',
-        descriptionZh: '纯原生矢量遥测折线图，包含贝塞尔平滑波形、渐变网格、十字准星探针、自适应 X 轴刻度抽样与高对比度悬浮读数提示框。',
+        descriptionZh: '纯原生矢量折线图，包含贝塞尔平滑波形、渐变网格、十字准星探针、自适应 X 轴刻度抽样与高对比度悬浮读数提示框。',
         codeSnippet: `<script lang="ts">
   import { TerraLineChart } from 'terra-ui'
 
