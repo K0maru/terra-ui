@@ -3,6 +3,10 @@
 > **Zero-VDOM // Svelte 5 Native Runes // GPU 硬件合成加速 // 工业遥测机能美学**  
 > 专为工业遥测监控、开发者基础设施、可观测性仪表盘与机能赛博界面打造的高性能 Svelte 5 组件库与设计系统。
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Online-00f076?style=flat&logo=githubpages&logoColor=white)](https://k0maru.github.io/terra-ui/)
+
+> 🔗 **Live Demo**: [https://k0maru.github.io/terra-ui/](https://k0maru.github.io/terra-ui/)
+
 [English](README.md) | [简体中文](README_zh.md)
 
 ---

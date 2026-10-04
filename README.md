@@ -3,6 +3,10 @@
 > **Zero-VDOM // Svelte 5 Native Runes // GPU Hardware Composited // Industrial Telemetry Aesthetics**  
 > A high-performance Svelte 5 component library and design system for industrial telemetry, developer tools, observability dashboards, and cybernetic interfaces.
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Online-00f076?style=flat&logo=githubpages&logoColor=white)](https://k0maru.github.io/terra-ui/)
+
+> 🔗 **Live Demo**: [https://k0maru.github.io/terra-ui/](https://k0maru.github.io/terra-ui/)
+
 [English](README.md) | [简体中文](README_zh.md)
 
 ---
