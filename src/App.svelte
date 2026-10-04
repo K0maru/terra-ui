@@ -1077,9 +1077,8 @@
 
     <!-- Interactive Parametric Calibration Lab -->
     <div>
-      <TerraCornerBrackets label="[SEC-03 // PARAMETRIC CALIBRATION LAB]" glow={true} active={true}>
-        <TerraCadPattern patternSize={110} opacity={0.14}>
-          <TerraPanel
+      <TerraCadPattern patternSize={110} opacity={0.14}>
+        <TerraPanel
             title={t.sec03.labTitle}
             tag="// HUD.DEBUG"
             cut="tr-bl"
@@ -1219,8 +1218,7 @@
             </div>
           </TerraPanel>
         </TerraCadPattern>
-      </TerraCornerBrackets>
-    </div>
+      </div>
 
     <!-- ==================================================================
          LEGAL DISCLAIMER & INSPIRATION ATTRIBUTION PANEL (TICKET-03)
