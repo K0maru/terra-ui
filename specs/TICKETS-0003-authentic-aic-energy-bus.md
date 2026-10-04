@@ -1,6 +1,6 @@
 # TICKETS-0003: 终末地正统工业能量母线组件原子工单拆解
 
-- **关联规格**：[`specs/SPEC-0003-authentic-aic-energy-bus.md`](file:///Users/k0maru3/workspace/terra-ui/specs/SPEC-0003-authentic-aic-energy-bus.md)
+- **关联规格**：[`specs/SPEC-0003-authentic-aic-energy-bus.md`](./SPEC-0003-authentic-aic-energy-bus.md)
 - **目标分支**：`feat/authentic-aic-energy-bus`
 - **执行方式**：Subagent 隔离测试先行实施
 

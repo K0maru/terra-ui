@@ -1,6 +1,6 @@
 # TICKETS-0002: 垂直控制器与亮色对比度缺陷修复原子工单
 
-- **关联规格**：[`specs/SPEC-0002-vertical-controls-and-contrast-fix.md`](file:///Users/k0maru3/workspace/terra-ui/specs/SPEC-0002-vertical-controls-and-contrast-fix.md)
+- **关联规格**：[`specs/SPEC-0002-vertical-controls-and-contrast-fix.md`](./SPEC-0002-vertical-controls-and-contrast-fix.md)
 - **目标分支**：`fix/vertical-controls-layout-and-light-mode-contrast`
 - **执行方式**：Subagent 隔离测试先行实施
 
