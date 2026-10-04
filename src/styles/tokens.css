@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   TERRA-UI DESIGN TOKENS // CSS CUSTOM PROPERTIES
+   Themes: PRTS (Tactical Dark), Endfield AIC (Light Industrial), Rhine Lab (Parchment Gold)
+   ========================================================================== */
+
+:root {
+  /* Default: PRTS Protocol (明日方舟罗德岛战术暗色) */
+  --terra-bg-base: #0a0c10;
+  --terra-bg-surface: #12151c;
+  --terra-bg-surface-hover: #1a1e28;
+  --terra-bg-surface-active: #232938;
+
+  --terra-text-primary: #ffffff;
+  --terra-text-secondary: #94a3b8;
+  --terra-text-muted: #64748b;
+
+  --terra-accent-primary: #00d8ff;
+  --terra-accent-primary-dim: rgba(0, 216, 255, 0.15);
+  --terra-accent-warning: #f59e0b;
+  --terra-accent-danger: #ef4444;
+  --terra-accent-success: #10b981;
+
+  --terra-border: rgba(255, 255, 255, 0.12);
+  --terra-border-strong: rgba(255, 255, 255, 0.28);
+  --terra-border-accent: #00d8ff;
+
+  --terra-dot-rgb: 0, 216, 255;
+  --terra-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+
+  --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+  --terra-font-display: 'Oswald', sans-serif;
+  --terra-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --terra-cut-size: 10px;
+}
+
+/* --------------------------------------------------------------------------
+   THEME: ENDFIELD AIC (明日方舟：终末地 工装轻工业浅白/荧光黄)
+   -------------------------------------------------------------------------- */
+[data-theme="endfield"] {
+  --terra-bg-base: #fafafa;
+  --terra-bg-surface: #ffffff;
+  --terra-bg-surface-hover: #f4f4f5;
+  --terra-bg-surface-active: #e4e4e7;
+
+  --terra-text-primary: #18181b;
+  --terra-text-secondary: #52525b;
+  --terra-text-muted: #a1a1aa;
+
+  --terra-accent-primary: #fbfb45; /* 终末地标志高能荧光黄 */
+  --terra-accent-primary-dim: rgba(251, 251, 69, 0.22);
+  --terra-accent-warning: #f97316;
+  --terra-accent-danger: #e11d48;
+  --terra-accent-success: #059669;
+
+  --terra-border: #e4e4e7;
+  --terra-border-strong: #a1a1aa;
+  --terra-border-accent: #18181b;
+
+  --terra-dot-rgb: 24, 24, 27;
+  --terra-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* --------------------------------------------------------------------------
+   THEME: RHINE LAB (莱茵生命 科考暖灰/暖杏金)
+   -------------------------------------------------------------------------- */
+[data-theme="rhine"] {
+  --terra-bg-base: #ece8e1;
+  --terra-bg-surface: #e2ddd5;
+  --terra-bg-surface-hover: #d7d1c7;
+  --terra-bg-surface-active: #cbc4b8;
+
+  --terra-text-primary: #1c1a17;
+  --terra-text-secondary: #635f56;
+  --terra-text-muted: #969083;
+
+  --terra-accent-primary: #c98836; /* 莱茵生命暖杏金 */
+  --terra-accent-primary-dim: rgba(201, 136, 54, 0.18);
+  --terra-accent-warning: #c25e34;
+  --terra-accent-danger: #b91c1c;
+  --terra-accent-success: #15803d;
+
+  --terra-border: rgba(28, 26, 23, 0.16);
+  --terra-border-strong: rgba(28, 26, 23, 0.35);
+  --terra-border-accent: #c98836;
+
+  --terra-dot-rgb: 28, 26, 23;
+  --terra-shadow: 0 4px 18px rgba(28, 26, 23, 0.08);
+}
+
+/* ==========================================================================
+   GLOBAL BASE STYLES
+   ========================================================================== */
+html, body {
+  background-color: var(--terra-bg-base);
+  color: var(--terra-text-primary);
+  font-family: var(--terra-font-sans);
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s ease;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   GEOMETRIC CHAMFER CUTS (GPU-Accelerated clip-path)
+   ========================================================================== */
+.terra-cut-tl-br {
+  clip-path: polygon(
+    var(--terra-cut-size) 0%,
+    100% 0%,
+    100% calc(100% - var(--terra-cut-size)),
+    calc(100% - var(--terra-cut-size)) 100%,
+    0% 100%,
+    0% var(--terra-cut-size)
+  );
+}
+
+.terra-cut-tr-bl {
+  clip-path: polygon(
+    0% 0%,
+    calc(100% - var(--terra-cut-size)) 0%,
+    100% var(--terra-cut-size),
+    100% 100%,
+    var(--terra-cut-size) 100%,
+    0% calc(100% - var(--terra-cut-size))
+  );
+}
+
+.terra-cut-tr {
+  clip-path: polygon(
+    0% 0%,
+    calc(100% - var(--terra-cut-size)) 0%,
+    100% var(--terra-cut-size),
+    100% 100%,
+    0% 100%
+  );
+}
+
+.terra-cut-br {
+  clip-path: polygon(
+    0% 0%,
+    100% 0%,
+    100% calc(100% - var(--terra-cut-size)),
+    calc(100% - var(--terra-cut-size)) 100%,
+    0% 100%
+  );
+}
+
+/* ==========================================================================
+   BREATHING DOT MATRIX BACKGROUND (GPU Compositor-Driven)
+   ========================================================================== */
+.terra-dot-matrix {
+  position: fixed;
+  inset: -8%;
+  z-index: -10;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(var(--terra-dot-rgb), 0.28) 1.2px, transparent 1.3px);
+  background-size: 32px 32px;
+  background-position: center center;
+  opacity: 0.35;
+  will-change: opacity, transform;
+  animation: terraBreathe 8s ease-in-out infinite;
+}
+
+.terra-dot-matrix-secondary {
+  position: fixed;
+  inset: -8%;
+  z-index: -9;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(var(--terra-dot-rgb), 0.18) 1px, transparent 1.1px);
+  background-size: 54px 54px;
+  background-position: 18px 18px;
+  opacity: 0.25;
+  will-change: opacity, transform;
+  animation: terraBreatheAlt 13s ease-in-out infinite;
+}
+
+@keyframes terraBreathe {
+  0%, 100% { opacity: 0.25; transform: scale(1) translate3d(0, 0, 0); }
+  50% { opacity: 0.48; transform: scale(1.02) translate3d(0, -0.4%, 0); }
+}
+
+@keyframes terraBreatheAlt {
+  0%, 100% { opacity: 0.35; transform: scale(1.02) translate3d(0, 0.4%, 0); }
+  50% { opacity: 0.18; transform: scale(1) translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terra-dot-matrix, .terra-dot-matrix-secondary {
+    animation: none !important;
+    opacity: 0.2 !important;
+  }
+}
+
+/* ==========================================================================
+   INDUSTRIAL DECORATIVE UTILITIES
+   ========================================================================== */
+.terra-warning-stripe {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--terra-accent-primary),
+    var(--terra-accent-primary) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+.terra-reticle-corner::before,
+.terra-reticle-corner::after {
+  content: '+';
+  position: absolute;
+  font-family: var(--terra-font-mono);
+  font-size: 10px;
+  line-height: 1;
+  color: var(--terra-text-muted);
+  pointer-events: none;
+}
+.terra-reticle-corner::before { top: 4px; left: 6px; }
+.terra-reticle-corner::after { bottom: 4px; right: 6px; }
