@@ -17,7 +17,7 @@
     TerraVerticalSlider,
     TerraVerticalTabs,
     type TerraTabItem,
-    TerraTacticalProfile,
+    TerraProfileCard,
     TerraSpatialCard,
     TerraDonutChart,
     TerraLineChart,
@@ -27,7 +27,7 @@
 
   const t = $derived(i18n.t)
 
-  // Functional Color Spectrum Themes: 'cyan' (Blueprint) | 'amber' (Hazard) | 'emerald' (Bio-Cyber)
+  // Functional Color Spectrum Themes: 'cyan' (Blueprint) | 'amber' (Industrial) | 'emerald' (Telemetry)
   let currentTheme = $state<'cyan' | 'amber' | 'emerald'>('cyan')
   // Modes: 'dark' | 'light'
   let currentMode = $state<'dark' | 'light'>('dark')
@@ -37,7 +37,7 @@
 
   // Curtain Transition for theme/mode hot-swaps
   let curtainActive = $state(false)
-  let transitionLabel = $state('TERRA // LOADING PROTOCOL')
+  let transitionLabel = $state('TERRA UI // SYSTEM SYNC')
 
   // Initial Boot Screen state
   let bootScreenActive = $state(false)
@@ -46,19 +46,14 @@
   let contourEnabled = $state(true)
   let cutSize = $state(10)
   let zoomFactor = $state(100)
-  let commandInput = $state('DISPATCH_DIRECTIVE_S04')
-  let customMatrixInput = $state('CYBERNETIC_SYSTEM_PARAM')
+  let commandInput = $state('QUERY_CLUSTER_METRICS')
+  let customMatrixInput = $state('TELEMETRY_SAMPLE_RATE')
 
-  // Section 01: Tactical Units Roster derived from current i18n locale
-  const units = $derived(t.units)
-  let selectedUnitIndex = $state(0)
-  const currentUnit = $derived(units[selectedUnitIndex] || units[0])
-
-  // Tactical Dispatch Terminal Logs
+  // Operations Terminal Logs
   let dispatchLogs = $state<string[]>([
-    'SYS//KERNEL_INIT: TACTICAL PROTOCOL V0.7.0 READY.',
+    'SYS//KERNEL_INIT: SVELTE 5 RUNES COMPOSITOR READY.',
     'NETWORK: BLUEPRINT / INDUSTRIAL DUAL-AXIS SYNCED.',
-    'SECURITY: LEVEL-04 CLEARANCE GRANTED TO OPERATOR DESK.'
+    'SECURITY: AUTHORIZED SESSION GRANTED TO OPERATIONS DESK.'
   ])
 
   function logDispatch(action: string) {
@@ -69,37 +64,29 @@
     ]
   }
 
-  function handleDeployUnit() {
-    logDispatch(`DEPLOY: UNIT [${currentUnit.codename}] DISPATCHED TO ACTIVE FRONT.`)
-  }
-
-  function handleViewTelemetry() {
-    logDispatch(`TELEMETRY: BIOMETRIC LINK ESTABLISHED FOR [${currentUnit.uid}].`)
-  }
-
   function handleCommandExecute() {
     if (!commandInput.trim()) return
-    logDispatch(`EXEC: COMMAND [${commandInput.toUpperCase()}] TRANSMITTED THROUGH CORE BUS.`)
+    logDispatch(`EXEC: QUERY [${commandInput.toUpperCase()}] TRANSMITTED THROUGH CORE BUS.`)
   }
 
-  function handleOverrideLink() {
-    logDispatch('OVERRIDE: SYSTEM BUS OVERRIDE LINK ENGAGED.')
+  function handleSyncCluster() {
+    logDispatch('CLUSTER: DISTRIBUTED NODES SYNCHRONIZED ACROSS REGIONS.')
   }
 
-  function handlePurgeRadiation() {
-    logDispatch('PURGE: HAZARD RADIATION SCRUB COMPLETE.')
+  function handleResetBuffer() {
+    logDispatch('BUFFER: TELEMETRY AND SHARD CACHE BUFFER RESET.')
   }
 
-  // Tactical Sectors for Vertical Tabs derived from i18n
+  // Clusters for Vertical Tabs derived from i18n
   const sectorTabs: TerraTabItem[] = $derived(t.sectorTabs)
-  let selectedSector = $state('sector4')
+  let selectedSector = $state('us-east')
 
   const sectorTelemetry = $derived(
-    t.sectors[selectedSector] || t.sectors['sector4'] || {
-      name: 'TACTICAL SECTOR',
-      coord: 'LAT: 00°00\'N // LNG: 00°00\'E',
-      status: 'NORMAL',
-      density: 'STABLE'
+    t.sectors[selectedSector] || t.sectors['us-east'] || {
+      name: 'US-EAST-01 DATA CLUSTER',
+      coord: 'LAT: 39°02\'N // LNG: 77°28\'W // DC-VA',
+      status: 'OPTIMAL // 99.99%',
+      density: 'THROUGHPUT: 42.8 Tbps // 0.8ms'
     }
   )
 
@@ -112,23 +99,23 @@
 
   // Chart Data: Subsystem Allocation Bar Chart (Section 01)
   const subsystemBarData = $state([
-    { label: 'RADAR-01', value: 64, max: 100, status: 'normal' as const },
-    { label: 'SHIELD-02', value: 88, max: 100, status: 'warning' as const },
-    { label: 'ENERGY-03', value: 94, max: 100, status: 'critical' as const },
-    { label: 'COMMS-04', value: 52, max: 100, status: 'normal' as const },
-    { label: 'MOTOR-05', value: 78, max: 100, status: 'warning' as const },
-    { label: 'LOGIC-06', value: 45, max: 100, status: 'normal' as const }
+    { label: 'CPU-CORE', value: 64, max: 100, status: 'normal' as const },
+    { label: 'MEM-POOL', value: 88, max: 100, status: 'warning' as const },
+    { label: 'GPU-SHAD', value: 94, max: 100, status: 'critical' as const },
+    { label: 'NET-IO', value: 52, max: 100, status: 'normal' as const },
+    { label: 'DISK-BUS', value: 78, max: 100, status: 'warning' as const },
+    { label: 'CACHE-L3', value: 45, max: 100, status: 'normal' as const }
   ])
 
   // Chart Data: Telemetry Waveform Line Chart (Section 01)
   const signalTelemetryData = $state([
-    { timestamp: '00:00', value: 38, label: 'INIT' },
-    { timestamp: '04:00', value: 52, label: 'RAMP' },
-    { timestamp: '08:00', value: 86, label: 'PEAK-A' },
-    { timestamp: '12:00', value: 68, label: 'CRUISE' },
-    { timestamp: '16:00', value: 92, label: 'BURST' },
+    { timestamp: '00:00', value: 38, label: 'INGRESS' },
+    { timestamp: '04:00', value: 52, label: 'BURST' },
+    { timestamp: '08:00', value: 86, label: 'PEAK' },
+    { timestamp: '12:00', value: 68, label: 'BALANCED' },
+    { timestamp: '16:00', value: 92, label: 'SURGE' },
     { timestamp: '20:00', value: 74, label: 'DAMP' },
-    { timestamp: '24:00', value: 59, label: 'NOM' }
+    { timestamp: '24:00', value: 59, label: 'STEADY' }
   ])
 
   // Chart Data: Spatial Donut Chart (Section 02)
@@ -197,9 +184,9 @@
 
   function switchTheme(theme: 'cyan' | 'amber' | 'emerald') {
     if (currentTheme === theme) return
-    transitionLabel = theme === 'cyan' ? 'BLUEPRINT // CYAN_SYNC' :
-                      theme === 'amber' ? 'HAZARD // AMBER_LOAD' :
-                      'BIO_CYBER // EMERALD_GRID'
+    transitionLabel = theme === 'cyan' ? 'BLUEPRINT // CYAN_SPECTRUM' :
+                      theme === 'amber' ? 'INDUSTRIAL // AMBER_SPECTRUM' :
+                      'TELEMETRY // EMERALD_SPECTRUM'
     triggerCurtain()
     currentTheme = theme
     document.documentElement.setAttribute('data-theme', theme)
@@ -254,7 +241,7 @@
 {#if (currentTheme === 'amber' || currentTheme === 'emerald') && contourEnabled}
   <TerraContourLines
     elevation="+2680m"
-    zone={currentTheme === 'emerald' ? 'BIO_CYBER // JADE_RIDGE' : 'HAZARD // INDUSTRIAL_VALLEY'}
+    zone={currentTheme === 'emerald' ? 'TELEMETRY // GREEN_RIDGE' : 'INDUSTRIAL // HIGH_LOAD_ZONE'}
     opacity={currentMode === 'dark' ? 0.32 : 0.18}
     class="fixed inset-0 z-0"
   />
@@ -286,7 +273,7 @@
       <div>
         <h1 class="font-mono font-bold tracking-widest text-sm sm:text-base uppercase text-[var(--terra-text-primary)] flex items-center gap-2">
           <span>{t.nav.brandTitle}</span>
-          <span class="text-[10px] px-1.5 py-0.2 bg-[var(--terra-accent-primary-dim)] text-[var(--terra-accent-primary)] border border-[var(--terra-border-strong)] font-semibold">v0.7.0</span>
+          <span class="text-[10px] px-1.5 py-0.2 bg-[var(--terra-accent-primary-dim)] text-[var(--terra-accent-primary)] border border-[var(--terra-border-strong)] font-semibold">v0.8.0</span>
         </h1>
         <p class="font-mono text-[10px] text-[var(--terra-text-muted)] tracking-wider">
           {t.nav.brandSubtitle}
@@ -496,8 +483,8 @@
 
       <div class="flex flex-col items-start md:items-end gap-2">
         <TerraBarcode
-          code="TERRA-FLAT-01"
-          serial={`${currentUnit.codename}-SYS`}
+          code="TERRA-SYS-01"
+          serial="K0MARU-ARCH"
           height={28}
         />
         <div class="flex gap-2">
@@ -507,7 +494,7 @@
       </div>
     </div>
 
-    <!-- Unit Switcher Bar -->
+    <!-- Developer & Engineering Info Bar -->
     <div class="flex flex-wrap items-center justify-between gap-4 p-3 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] terra-cut-tr">
       <div class="flex items-center gap-2 font-mono text-xs">
         <span class="text-[var(--terra-accent-primary)] font-bold">{t.sec01.unitsTitle}</span>
@@ -515,42 +502,26 @@
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        {#each units as u, idx}
-          <button
-            type="button"
-            onclick={() => selectedUnitIndex = idx}
-            class="px-3 py-1 font-mono text-xs font-bold border transition-all {selectedUnitIndex === idx ? 'bg-[var(--terra-accent-primary)] text-black border-[var(--terra-accent-primary)] shadow-sm' : 'bg-[var(--terra-bg-base)] text-[var(--terra-text-secondary)] border-[var(--terra-border)] hover:border-[var(--terra-border-strong)] hover:text-[var(--terra-text-primary)]'}"
-          >
-            [{u.codename}] <span class="text-[10px] opacity-80">{u.designation}</span>
-          </button>
-        {/each}
+        <span class="px-3 py-1 font-mono text-xs font-bold bg-[var(--terra-accent-primary)] text-black border border-[var(--terra-accent-primary)] shadow-sm">
+          [K0maru] <span class="text-[10px] opacity-80">// Lead Maintainer</span>
+        </span>
+        <span class="px-2.5 py-1 font-mono text-xs text-[var(--terra-text-muted)] border border-[var(--terra-border)]">
+          9 Repositories // Open Source
+        </span>
       </div>
     </div>
 
-    <!-- 2D Tactical Command Main Grid -->
+    <!-- 2D Operations Command Main Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 transition-all duration-700 {visibleSections['01'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
       
-      <!-- Unit Profile Card (6 cols) -->
+      <!-- Developer Profile Card (6 cols) -->
       <div class="lg:col-span-6 flex flex-col justify-between">
-        <TerraTacticalProfile
-          codename={currentUnit.codename}
-          designation={currentUnit.designation}
-          archetype={currentUnit.archetype}
-          tier={currentUnit.tier}
-          clearance={currentUnit.clearance}
-          status={currentUnit.status}
-          statusLabel={currentUnit.statusLabel}
-          uid={currentUnit.uid}
-          assignment={currentUnit.assignment}
-          ondeploy={handleDeployUnit}
-          ontelemetry={handleViewTelemetry}
-          class="h-full"
-        />
+        <TerraProfileCard class="h-full" />
       </div>
 
-      <!-- Swiss Tactical Command Bay (6 cols) -->
+      <!-- Swiss Operations Command Bay (6 cols) -->
       <div class="lg:col-span-6 flex flex-col justify-between space-y-6">
-        <TerraPanel title={t.sec01.profileTitle} tag="// SYS.CMD" cut="tr-bl" bracket={false}>
+        <TerraPanel title={t.sec01.profileTitle} tag="// SYS.OPS" cut="tr-bl" bracket={false}>
           <div class="space-y-4">
             
             <!-- Directive Input & Execution -->
@@ -563,7 +534,7 @@
                   <TerraInput
                     bind:value={commandInput}
                     placeholder={t.sec01.queryPlaceholder}
-                    prefix="SYS//DISPATCH>"
+                    prefix="SYS//OPS>"
                   />
                 </div>
                 <TerraButton variant="primary" size="md" cut="tr" onclick={handleCommandExecute}>
@@ -579,14 +550,14 @@
               </span>
               <div class="flex flex-wrap items-center gap-2">
                 <TerraBadge label={t.sec01.clearAuthorized} code="ADM" variant="primary" />
-                <TerraBadge label={t.sec01.clearHighVolt} code="AIC" variant="warning" />
-                <TerraBadge label={t.sec01.clearCorrosion} code="CRIT" variant="danger" />
-                <TerraBadge label={t.sec01.clearLinked} code="OK" variant="success" />
-                <TerraBadge label={t.sec01.clearV2} code="SYS" variant="outline" />
+                <TerraBadge label={t.sec01.clearHighVolt} code="SYS" variant="warning" />
+                <TerraBadge label={t.sec01.clearCorrosion} code="SEC" variant="danger" />
+                <TerraBadge label={t.sec01.clearLinked} code="API" variant="success" />
+                <TerraBadge label={t.sec01.clearV2} code="VER" variant="outline" />
               </div>
             </div>
 
-            <!-- Tactical Actuator Actions -->
+            <!-- System Operations Actions -->
             <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
               <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
                 {t.sec01.actuatorsTitle}
@@ -595,10 +566,10 @@
                 <TerraButton variant="primary" size="sm" cut="tr-bl" onclick={handleCommandExecute}>
                   {t.sec01.executeFull}
                 </TerraButton>
-                <TerraButton variant="outline" size="sm" cut="tl-br" onclick={handleOverrideLink}>
+                <TerraButton variant="outline" size="sm" cut="tl-br" onclick={handleSyncCluster}>
                   {t.sec01.overrideLink}
                 </TerraButton>
-                <TerraButton variant="danger" size="sm" cut="tr" onclick={handlePurgeRadiation}>
+                <TerraButton variant="danger" size="sm" cut="tr" onclick={handleResetBuffer}>
                   {t.sec01.purgeCorrosion}
                 </TerraButton>
               </div>

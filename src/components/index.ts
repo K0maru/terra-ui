@@ -15,6 +15,7 @@ export { default as TerraCadPattern } from './TerraCadPattern.svelte'
 export { default as TerraCornerBrackets } from './TerraCornerBrackets.svelte'
 export { default as TerraVerticalSlider } from './TerraVerticalSlider.svelte'
 export { default as TerraVerticalTabs, type TerraTabItem } from './TerraVerticalTabs.svelte'
+export { default as TerraProfileCard } from './TerraProfileCard.svelte'
 export { default as TerraTacticalProfile } from './TerraTacticalProfile.svelte'
 export { default as TerraDossierCard } from './TerraDossierCard.svelte'
 
