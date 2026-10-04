@@ -51,7 +51,8 @@
     cut === 'br' ? 'terra-cut-br' : ''
   )
 
-  const c = $derived(Math.max(8, cutSize))
+  // Enforce a solid minimal chamfer depth so decorations are always bold and discernible
+  const c = $derived(Math.max(14, cutSize))
 
   // Calculate polygon perimeter path points for 1px continuous vector border
   const polygonPath = $derived.by(() => {
@@ -78,8 +79,8 @@
   const isCutBL = $derived(cut === 'tr-bl')
 
   // Header safe insets to prevent actions or title clipping
-  const headerLeftPad = $derived(isCutTL ? 'pl-7' : 'pl-4')
-  const headerRightPad = $derived(isCutTR ? 'pr-7' : 'pr-4')
+  const headerLeftPad = $derived(isCutTL ? 'pl-8' : 'pl-4')
+  const headerRightPad = $derived(isCutTR ? 'pr-8' : 'pr-4')
 </script>
 
 <div
@@ -101,6 +102,13 @@
       viewBox={`0 0 ${w} ${h}`}
       aria-hidden="true"
     >
+      <defs>
+        <!-- Subtle Glow Filter for High-Impact Armor Highlights -->
+        <filter id="terra-armor-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="1.5" flood-color="var(--terra-accent-primary)" flood-opacity="0.4" />
+        </filter>
+      </defs>
+
       <!-- Continuous 1px Border along all edges including 45° chamfer -->
       <path
         d={polygonPath}
@@ -111,225 +119,316 @@
       />
 
       <!-- ===================================================================
-           PRESET 1: ENDFIELD (Talos-II AIC Industrial Heavy-Armour)
+           PRESET 1: ENDFIELD (Talos-II AIC Industrial Heavy-Armour · High Impact)
            =================================================================== -->
       {#if activeDecoration === 'endfield'}
-        <!-- 45° Chamfer Accent Runners on cut corners -->
+        <!-- 45° Bold Chamfer Armor Rails & Locking Lug Teeth -->
         {#if isCutTR}
-          <!-- TR 45° Parallel Accent Runner -->
+          <!-- TR Main Armor Rail (2.5px bold) -->
           <line
-            x1={w - c + 5}
-            y1={4}
-            x2={w - 4}
-            y2={c - 5}
+            x1={w - c + 2}
+            y1={2}
+            x2={w - 2}
+            y2={c - 2}
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            opacity="0.9"
+            stroke-width="2.5"
+            stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
-          <!-- TR Joint Notch -->
-          <circle cx={w - c} cy={0} r="1.5" fill="var(--terra-accent-primary)" />
-          <circle cx={w} cy={c} r="1.5" fill="var(--terra-accent-primary)" />
+          <!-- TR Inner Parallel Guide -->
+          {#if c >= 16}
+            <line
+              x1={w - c + 6}
+              y1={6}
+              x2={w - 6}
+              y2={c - 6}
+              stroke="var(--terra-accent-primary)"
+              stroke-width="1"
+              stroke-dasharray="3 2"
+              opacity="0.75"
+            />
+          {/if}
+          <!-- TR Locking Lug Teeth -->
+          <rect x={w - c - 2} y="-1.5" width="5" height="3" fill="var(--terra-accent-primary)" />
+          <rect x={w - 1.5} y={c - 2} width="3" height="5" fill="var(--terra-accent-primary)" />
         {/if}
 
         {#if isCutBL}
-          <!-- BL 45° Parallel Accent Runner -->
+          <!-- BL Main Armor Rail -->
           <line
-            x1={4}
-            y1={h - c + 5}
-            x2={c - 5}
-            y2={h - 4}
+            x1={c - 2}
+            y1={h - 2}
+            x2={2}
+            y2={h - c + 2}
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            opacity="0.9"
+            stroke-width="2.5"
+            stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
-          <!-- BL Joint Notch -->
-          <circle cx={c} cy={h} r="1.5" fill="var(--terra-accent-primary)" />
-          <circle cx={0} cy={h - c} r="1.5" fill="var(--terra-accent-primary)" />
+          {#if c >= 16}
+            <line
+              x1={c - 6}
+              y1={h - 6}
+              x2={6}
+              y2={h - c + 6}
+              stroke="var(--terra-accent-primary)"
+              stroke-width="1"
+              stroke-dasharray="3 2"
+              opacity="0.75"
+            />
+          {/if}
+          <rect x={c - 3} y={h - 1.5} width="5" height="3" fill="var(--terra-accent-primary)" />
+          <rect x="-1.5" y={h - c - 3} width="3" height="5" fill="var(--terra-accent-primary)" />
         {/if}
 
         {#if isCutTL}
-          <!-- TL 45° Parallel Accent Runner -->
+          <!-- TL Main Armor Rail -->
           <line
-            x1={4}
-            y1={c - 5}
-            x2={c - 5}
-            y2={4}
+            x1={2}
+            y1={c - 2}
+            x2={c - 2}
+            y2={2}
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            opacity="0.9"
+            stroke-width="2.5"
+            stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
-          <!-- TL Joint Notch -->
-          <circle cx={0} cy={c} r="1.5" fill="var(--terra-accent-primary)" />
-          <circle cx={c} cy={0} r="1.5" fill="var(--terra-accent-primary)" />
+          {#if c >= 16}
+            <line
+              x1={6}
+              y1={c - 6}
+              x2={c - 6}
+              y2={6}
+              stroke="var(--terra-accent-primary)"
+              stroke-width="1"
+              stroke-dasharray="3 2"
+              opacity="0.75"
+            />
+          {/if}
+          <rect x="-1.5" y={c - 2} width="3" height="5" fill="var(--terra-accent-primary)" />
+          <rect x={c - 3} y="-1.5" width="5" height="3" fill="var(--terra-accent-primary)" />
         {/if}
 
         {#if isCutBR}
-          <!-- BR 45° Parallel Accent Runner -->
+          <!-- BR Main Armor Rail -->
           <line
-            x1={w - c + 5}
-            y1={h - 4}
-            x2={w - 4}
-            y2={h - c + 5}
+            x1={w - c + 2}
+            y1={h - 2}
+            x2={w - 2}
+            y2={h - c + 2}
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
-            stroke-linecap="round"
-            opacity="0.9"
+            stroke-width="2.5"
+            stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
-          <!-- BR Joint Notch -->
-          <circle cx={w - c} cy={h} r="1.5" fill="var(--terra-accent-primary)" />
-          <circle cx={w} cy={h - c} r="1.5" fill="var(--terra-accent-primary)" />
+          {#if c >= 16}
+            <line
+              x1={w - c + 6}
+              y1={h - 6}
+              x2={w - 6}
+              y2={h - c + 6}
+              stroke="var(--terra-accent-primary)"
+              stroke-width="1"
+              stroke-dasharray="3 2"
+              opacity="0.75"
+            />
+          {/if}
+          <rect x={w - c - 2} y={h - 1.5} width="5" height="3" fill="var(--terra-accent-primary)" />
+          <rect x={w - 1.5} y={h - c - 3} width="3" height="5" fill="var(--terra-accent-primary)" />
         {/if}
 
-        <!-- Dual-Layer L-Brackets on intact 90° corners -->
+        <!-- Heavy-Duty 22px L-Bracket Plates on intact 90° corners -->
         {#if !isCutTL}
           <path
-            d="M 3,11 L 3,3 L 11,3"
+            d="M 2,22 L 2,2 L 22,2"
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="1.5"
+            stroke-width="2.5"
             stroke-linecap="square"
-            opacity="0.85"
+            filter="url(#terra-armor-glow)"
           />
+          <rect x="5" y="5" width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
         {/if}
         {#if !isCutTR}
           <path
-            d={`M ${w - 11},3 L ${w - 3},3 L ${w - 3},11`}
+            d={`M ${w - 22},2 L ${w - 2},2 L ${w - 2},22`}
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="1.5"
+            stroke-width="2.5"
             stroke-linecap="square"
-            opacity="0.85"
+            filter="url(#terra-armor-glow)"
           />
+          <rect x={w - 8} y="5" width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
         {/if}
         {#if !isCutBL}
           <path
-            d={`M 3,${h - 11} L 3,${h - 3} L 11,${h - 3}`}
+            d={`M 2,${h - 22} L 2,${h - 2} L 22,${h - 2}`}
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="1.5"
+            stroke-width="2.5"
             stroke-linecap="square"
-            opacity="0.85"
+            filter="url(#terra-armor-glow)"
           />
+          <rect x="5" y={h - 8} width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
         {/if}
         {#if !isCutBR}
           <path
-            d={`M ${w - 11},${h - 3} L ${w - 3},${h - 3} L ${w - 3},${h - 11}`}
+            d={`M ${w - 22},${h - 2} L ${w - 2},${h - 2} L ${w - 2},${h - 22}`}
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="1.5"
+            stroke-width="2.5"
             stroke-linecap="square"
-            opacity="0.85"
+            filter="url(#terra-armor-glow)"
           />
+          <rect x={w - 8} y={h - 8} width="3" height="3" fill="var(--terra-accent-primary)" opacity="0.8" />
         {/if}
 
       <!-- ===================================================================
-           PRESET 2: RHODES (PRTS Tactical Calibration Micro-Ticks)
+           PRESET 2: RHODES (PRTS Tactical Calibration Caliper & Stamp)
            =================================================================== -->
       {:else if activeDecoration === 'rhodes'}
-        <!-- 3 Precision Milled Micro-Ticks on intact corners -->
+        <!-- 5-Stage Caliper Ticks + Stamp on intact corners -->
         {#if !isCutTL}
-          <line x1="6" y1="0" x2="6" y2="4" stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1="9" y1="0" x2="9" y2="4" stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1="12" y1="0" x2="12" y2="4" stroke="var(--terra-accent-primary)" stroke-width="1" />
+          <line x1="6" y1="0" x2="6" y2="10" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="10" y1="0" x2="10" y2="6" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="14" y1="0" x2="14" y2="10" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="18" y1="0" x2="18" y2="6" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="22" y1="0" x2="22" y2="10" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <text x="26" y="9" font-family="var(--terra-font-mono)" font-size="8" font-weight="bold" fill="var(--terra-accent-primary)" letter-spacing="0.1em" opacity="0.9">// 01</text>
         {/if}
         {#if !isCutTR}
-          <line x1={w - 6} y1="0" x2={w - 6} y2="4" stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1={w - 9} y1="0" x2={w - 9} y2="4" stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1={w - 12} y1="0" x2={w - 12} y2="4" stroke="var(--terra-accent-primary)" stroke-width="1" />
+          <line x1={w - 6} y1="0" x2={w - 6} y2="10" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 10} y1="0" x2={w - 10} y2="6" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 14} y1="0" x2={w - 14} y2="10" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 18} y1="0" x2={w - 18} y2="6" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 22} y1="0" x2={w - 22} y2="10" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <text x={w - 48} y="9" font-family="var(--terra-font-mono)" font-size="8" font-weight="bold" fill="var(--terra-accent-primary)" letter-spacing="0.1em" opacity="0.9">PRTS //</text>
         {/if}
         {#if !isCutBL}
-          <line x1="6" y1={h} x2="6" y2={h - 4} stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1="9" y1={h} x2="9" y2={h - 4} stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1="12" y1={h} x2="12" y2={h - 4} stroke="var(--terra-accent-primary)" stroke-width="1" />
+          <line x1="6" y1={h} x2="6" y2={h - 10} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="10" y1={h} x2="10" y2={h - 6} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="14" y1={h} x2="14" y2={h - 10} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="18" y1={h} x2="18" y2={h - 6} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="22" y1={h} x2="22" y2={h - 10} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <text x="26" y={h - 3} font-family="var(--terra-font-mono)" font-size="8" font-weight="bold" fill="var(--terra-accent-primary)" letter-spacing="0.1em" opacity="0.9">// SEC</text>
         {/if}
         {#if !isCutBR}
-          <line x1={w - 6} y1={h} x2={w - 6} y2={h - 4} stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1={w - 9} y1={h} x2={w - 9} y2={h - 4} stroke="var(--terra-accent-primary)" stroke-width="1" />
-          <line x1={w - 12} y1={h} x2={w - 12} y2={h - 4} stroke="var(--terra-accent-primary)" stroke-width="1" />
+          <line x1={w - 6} y1={h} x2={w - 6} y2={h - 10} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 10} y1={h} x2={w - 10} y2={h - 6} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 14} y1={h} x2={w - 14} y2={h - 10} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 18} y1={h} x2={w - 18} y2={h - 6} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w - 22} y1={h} x2={w - 22} y2={h - 10} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
         {/if}
 
-        <!-- Chamfer joint notch points -->
+        <!-- Chamfer stepped notches -->
         {#if isCutTR}
-          <rect x={w - c - 1} y="-1" width="3" height="3" fill="var(--terra-accent-primary)" />
-          <rect x={w - 2} y={c - 1} width="3" height="3" fill="var(--terra-accent-primary)" />
+          <rect x={w - c - 3} y="-2" width="6" height="4" fill="var(--terra-accent-primary)" />
+          <rect x={w - 2} y={c - 3} width="4" height="6" fill="var(--terra-accent-primary)" />
         {/if}
         {#if isCutBL}
-          <rect x="-1" y={h - c - 1} width="3" height="3" fill="var(--terra-accent-primary)" />
-          <rect x={c - 1} y={h - 2} width="3" height="3" fill="var(--terra-accent-primary)" />
+          <rect x="-2" y={h - c - 3} width="4" height="6" fill="var(--terra-accent-primary)" />
+          <rect x={c - 3} y={h - 2} width="6" height="4" fill="var(--terra-accent-primary)" />
         {/if}
         {#if isCutTL}
-          <rect x="-1" y={c - 1} width="3" height="3" fill="var(--terra-accent-primary)" />
-          <rect x={c - 1} y="-1" width="3" height="3" fill="var(--terra-accent-primary)" />
+          <rect x="-2" y={c - 3} width="4" height="6" fill="var(--terra-accent-primary)" />
+          <rect x={c - 3} y="-2" width="6" height="4" fill="var(--terra-accent-primary)" />
         {/if}
         {#if isCutBR}
-          <rect x={w - 2} y={h - c - 1} width="3" height="3" fill="var(--terra-accent-primary)" />
-          <rect x={w - c - 1} y={h - 2} width="3" height="3" fill="var(--terra-accent-primary)" />
+          <rect x={w - 2} y={h - c - 3} width="4" height="6" fill="var(--terra-accent-primary)" />
+          <rect x={w - c - 3} y={h - 2} width="6" height="4" fill="var(--terra-accent-primary)" />
         {/if}
 
       <!-- ===================================================================
-           PRESET 3: INDUSTRIAL (Heavy Chassis Fastener Screws)
+           PRESET 3: INDUSTRIAL (Heavy 10px Hex Fasteners & Bevel Reinforcement)
            =================================================================== -->
       {:else if activeDecoration === 'industrial'}
-        <!-- Recessed 4px Chassis Fastener Rivet Dots on intact corners -->
+        <!-- 10px Recessed Hex Bolts on intact corners -->
         {#if !isCutTL}
-          <circle cx="9" cy="9" r="3" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1" />
-          <circle cx="9" cy="9" r="1" fill="var(--terra-accent-primary)" opacity="0.9" />
+          <circle cx="13" cy="13" r="6" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1.5" />
+          <polygon points="13,8.5 16.5,10.5 16.5,14.5 13,16.5 9.5,14.5 9.5,10.5" fill="var(--terra-bg-surface)" stroke="var(--terra-border-strong)" stroke-width="1" />
+          <circle cx="13" cy="13" r="1.8" fill="var(--terra-accent-primary)" />
         {/if}
         {#if !isCutTR}
-          <circle cx={w - 9} cy="9" r="3" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1" />
-          <circle cx={w - 9} cy="9" r="1" fill="var(--terra-accent-primary)" opacity="0.9" />
+          <circle cx={w - 13} cy="13" r="6" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1.5" />
+          <polygon points={`${w-13},8.5 ${w-9.5},10.5 ${w-9.5},14.5 ${w-13},16.5 ${w-16.5},14.5 ${w-16.5},10.5`} fill="var(--terra-bg-surface)" stroke="var(--terra-border-strong)" stroke-width="1" />
+          <circle cx={w - 13} cy="13" r="1.8" fill="var(--terra-accent-primary)" />
         {/if}
         {#if !isCutBL}
-          <circle cx="9" cy={h - 9} r="3" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1" />
-          <circle cx="9" cy={h - 9} r="1" fill="var(--terra-accent-primary)" opacity="0.9" />
+          <circle cx="13" cy={h - 13} r="6" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1.5" />
+          <polygon points={`13,${h-16.5} 16.5,${h-14.5} 16.5,${h-10.5} 13,${h-8.5} 9.5,${h-10.5} 9.5,${h-14.5}`} fill="var(--terra-bg-surface)" stroke="var(--terra-border-strong)" stroke-width="1" />
+          <circle cx="13" cy={h - 13} r="1.8" fill="var(--terra-accent-primary)" />
         {/if}
         {#if !isCutBR}
-          <circle cx={w - 9} cy={h - 9} r="3" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1" />
-          <circle cx={w - 9} cy={h - 9} r="1" fill="var(--terra-accent-primary)" opacity="0.9" />
+          <circle cx={w - 13} cy={h - 13} r="6" fill="var(--terra-bg-surface-active)" stroke="var(--terra-border-strong)" stroke-width="1.5" />
+          <polygon points={`${w-13},${h-16.5} ${w-9.5},${h-14.5} ${w-9.5},${h-10.5} ${w-13},${h-8.5} ${w-16.5},${h-10.5} ${w-16.5},${h-14.5}`} fill="var(--terra-bg-surface)" stroke="var(--terra-border-strong)" stroke-width="1" />
+          <circle cx={w - 13} cy={h - 13} r="1.8" fill="var(--terra-accent-primary)" />
+        {/if}
+
+        <!-- Industrial Bevel Reinforcement Line on Chamfers -->
+        {#if isCutTR}
+          <line x1={w - c + 4} y1={4} x2={w - 4} y2={c - 4} stroke="var(--terra-accent-primary)" stroke-width="2" />
+        {/if}
+        {#if isCutBL}
+          <line x1={c - 4} y1={h - 4} x2={4} y2={h - c + 4} stroke="var(--terra-accent-primary)" stroke-width="2" />
+        {/if}
+        {#if isCutTL}
+          <line x1={4} y1={c - 4} x2={c - 4} y2={4} stroke="var(--terra-accent-primary)" stroke-width="2" />
+        {/if}
+        {#if isCutBR}
+          <line x1={w - c + 4} y1={h - 4} x2={w - 4} y2={h - c + 4} stroke="var(--terra-accent-primary)" stroke-width="2" />
         {/if}
 
       <!-- ===================================================================
-           PRESET 4: BRACKETS (Classic HUD Tactical Brackets - Unclipped)
+           PRESET 4: BRACKETS (Classic HUD Tactical Brackets · 22px Heavy-Duty)
            =================================================================== -->
       {:else if activeDecoration === 'brackets'}
         {#if !isCutTL}
           <path
-            d="M 0,10 L 0,0 L 10,0"
+            d="M 0,22 L 0,0 L 22,0"
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
+            stroke-width="2.5"
             stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
+          <line x1="-3" y1="0" x2="3" y2="0" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="0" y1="-3" x2="0" y2="3" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
         {/if}
         {#if !isCutTR}
           <path
-            d={`M ${w - 10},0 L ${w},0 L ${w},10`}
+            d={`M ${w - 22},0 L ${w},0 L ${w},22`}
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
+            stroke-width="2.5"
             stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
+          <line x1={w - 3} y1="0" x2={w + 3} y2="0" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w} y1="-3" x2={w} y2="3" stroke="var(--terra-accent-primary)" stroke-width="1.5" />
         {/if}
         {#if !isCutBL}
           <path
-            d={`M 0,${h - 10} L 0,${h} L 10,${h}`}
+            d={`M 0,${h - 22} L 0,${h} L 22,${h}`}
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
+            stroke-width="2.5"
             stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
+          <line x1="-3" y1={h} x2="3" y2={h} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1="0" y1={h - 3} x2="0" y2={h + 3} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
         {/if}
         {#if !isCutBR}
           <path
-            d={`M ${w - 10},${h} L ${w},${h} L ${w},${h - 10}`}
+            d={`M ${w - 22},${h} L ${w},${h} L ${w},${h - 22}`}
             fill="none"
             stroke="var(--terra-accent-primary)"
-            stroke-width="2"
+            stroke-width="2.5"
             stroke-linecap="square"
+            filter="url(#terra-armor-glow)"
           />
+          <line x1={w - 3} y1={h} x2={w + 3} y2={h} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+          <line x1={w} y1={h - 3} x2={w} y2={h + 3} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
         {/if}
       {/if}
     </svg>
