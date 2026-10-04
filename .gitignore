@@ -26,3 +26,5 @@ dist-ssr
 # References heavy upstream repositories
 references/rhine-lab/code/
 references/rhine-lab/repo/
+references/ak-ui/
+references/**/repo/
