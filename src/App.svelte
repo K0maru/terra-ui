@@ -75,7 +75,7 @@
   let metricEfficiency = $state(99.14)
   let metricLatency = $state(1.2)
   let metricThroughput = $state(9240)
-  let energyBusValue = $state(8)
+  let energyBusValue = $state(7)
   let fps = $state(120)
 
   // Section reveal visibility tracking
@@ -553,9 +553,19 @@
     <div class="transition-all duration-700 {visibleSections['02'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}">
       <TerraPanel title="AIC INDUSTRIAL ENERGY BUS" tag="// AIC.POWER" cut="tr-bl" bracket={currentTheme !== 'prts'} warning={true}>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          <div class="space-y-3">
-            <TerraSegmentBar value={energyBusValue} total={10} label="AIC_MAIN_GRID (自动化工业主干网负荷)" />
-            <TerraSegmentBar value={9} total={12} label="TACTICAL_BURST_CELL (战术技力储备矩阵)" />
+          <div class="space-y-4">
+            <TerraSegmentBar
+              bind:value={energyBusValue}
+              total={10}
+              label="AIC_MAIN_GRID (自动化工业主干网负荷)"
+              sublabel={`⚡ 480V THREE-PHASE // AIC-BUS LOAD ${Math.round((energyBusValue / 10) * 100)}% // NOMINAL`}
+            />
+            <TerraSegmentBar
+              value={9}
+              total={12}
+              label="TACTICAL_BURST_CELL (战术技力储备矩阵)"
+              sublabel="⚡ DUAL-INVERTER BUFFER // 1000V CAPACITOR BANK"
+            />
           </div>
           <div class="font-mono text-xs text-[var(--terra-text-muted)] space-y-1">
             <p>• 480V 工业三相主干网负荷保持在安全阈值区间。</p>
