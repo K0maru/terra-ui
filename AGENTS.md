@@ -30,14 +30,18 @@ flowchart LR
 为确保代码版本追溯清晰，所有提交与 PR **必须显式包含智能体身份标识**：
 
 1. **Git Commit 规范**：
-   提交消息末尾必须附带标准 Co-authored-by 署名：
+   所有 AI 智能体提交时必须在末尾附带生成声明。若本地仓库配置了 Bot 协同作者，应动态读取：
+   ```bash
+   git config --get agent.coauthor
+   ```
+   - **已配置（如开发者个人 Bot）**：追加该本地配置（例如 `Co-authored-by: <bot-name>[bot] <id+<bot-name>[bot]@users.noreply.github.com>`）；
+   - **未配置（开源通用贡献者）**：仅需保留通用的智能体标识，严禁附带未经授权的第三方人类或私有邮箱：
    ```git
    <type>(<scope>): <简要描述>
    
    <详细说明与性能指标>
    
-   🤖 Generated with Antigravity
-   Co-authored-by: Antigravity <antigravity@google.com>
+   🤖 Generated with <AgentName>
    ```
 2. **Pull Request 规范**：
    PR 标题与正文必须包含 `[AI-Agent]` 标记与详细变更列表、性能基准耗时。
