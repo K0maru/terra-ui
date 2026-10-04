@@ -675,18 +675,18 @@
               </div>
 
               <!-- Vertical Tactical Sliders Bay: 3 cols -->
-              <div class="md:col-span-3 flex flex-col items-center justify-center p-4 bg-black/20 dark:bg-black/30 border border-[var(--terra-border)] rounded-xs">
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider mb-3">
+              <div class="md:col-span-3 flex flex-col items-center justify-between p-5 bg-[var(--terra-bg-surface-active)]/30 border border-[var(--terra-border)] rounded-xs self-stretch min-h-[19rem]">
+                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider mb-2 text-center">
                   PRECISION VERTICAL CONTROLS
                 </span>
-                <div class="flex items-center justify-around w-full gap-4">
+                <div class="flex items-center justify-around w-full gap-6 px-3 my-auto">
                   <!-- Chamfer Cut Slider -->
                   <TerraVerticalSlider
                     bind:value={cutSize}
                     min={4}
                     max={24}
                     step={1}
-                    height="10rem"
+                    height="10.5rem"
                     width="1.6rem"
                     label="CHAMFER"
                     unit="px"
@@ -699,14 +699,14 @@
                     min={50}
                     max={150}
                     step={5}
-                    height="10rem"
+                    height="10.5rem"
                     width="1.6rem"
                     label="ZOOM"
                     unit="%"
                     fluidDecorations={true}
                   />
                 </div>
-                <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mt-3 text-center">
+                <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mt-2 text-center">
                   GPU 硬件合成层 (Compositor 60fps)
                 </span>
               </div>

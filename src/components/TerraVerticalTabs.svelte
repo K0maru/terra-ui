@@ -150,7 +150,7 @@
         <!-- Sector Short Code Tag -->
         {#if item.shortCode}
           <span
-            class="px-1.5 py-0.5 text-[10px] font-bold tracking-wider rounded-xs transition-colors {isSelected ? 'bg-black text-[var(--terra-accent-primary,#fff000)]' : 'bg-black/40 text-[var(--terra-text-muted,#718096)]'}"
+            class="px-1.5 py-0.5 text-[10px] font-bold tracking-wider rounded-xs transition-colors {isSelected ? 'bg-black text-[var(--terra-accent-primary,#fff000)] shadow-xs' : 'bg-[var(--terra-bg-surface-active)] text-[var(--terra-text-primary)] border border-[var(--terra-border)]'}"
           >
             {item.shortCode}
           </span>
