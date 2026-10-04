@@ -1,6 +1,6 @@
 # TICKETS-0001: 终末地 Atlos 基因通用战术组件原子拆解工单
 
-- **关联规格**：[`specs/SPEC-0001-atlos-generic-primitives.md`](file:///Users/k0maru3/workspace/terra-ui/specs/SPEC-0001-atlos-generic-primitives.md)
+- **关联规格**：[`specs/SPEC-0001-atlos-generic-primitives.md`](./SPEC-0001-atlos-generic-primitives.md)
 - **目标分支**：`feat/atlos-generic-primitives`
 - **执行方式**：Subagent 隔离测试先行实施
 

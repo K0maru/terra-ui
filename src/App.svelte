@@ -304,11 +304,31 @@
       >
         {t.nav.sec03}
       </button>
+      <button
+        type="button"
+        onclick={() => scrollToSection('section-legal')}
+        class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all text-[var(--terra-accent-primary)] hover:bg-[var(--terra-accent-primary)] hover:text-black border-l border-[var(--terra-border)] ml-1 pl-2"
+        title="View Legal Disclaimer & Attribution"
+      >
+        [{t.nav.legal}]
+      </button>
     </nav>
 
     <!-- Theme, Mode, Language & Replay Controls -->
     <div class="flex flex-wrap items-center gap-2">
       
+      <!-- Legal Disclaimer Quick Jump Button -->
+      <button
+        type="button"
+        onclick={() => scrollToSection('section-legal')}
+        title="View Legal Disclaimer & Attribution"
+        class="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] font-mono text-xs font-bold text-[var(--terra-accent-primary)] terra-cut-tr shadow-sm transition-all active:scale-95"
+      >
+        <span class="text-xs">📜</span>
+        <span class="hidden xl:inline">{t.nav.legal}</span>
+        <span class="xl:hidden">LEGAL</span>
+      </button>
+
       <!-- Replay Boot Button -->
       <button
         type="button"
@@ -1104,6 +1124,75 @@
             </div>
           </TerraPanel>
         </TerraCadPattern>
+      </TerraCornerBrackets>
+    </div>
+
+    <!-- ==================================================================
+         LEGAL DISCLAIMER & INSPIRATION ATTRIBUTION PANEL (TICKET-03)
+         ================================================================== -->
+    <div id="section-legal" class="pt-8 scroll-mt-24">
+      <TerraCornerBrackets label="[LEGAL & INSPIRATION ATTRIBUTION]" size="sm" active={true}>
+        <div class="p-6 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] terra-cut-tl-br shadow-xl space-y-6">
+          
+          <!-- Top Tag & Clearance Level -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--terra-border)] pb-4">
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-6 bg-[var(--terra-accent-primary)] terra-cut-tr"></span>
+              <div>
+                <h3 class="font-mono text-sm sm:text-base font-bold uppercase tracking-wider text-[var(--terra-text-primary)]">
+                  {t.footer.disclaimerTag}
+                </h3>
+                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] tracking-wider">
+                  NON-COMMERCIAL // ACADEMIC RESEARCH & UI/UX EXPLORATION ONLY
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <TerraBadge variant="outline" label="ZERO RUNTIME CLUTTER" code="OK" />
+              <TerraBadge variant="primary" label="NO ASSET UNPACKING" code="SEC" />
+            </div>
+          </div>
+
+          <!-- Main Legal Disclaimer Text -->
+          <div class="bg-[var(--terra-bg-base)]/70 border-l-2 border-[var(--terra-accent-primary)] p-4 font-mono text-xs sm:text-sm text-[var(--terra-text-secondary)] leading-relaxed space-y-2">
+            <div class="text-[11px] font-bold text-[var(--terra-accent-primary)] uppercase tracking-wider">
+              ◤ NOTICE // INTELLECTUAL PROPERTY & ETHICAL BOUNDARY ◢
+            </div>
+            <p class="text-[var(--terra-text-primary)] leading-relaxed">
+              {t.footer.disclaimerText}
+            </p>
+          </div>
+
+          <!-- Primary References & Citation Links -->
+          <div class="space-y-3 pt-1">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <span class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--terra-accent-primary)] flex items-center gap-2">
+                <span>🔗</span>
+                <span>{t.footer.refTitle}</span>
+              </span>
+              <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">
+                EXTERNAL VERIFICATION (OPENS NEW WINDOW)
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {#each t.footer.refLinks as ref}
+                <TerraButton
+                  variant="outline"
+                  size="sm"
+                  onclick={() => window.open(ref.url, '_blank', 'noopener,noreferrer')}
+                  class="w-full justify-between text-left py-2 hover:border-[var(--terra-accent-primary)]"
+                >
+                  <span class="truncate font-mono text-xs font-semibold">{ref.label}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 bg-[var(--terra-bg-base)] text-[var(--terra-accent-primary)] border border-[var(--terra-border)] shrink-0 ml-2">
+                    {ref.badge} ↗
+                  </span>
+                </TerraButton>
+              {/each}
+            </div>
+          </div>
+
+        </div>
       </TerraCornerBrackets>
     </div>
 

@@ -33,6 +33,7 @@ export interface TranslationSchema {
     sec01: string
     sec02: string
     sec03: string
+    legal: string
     replayBoot: string
     dark: string
     light: string
@@ -190,6 +191,14 @@ export interface TranslationSchema {
     themes: string
     transition: string
     interaction: string
+    disclaimerTag: string
+    disclaimerText: string
+    refTitle: string
+    refLinks: Array<{
+      label: string
+      url: string
+      badge: string
+    }>
   }
   units: UnitProfile[]
   sectors: Record<string, SectorInfo>
@@ -214,6 +223,7 @@ export const translations: Record<Locale, TranslationSchema> = {
       sec01: '01 // 2D FLAT INTERFACE',
       sec02: '02 // 3D SPATIAL COMPLEX',
       sec03: '03 // MATRIX & LAB',
+      legal: 'LEGAL / ATTRIBUTION',
       replayBoot: 'REPLAY BOOT',
       dark: '🌙 DARK',
       light: '☀️ LIGHT',
@@ -374,7 +384,17 @@ export const translations: Record<Locale, TranslationSchema> = {
       systemName: 'TERRA-UI // FUNCTIONAL DESIGN SYSTEM (v0.8.0)',
       themes: 'THEMES: BLUEPRINT / INDUSTRIAL / TELEMETRY',
       transition: 'AXES: 2D FLAT INTERFACE + 3D SPATIAL COMPLEX',
-      interaction: 'ZERO-VDOM // SVELTE 5 NATIVE RUNES'
+      interaction: 'ZERO-VDOM // SVELTE 5 NATIVE RUNES',
+      disclaimerTag: 'LEGAL NOTICE // ATTRIBUTION & INSPIRATION',
+      disclaimerText: 'Terra-UI is an independent, non-commercial open-source design system. The visual aesthetics, typography, and interaction patterns are inspired by "Arknights" and "Arknights: Endfield", developed and owned by Shanghai HYPERGRYPH Network Technology Co., Ltd. All related trademarks, trade dress, and intellectual property belong to HYPERGRYPH. This project is created strictly for academic research, engineering exploration, and design system demonstration. No official proprietary assets, code, or artwork are extracted, redistributed, or claimed as our own.',
+      refTitle: 'PRIMARY DESIGN INSPIRATION & REFERENCES',
+      refLinks: [
+        { label: 'HYPERGRYPH OFFICIAL', url: 'https://www.hypergryph.com/', badge: 'CORPORATE' },
+        { label: 'ARKNIGHTS OFFICIAL', url: 'https://ak.hypergryph.com/', badge: 'IP OWNER' },
+        { label: 'ENDFIELD OFFICIAL', url: 'https://endfield.hypergryph.com/', badge: 'GAME DESIGN' },
+        { label: 'DESIGN AESTHETICS // BV142zkBbEL6', url: 'https://www.bilibili.com/video/BV142zkBbEL6/', badge: 'BILIBILI' },
+        { label: 'ATLOS GITHUB REPO', url: 'https://github.com/Terra-Online/Atlos', badge: 'OPEN SOURCE' }
+      ]
     },
     units: [
       {
@@ -432,6 +452,7 @@ export const translations: Record<Locale, TranslationSchema> = {
       sec01: '01 // 2D 平面界面系统',
       sec02: '02 // 3D 空间交互系统',
       sec03: '03 // 组件矩阵与实验室',
+      legal: '版权与致敬声明',
       replayBoot: '重放引导',
       dark: '🌙 暗色',
       light: '☀️ 亮色',
@@ -592,12 +613,22 @@ export const translations: Record<Locale, TranslationSchema> = {
       systemName: 'TERRA-UI // 泰拉全域机能设计系统 (v0.8.0)',
       themes: '主题谱系: 工程蓝图 / 工业高压 / 系统遥测',
       transition: '设计双轴: 2D 平面界面 + 3D 空间交互',
-      interaction: '零虚拟 DOM // SVELTE 5 原生响应式'
+      interaction: '零虚拟 DOM // SVELTE 5 原生响应式',
+      disclaimerTag: '法律声明 // 设计灵感与致敬来源',
+      disclaimerText: 'Terra-UI 是一套独立研发的开源机能设计系统与组件库。本项目的美学风格、排印规范与交互逻辑灵感来源于上海鹰角网络科技有限公司（HYPERGRYPH）开发的作品《明日方舟》与《明日方舟：终末地》。相关游戏商标、商业外观及知识产权均归属于鹰角网络所有。本项目仅用于前端工程技术验证、学术交流与非商业展示，全量代码均为独立重构编写，未提取、未分发任何官方私有美术切片、音频或工程资产。',
+      refTitle: '核心设计灵感与参考源',
+      refLinks: [
+        { label: '鹰角网络官网', url: 'https://www.hypergryph.com/', badge: '公司主页' },
+        { label: '《明日方舟》官方网站', url: 'https://ak.hypergryph.com/', badge: '原作官网' },
+        { label: '《明日方舟：终末地》官方网站', url: 'https://endfield.hypergryph.com/', badge: '设计参考' },
+        { label: 'B站@设计师深海: 终末地美学解析', url: 'https://www.bilibili.com/video/BV142zkBbEL6/', badge: '设计解析' },
+        { label: 'GitHub 开源参考: Terra-Online/Atlos', url: 'https://github.com/Terra-Online/Atlos', badge: '开源项目' }
+      ]
     },
     units: [
       {
         codename: 'K0MARU',
-        designation: '不困 // 核心主创',
+        designation: 'K0MARU // 核心主创',
         archetype: '首席架构师 // 系统设计',
         tier: 6,
         clearance: '核心维护者 // 准入',
