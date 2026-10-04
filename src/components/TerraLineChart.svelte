@@ -113,6 +113,42 @@
     { val: minVal, y: padTop + plotHeight }
   ])
 
+  // X-axis adaptive sampled ticks (prevents label overlap and edge clipping)
+  const xTicks = $derived.by(() => {
+    if (points.length === 0) return []
+    if (points.length === 1) {
+      return [{ pt: points[0], anchor: 'middle' as const }]
+    }
+
+    const minGap = 75 // Minimum pixel distance between adjacent tick labels
+    const sampled: Array<{
+      pt: (typeof points)[0]
+      anchor: 'start' | 'middle' | 'end'
+    }> = []
+
+    // 1. First tick (aligned to start of text to avoid left edge clipping)
+    sampled.push({ pt: points[0], anchor: 'start' })
+
+    const lastPt = points[points.length - 1]
+    let prevX = points[0].x
+
+    // 2. Intermediate ticks (spaced by minGap from prev and from last point)
+    for (let i = 1; i < points.length - 1; i++) {
+      const pt = points[i]
+      if (pt.x - prevX >= minGap && lastPt.x - pt.x >= minGap) {
+        sampled.push({ pt, anchor: 'middle' })
+        prevX = pt.x
+      }
+    }
+
+    // 3. Last tick (aligned to end of text to avoid right edge clipping)
+    if (lastPt.x - prevX >= minGap * 0.5) {
+      sampled.push({ pt: lastPt, anchor: 'end' })
+    }
+
+    return sampled
+  })
+
   function handlePointerMove(e: PointerEvent) {
     if (!svgElement || points.length === 0) return
     const rect = svgElement.getBoundingClientRect()
@@ -210,7 +246,10 @@
           x={padLeft - 8}
           y={tick.y + 3}
           text-anchor="end"
-          class="font-mono text-[9px] fill-[var(--terra-text-muted)] font-semibold"
+          fill="var(--terra-text-secondary, #94a3b8)"
+          font-family="var(--terra-font-mono, monospace)"
+          font-size="9px"
+          font-weight="600"
         >
           {tick.val}
         </text>
@@ -227,28 +266,29 @@
         opacity="0.7"
       />
 
-      <!-- Vertical CAD Ticks -->
-      {#each points as pt, i}
-        {#if i % Math.max(1, Math.floor(points.length / 5)) === 0}
-          <line
-            x1={pt.x}
-            y1={padTop}
-            x2={pt.x}
-            y2={padTop + plotHeight}
-            stroke="var(--terra-border)"
-            stroke-width="1"
-            stroke-dasharray="1 5"
-            opacity="0.3"
-          />
-          <text
-            x={pt.x}
-            y={padTop + plotHeight + 14}
-            text-anchor="middle"
-            class="font-mono text-[8px] fill-[var(--terra-text-muted)]"
-          >
-            {pt.timestamp}
-          </text>
-        {/if}
+      <!-- Vertical CAD Ticks (Adaptive Sampled) -->
+      {#each xTicks as tick}
+        <line
+          x1={tick.pt.x}
+          y1={padTop}
+          x2={tick.pt.x}
+          y2={padTop + plotHeight}
+          stroke="var(--terra-border)"
+          stroke-width="1"
+          stroke-dasharray="1 5"
+          opacity="0.3"
+        />
+        <text
+          x={tick.pt.x}
+          y={padTop + plotHeight + 14}
+          text-anchor={tick.anchor}
+          fill="var(--terra-text-secondary, #94a3b8)"
+          font-family="var(--terra-font-mono, monospace)"
+          font-size="8.5px"
+          letter-spacing="0.02em"
+        >
+          {tick.pt.timestamp}
+        </text>
       {/each}
     {/if}
 
