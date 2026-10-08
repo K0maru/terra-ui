@@ -52,15 +52,15 @@ export const docCategories: DocCategory[] = [
         category: 'getting-started',
         description: 'Set up Terra-UI in any Vite + Svelte 5 project with Tailwind CSS support.',
         descriptionZh: '在任何基于 Vite + Svelte 5 + Tailwind CSS 的前端工程中集成 Terra-UI。',
-        codeSnippet: `// 1. Install dependencies
-npm install svelte@latest tailwindcss @tailwindcss/vite
+        codeSnippet: `// 1. Install package
+npm install @k0maru/terra-ui
 
-// 2. Import design tokens in your main entry (src/main.ts or app.css)
-import '@terra-ui/styles/tokens.css'
+// 2. Import compiled stylesheet in your main entry (src/main.ts or app.css)
+import '@k0maru/terra-ui/css'
 
 // 3. Import and use any component in Svelte 5
 <script lang="ts">
-  import { TerraButton, TerraLineChart } from 'terra-ui'
+  import { TerraButton, TerraLineChart } from '@k0maru/terra-ui'
 </script>
 
 <TerraButton variant="primary">LAUNCH CONSOLE</TerraButton>`

@@ -5,22 +5,24 @@
   import TerraPropsTable from './components/TerraPropsTable.svelte'
 
   // Component imports for live playgrounds
-  import TerraButton from '../components/TerraButton.svelte'
-  import TerraPanel from '../components/TerraPanel.svelte'
-  import TerraBadge from '../components/TerraBadge.svelte'
-  import TerraStatusBeacon from '../components/TerraStatusBeacon.svelte'
-  import TerraSpatialCard from '../components/TerraSpatialCard.svelte'
-  import TerraSegmentBar from '../components/TerraSegmentBar.svelte'
-  import TerraLineChart from '../components/TerraLineChart.svelte'
-  import TerraDonutChart from '../components/TerraDonutChart.svelte'
-  import TerraBarChart from '../components/TerraBarChart.svelte'
-  import TerraVerticalSlider from '../components/TerraVerticalSlider.svelte'
-  import TerraVerticalTabs from '../components/TerraVerticalTabs.svelte'
-  import TerraCornerBrackets from '../components/TerraCornerBrackets.svelte'
-  import TerraProfileCard from '../components/TerraProfileCard.svelte'
-  import TerraSparkline from '../components/TerraSparkline.svelte'
-  import TerraStatusStrip from '../components/TerraStatusStrip.svelte'
-  import TerraActivityHeatmap from '../components/TerraActivityHeatmap.svelte'
+  import {
+    TerraButton,
+    TerraPanel,
+    TerraBadge,
+    TerraStatusBeacon,
+    TerraSpatialCard,
+    TerraSegmentBar,
+    TerraLineChart,
+    TerraDonutChart,
+    TerraBarChart,
+    TerraVerticalSlider,
+    TerraVerticalTabs,
+    TerraCornerBrackets,
+    TerraProfileCard,
+    TerraSparkline,
+    TerraStatusStrip,
+    TerraActivityHeatmap
+  } from '../lib'
 
   interface Props {
     locale?: 'en' | 'zh'
