@@ -1,5 +1,10 @@
 export { default as TerraButton } from './TerraButton.svelte'
-export { default as TerraPanel } from './TerraPanel.svelte'
+export {
+  default as TerraPanel,
+  type PanelCut,
+  type PanelDecoration,
+  type DecorationFocus
+} from './TerraPanel.svelte'
 export { default as TerraBadge } from './TerraBadge.svelte'
 export { default as TerraStatusBeacon } from './TerraStatusBeacon.svelte'
 export { default as TerraBarcode } from './TerraBarcode.svelte'

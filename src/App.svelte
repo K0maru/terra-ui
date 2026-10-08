@@ -25,9 +25,9 @@
     TerraSparkline,
     TerraStatusStrip,
     TerraActivityHeatmap
-  } from './components'
+  } from './lib'
   import TerraDocsView from './docs/TerraDocsView.svelte'
-  import { i18n } from './i18n'
+  import { i18n } from './lib/i18n'
 
   const t = $derived(i18n.t)
 

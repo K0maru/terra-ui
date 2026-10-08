@@ -93,24 +93,15 @@ Terra-UI synthesizes two distinct cybernetic visual philosophies into a unified 
 
 ## 🚀 Quick Start & Usage
 
-### Installation & Development Server
+### 1. Install via npm
 
 ```bash
-# Clone the repository
-git clone https://github.com/K0maru/terra-ui.git
-cd terra-ui
-
-# Install dependencies
-npm install
-
-# Launch interactive showcase dev server
-npm run dev
-
-# Fast production build
-npm run build
+npm install @k0maru/terra-ui
 ```
 
-### Component Usage Example (Svelte 5)
+### 2. Component Usage (Svelte 5)
+
+Import components and styles directly in your Svelte application:
 
 ```svelte
 <script lang="ts">
@@ -120,7 +111,8 @@ npm run build
     TerraSegmentBar,
     TerraDonutChart,
     TerraStatusBeacon
-  } from './components'
+  } from '@k0maru/terra-ui'
+  import '@k0maru/terra-ui/css'
 
   let energyLevel = $state(76)
   let status = $state<'online' | 'warning' | 'critical'>('online')
@@ -163,6 +155,26 @@ npm run build
     </div>
   </TerraSpatialCard>
 </div>
+```
+
+### 3. Repository Development & Packaging
+
+```bash
+# Clone the repository
+git clone https://github.com/K0maru/terra-ui.git
+cd terra-ui
+
+# Install dependencies
+npm install
+
+# Launch interactive showcase dev server
+npm run dev
+
+# Fast production SPA build (for GitHub Pages)
+npm run build
+
+# Package standalone library (outputs to dist-lib/)
+npm run package
 ```
 
 ---
