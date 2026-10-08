@@ -93,24 +93,15 @@ Terra-UI 将两种截然不同但互相呼应的机能视觉哲学融合为一�
 
 ## 🚀 快速启动与使用示例 (Quick Start & Usage)
 
-### 安装与本地开发
+### 1. 通过 npm 安装
 
 ```bash
-# 克隆仓库代码
-git clone https://github.com/K0maru/terra-ui.git
-cd terra-ui
-
-# 安装依赖
-npm install
-
-# 启动交互式展示台开发服务器
-npm run dev
-
-# 极速生产构建
-npm run build
+npm install @k0maru/terra-ui
 ```
 
-### 组件使用示例 (Svelte 5)
+### 2. 组件使用示例 (Svelte 5)
+
+在 Svelte 5 项目中直接导入组件与样式：
 
 ```svelte
 <script lang="ts">
@@ -120,7 +111,8 @@ npm run build
     TerraSegmentBar,
     TerraDonutChart,
     TerraStatusBeacon
-  } from './components'
+  } from '@k0maru/terra-ui'
+  import '@k0maru/terra-ui/css'
 
   let energyLevel = $state(76)
   let status = $state<'online' | 'warning' | 'critical'>('online')
@@ -163,6 +155,26 @@ npm run build
     </div>
   </TerraSpatialCard>
 </div>
+```
+
+### 3. 仓库本地开发与打包
+
+```bash
+# 克隆仓库代码
+git clone https://github.com/K0maru/terra-ui.git
+cd terra-ui
+
+# 安装依赖
+npm install
+
+# 启动交互式展示台开发服务器
+npm run dev
+
+# 极速 SPA 生产构建（供 GitHub Pages 部署）
+npm run build
+
+# 独立组件库打包（产出至 dist-lib/）
+npm run package
 ```
 
 ---
