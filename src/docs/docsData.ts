@@ -398,9 +398,108 @@ import '@k0maru/terra-ui/css'
     ]
   },
   {
+    id: 'telemetry',
+    title: '04 // TACTICAL TELEMETRY & METERS',
+    titleZh: '04 // 战术遥测与精密仪表',
+    items: [
+      {
+        id: 'vernier-meter',
+        title: 'TerraVernierMeter',
+        titleZh: '游标微刻度尺指示器',
+        tag: 'PRECISION // METER',
+        componentName: 'TerraVernierMeter',
+        category: 'telemetry',
+        description: 'Micro vernier precision scale meter featuring 10-tier physical slide ticks, dual major/minor tick marks, smooth GPU-accelerated needle translation, active segment illumination, and WAI-ARIA role="meter" compliance.',
+        descriptionZh: '微型精密游标卡尺指示器，具备 10 段式精密刻度滑槽、长短主副刻度线、GPU 硬件加速滑动指示针、动态分段点亮以及 WAI-ARIA 仪表语义标准。',
+        codeSnippet: `<script lang="ts">
+  import { TerraVernierMeter } from '@k0maru/terra-ui'
+</script>
+
+<!-- Standard vernier meter -->
+<TerraVernierMeter value={74} min={0} max={100} ticks={10} />
+
+<!-- Overload / Hazard warning state -->
+<TerraVernierMeter value={92} min={0} max={100} hazard={true} />`,
+        props: [
+          { name: 'value', type: 'number', required: true, description: 'Current numeric value of the meter' },
+          { name: 'min', type: 'number', default: '0', description: 'Minimum scale range value' },
+          { name: 'max', type: 'number', default: '100', description: 'Maximum scale range value' },
+          { name: 'ticks', type: 'number', default: '10', description: 'Number of precision tick marks on the scale' },
+          { name: 'hazard', type: 'boolean', default: 'false', description: 'Whether the meter is in a hazard / overload warning state' },
+          { name: 'class', type: 'string', default: "''", description: 'Additional CSS classes' }
+        ],
+        features: [
+          'GPU Compositor-first sliding needle via translate3d(ratio * 100%, 0, 0)',
+          'Major/minor dual tick marks (6px major at index % 5 === 0, 3px minor)',
+          'Automatic theme accent or hazard warning illumination',
+          'Full accessibility: role="meter", aria-valuenow, aria-valuemin, aria-valuemax'
+        ],
+        featuresZh: [
+          '基于 GPU 合成层 translate3d 驱动的高流畅度滑动指示针',
+          '精密主副刻度槽（每 5 刻度出现 6px 主标尺，3px 副标尺）',
+          '自适应当前主题青光/琥珀/翡翠及超限告警金黄分色',
+          '完备 WAI-ARIA 仪表无障碍规范支持'
+        ]
+      },
+      {
+        id: 'telemetry-box',
+        title: 'TerraTelemetryBox',
+        titleZh: '高集成战术遥测仪表箱',
+        tag: 'AEROSPACE // TELEMETRY',
+        componentName: 'TerraTelemetryBox',
+        category: 'telemetry',
+        description: 'High-density aerospace and industrial tactical telemetry box inspired by Arknights UI engineering. Features 45° chamfer container, high-contrast accent left rail, protocol tags, frequency-derived hexadecimal status codes, augmented-fourth bold typography, embedded vernier meter, and micro barcode matrix.',
+        descriptionZh: '源自《明日方舟》UI 工程体系的高集成度战术遥测仪表箱。融合 45° 几何切角、高对比度导轨左边框、出厂协议号、频率派生十六进制状态码、增四度大字阶读数、内嵌游标卡尺与微型条码矩阵。',
+        codeSnippet: `<script lang="ts">
+  import { TerraTelemetryBox } from '@k0maru/terra-ui'
+</script>
+
+<TerraTelemetryBox
+  stationId="ALPHA-01"
+  protocolTag="AIC.09"
+  label="CORE_TURBINE_EFFICIENCY"
+  value={94.2}
+  min={0}
+  max={100}
+  unit="%"
+  frequencyHz={60}
+  hazardThreshold={0.85}
+  cut="tr-bl"
+/>`,
+        props: [
+          { name: 'stationId', type: 'string', default: "'STATION-01'", description: 'Station or node identifier' },
+          { name: 'protocolTag', type: 'string', default: "'AIC.09'", description: 'Industrial protocol identifier tag' },
+          { name: 'label', type: 'string', required: true, description: 'Readout telemetry metric label' },
+          { name: 'value', type: 'number', required: true, description: 'Current numeric metric value' },
+          { name: 'min', type: 'number', default: '0', description: 'Minimum metric range value' },
+          { name: 'max', type: 'number', default: '100', description: 'Maximum metric range value' },
+          { name: 'unit', type: 'string', default: "'%'", description: 'Measurement unit symbol' },
+          { name: 'frequencyHz', type: 'number', default: '60', description: 'Operating frequency in Hz (used to compute 0x hex status code)' },
+          { name: 'hazard', type: 'boolean', description: 'Explicit override for hazard overload state' },
+          { name: 'hazardThreshold', type: 'number', default: '0.85', description: 'Ratio threshold (0.0 - 1.0) above which hazard activates automatically' },
+          { name: 'showBarcode', type: 'boolean', default: 'true', description: 'Display micro barcode matrix in footer' },
+          { name: 'cut', type: "'tr' | 'tl-br' | 'tr-bl' | 'none'", default: "'tr-bl'", description: '45° geometric chamfer cut pattern' },
+          { name: 'class', type: 'string', default: "''", description: 'Additional CSS classes' }
+        ],
+        features: [
+          'High-density tactical cockpit readout layout',
+          'Integrated TerraVernierMeter with real-time sync',
+          'Automatic 0x status code derived from operating frequency',
+          'Dual state: Nominal vs Overload / Warning'
+        ],
+        featuresZh: [
+          '高集成度航空与战术工业仪表视口排版',
+          '原生内置 TerraVernierMeter 精密游标卡尺',
+          '基于运行频率自动派生十六进制状态码 (0x...)',
+          '双稳态工作机制：正常态与过载告警态自适应'
+        ]
+      }
+    ]
+  },
+  {
     id: 'controls',
-    title: '04 // CONTROLS & HUD',
-    titleZh: '04 // 精密控制与 HUD 标定',
+    title: '05 // CONTROLS & HUD',
+    titleZh: '05 // 精密控制与 HUD 标定',
     items: [
       {
         id: 'vertical-slider',
@@ -491,8 +590,8 @@ import '@k0maru/terra-ui/css'
   },
   {
     id: 'primitives',
-    title: '05 // ATOMIC PRIMITIVES',
-    titleZh: '05 // 原子控制图元与人员卡',
+    title: '06 // ATOMIC PRIMITIVES',
+    titleZh: '06 // 原子控制图元与人员卡',
     items: [
       {
         id: 'button',
@@ -571,8 +670,8 @@ import '@k0maru/terra-ui/css'
   },
   {
     id: 'legal',
-    title: '06 // LEGAL & ATTRIBUTION',
-    titleZh: '06 // 免责声明与设计致敬',
+    title: '07 // LEGAL & ATTRIBUTION',
+    titleZh: '07 // 免责声明与设计致敬',
     items: [
       {
         id: 'attribution',

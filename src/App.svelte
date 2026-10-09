@@ -24,7 +24,9 @@
     TerraBarChart,
     TerraSparkline,
     TerraStatusStrip,
-    TerraActivityHeatmap
+    TerraActivityHeatmap,
+    TerraVernierMeter,
+    TerraTelemetryBox
   } from './lib'
   import TerraDocsView from './docs/TerraDocsView.svelte'
   import { i18n } from './lib/i18n'
@@ -856,6 +858,53 @@
 
     </div>
 
+    <!-- High-Density Tactical Telemetry Matrix (SPEC-0021) -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between font-mono text-xs text-[var(--terra-text-muted)] border-b border-[var(--terra-border)] pb-2">
+        <span class="flex items-center gap-2 text-[var(--terra-text-primary)] font-bold uppercase tracking-wider">
+          <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)] animate-pulse"></span>
+          HIGH-DENSITY TACTICAL TELEMETRY MATRIX // 战术遥测仪表箱
+        </span>
+        <span class="font-telemetry text-[10px] text-[var(--terra-accent-primary)]">AIC.SPEC-0021 // LIVE</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <TerraTelemetryBox
+          stationId="ALPHA-01"
+          protocolTag="AIC.09"
+          label="TURBINE_CORE_EFFICIENCY"
+          value={metricEfficiency}
+          min={80}
+          max={100}
+          unit="%"
+          frequencyHz={fps}
+          hazardThreshold={0.98}
+        />
+        <TerraTelemetryBox
+          stationId="BETA-02"
+          protocolTag="BUS.48"
+          label="INDUSTRIAL_BUS_CHARGE"
+          value={energyBusValue * 10}
+          min={0}
+          max={100}
+          unit="%"
+          frequencyHz={50}
+          hazardThreshold={0.80}
+        />
+        <TerraTelemetryBox
+          stationId="GAMMA-03"
+          protocolTag="LAT.02"
+          label="NEURAL_BUS_LATENCY"
+          value={metricLatency}
+          min={0}
+          max={3}
+          unit="ms"
+          frequencyHz={120}
+          hazardThreshold={0.70}
+        />
+      </div>
+    </div>
+
     <!-- Energy Bus Section (Recessed Industrial Chassis) -->
     <div>
       <TerraPanel title={t.sec02.busTitle} tag="// BUS.POWER" cut="tr-bl" decoration="endfield" warning={true}>
@@ -873,6 +922,15 @@
               label={t.sec02.busBurst}
               sublabel={t.sec02.busBurstSub}
             />
+
+            <!-- Micro Vernier Precision Scale Track -->
+            <div class="p-2.5 bg-[var(--terra-bg-base)]/50 border border-[var(--terra-border)] space-y-1.5">
+              <div class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]">
+                <span class="font-tactical tracking-wider uppercase">VERNIER_SCALE // BUS_VOLTAGE_RATIO</span>
+                <span class="text-[var(--terra-accent-primary)] font-bold font-telemetry">{energyBusValue * 10}%</span>
+              </div>
+              <TerraVernierMeter value={energyBusValue * 10} min={0} max={100} ticks={10} hazard={energyBusValue >= 9} />
+            </div>
           </div>
           <div class="font-mono text-xs text-[var(--terra-text-muted)] space-y-1">
             {#each t.sec02.busNotes as note}

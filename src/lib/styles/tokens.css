@@ -38,9 +38,14 @@
   --terra-dot-rgb: 0, 216, 255;
   --terra-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
 
-  --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
-  --terra-font-display: 'Oswald', sans-serif;
-  --terra-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Oswald', sans-serif;
+  --terra-font-tactical: 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --terra-font-telemetry: 'Bender', 'Share Tech Mono', 'Chakra Petch', monospace;
+  --terra-font-body: 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Noto Sans SC', 'Inter', sans-serif;
+  --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
+  --terra-font-mono: var(--terra-font-code);
+  --terra-font-sans: var(--terra-font-body);
+  --terra-type-scale: 1.414;
   --terra-cut-size: 10px;
 }
 
@@ -102,9 +107,14 @@
   --terra-dot-rgb: 255, 240, 0;
   --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 240, 0, 0.35);
 
-  --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
-  --terra-font-display: 'Oswald', sans-serif;
-  --terra-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Oswald', sans-serif;
+  --terra-font-tactical: 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --terra-font-telemetry: 'Bender', 'Share Tech Mono', 'Chakra Petch', monospace;
+  --terra-font-body: 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Noto Sans SC', 'Inter', sans-serif;
+  --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
+  --terra-font-mono: var(--terra-font-code);
+  --terra-font-sans: var(--terra-font-body);
+  --terra-type-scale: 1.414;
   --terra-cut-size: 10px;
 }
 
@@ -166,9 +176,14 @@
   --terra-dot-rgb: 0, 245, 184;
   --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 245, 184, 0.4);
 
-  --terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
-  --terra-font-display: 'Oswald', sans-serif;
-  --terra-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Oswald', sans-serif;
+  --terra-font-tactical: 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --terra-font-telemetry: 'Bender', 'Share Tech Mono', 'Chakra Petch', monospace;
+  --terra-font-body: 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Noto Sans SC', 'Inter', sans-serif;
+  --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
+  --terra-font-mono: var(--terra-font-code);
+  --terra-font-sans: var(--terra-font-body);
+  --terra-type-scale: 1.414;
   --terra-cut-size: 10px;
 }
 
@@ -408,3 +423,14 @@ html, body {
   border-right: 2px solid var(--terra-accent-primary);
   pointer-events: none;
 }
+
+/* ==========================================================================
+   5-LEVEL TYPOGRAPHY MATRIX & SEMANTIC DIMMING TOKENS
+   ========================================================================== */
+.font-display { font-family: var(--terra-font-display); }
+.font-tactical { font-family: var(--terra-font-tactical); }
+.font-telemetry { font-family: var(--terra-font-telemetry); }
+.font-code { font-family: var(--terra-font-code); }
+.terra-text-dim { color: var(--terra-text-muted); opacity: 0.35; font-weight: 300; letter-spacing: 0.05em; }
+.terra-text-anchor { color: var(--terra-text-primary); opacity: 1; font-weight: 700; }
+
