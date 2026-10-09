@@ -94,7 +94,7 @@
       {label}
     </div>
 
-    <div class="font-telemetry text-3xl font-bold tracking-tight text-[var(--terra-text-primary)] flex items-baseline leading-none">
+    <div class="font-telemetry text-3xl sm:text-4xl font-bold tracking-normal text-[var(--terra-text-primary)] flex items-baseline leading-none">
       <span>{formattedValue}</span>
       <span
         class="unit-symbol text-sm font-normal ml-1 transition-colors duration-150"

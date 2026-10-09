@@ -1,6 +1,26 @@
 @import "tailwindcss";
 
 /* ==========================================================================
+   AUTHENTIC BENDER WEBFONT (Jovanny Lemonad & Oleg Zhuravlev)
+   Self-hosted for authentic Arknights/Endfield constructivist tactical numbers
+   ========================================================================== */
+@font-face {
+  font-family: 'Bender';
+  src: url('../fonts/Bender-Regular.woff') format('woff');
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bender';
+  src: url('../fonts/Bender-Bold.woff') format('woff');
+  font-weight: 600 700 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==========================================================================
    TERRA-UI DESIGN TOKENS // CSS CUSTOM PROPERTIES
    Matrix: 3 Functional Themes (Cyan Blueprint, Amber Hazard, Emerald Bio) × 2 Modes (Dark, Light)
    ========================================================================== */
@@ -40,7 +60,7 @@
 
   --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Syne', 'Oswald', sans-serif;
   --terra-font-tactical: 'Barlow Condensed', 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
-  --terra-font-telemetry: 'Bender', 'Chakra Petch', 'Share Tech Mono', monospace;
+  --terra-font-telemetry: 'Bender', 'Rajdhani', 'Barlow Condensed', 'Share Tech Mono', monospace;
   --terra-font-body: 'Noto Sans SC', 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Inter', sans-serif;
   --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
   --terra-font-mono: var(--terra-font-code);
@@ -109,7 +129,7 @@
 
   --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Syne', 'Oswald', sans-serif;
   --terra-font-tactical: 'Barlow Condensed', 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
-  --terra-font-telemetry: 'Bender', 'Chakra Petch', 'Share Tech Mono', monospace;
+  --terra-font-telemetry: 'Bender', 'Rajdhani', 'Barlow Condensed', 'Share Tech Mono', monospace;
   --terra-font-body: 'Noto Sans SC', 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Inter', sans-serif;
   --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
   --terra-font-mono: var(--terra-font-code);
@@ -178,7 +198,7 @@
 
   --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Syne', 'Oswald', sans-serif;
   --terra-font-tactical: 'Barlow Condensed', 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
-  --terra-font-telemetry: 'Bender', 'Chakra Petch', 'Share Tech Mono', monospace;
+  --terra-font-telemetry: 'Bender', 'Rajdhani', 'Barlow Condensed', 'Share Tech Mono', monospace;
   --terra-font-body: 'Noto Sans SC', 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Inter', sans-serif;
   --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
   --terra-font-mono: var(--terra-font-code);
