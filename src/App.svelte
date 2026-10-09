@@ -532,6 +532,48 @@
     data-section="01"
     class="min-h-[calc(100vh-4rem)] snap-start flex flex-col justify-center py-12 space-y-8 scroll-mt-16"
   >
+    <!-- 0. Tactical Telemetry Ticker Ribbon (Endfield / Rhodes Island Live Ribbon) -->
+    <div class="relative overflow-hidden bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] p-2.5 sm:p-3 terra-cut-tr flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-sm">
+      <!-- Left: Core System Status & Protocol Specs -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex items-center gap-1.5 px-2 py-0.5 bg-[var(--terra-accent-primary)] text-black font-mono text-[10px] font-extrabold tracking-widest uppercase">
+          <span class="w-1.5 h-1.5 bg-black animate-ping"></span>
+          <span>SYS.ONLINE</span>
+        </div>
+        <div class="flex items-center gap-2 font-mono text-xs">
+          <span class="terra-text-dim">STATION:</span>
+          <span class="font-telemetry font-bold text-[var(--terra-text-primary)]">CORE-PRTS-01</span>
+          <span class="terra-text-dim">// CLK:</span>
+          <span class="font-telemetry font-bold text-[var(--terra-accent-primary)]">{fps * 2}Hz</span>
+          <span class="terra-text-dim">// HEX:</span>
+          <span class="font-telemetry font-bold text-[var(--terra-text-primary)]">0x9F4C</span>
+        </div>
+      </div>
+
+      <!-- Center: Embedded Precision Vernier Meter -->
+      <div class="flex-1 max-w-md flex items-center gap-3 px-1 sm:px-3">
+        <span class="font-tactical text-[10px] terra-text-dim tracking-wider uppercase whitespace-nowrap hidden sm:inline">
+          FREQUENCY METER:
+        </span>
+        <div class="flex-1">
+          <TerraVernierMeter value={fps} min={30} max={120} ticks={12} hazard={fps < 45} />
+        </div>
+        <span class="font-telemetry text-xs font-bold text-[var(--terra-accent-primary)] whitespace-nowrap">
+          {fps} FPS
+        </span>
+      </div>
+
+      <!-- Right: Real-time Latency & Re-cycle Action -->
+      <div class="flex items-center justify-between md:justify-end gap-3">
+        <span class="font-telemetry text-xs terra-text-dim">
+          LATENCY: <strong class="text-[var(--terra-text-primary)] font-bold">{metricLatency}ms</strong>
+        </span>
+        <TerraButton variant="outline" size="sm" cut="tr" onclick={cycleMetrics}>
+          ⚡ {i18n.locale === 'zh' ? '刷新遥测' : 'CYCLE TELEMETRY'}
+        </TerraButton>
+      </div>
+    </div>
+
     <!-- Section Header Tagline -->
     <div class="flex items-center gap-2 font-mono text-xs text-[var(--terra-accent-primary)] tracking-widest uppercase">
       <span class="px-2 py-0.5 bg-[var(--terra-accent-primary)] text-black font-bold">SECTION 01</span>
@@ -543,14 +585,14 @@
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[var(--terra-border)]">
       <div class="space-y-2">
         <div class="flex items-center gap-2 font-mono text-xs text-[var(--terra-accent-primary)] tracking-widest uppercase">
-          <span>{t.sec01.deskTag}</span>
+          <span class="px-1.5 py-0.5 bg-[var(--terra-accent-primary-dim)] border border-[var(--terra-accent-primary)] font-bold">[ SEC_01 // SYS.OPS ]</span>
           <span>•</span>
-          <span>{t.sec01.swissGridTag}</span>
+          <span>{t.sec01.deskTag}</span>
           <span>•</span>
           <span class="font-bold">[{currentMode.toUpperCase()}]</span>
         </div>
         
-        <h2 class="font-display text-4xl sm:text-6xl font-bold tracking-tight uppercase leading-none text-[var(--terra-text-primary)]">
+        <h2 class="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight uppercase leading-[0.9] text-[var(--terra-text-primary)]">
           {t.sec01.title}
         </h2>
         <p class="font-mono text-xs text-[var(--terra-text-secondary)] tracking-wide">
@@ -585,6 +627,53 @@
         <span class="px-2.5 py-1 font-mono text-xs text-[var(--terra-text-muted)] border border-[var(--terra-border)]">
           9 Repositories // Open Source
         </span>
+      </div>
+    </div>
+
+    <!-- High-Density Telemetry Matrix in Section 01 (Immediate Visual Shock) -->
+    <div class="space-y-2">
+      <div class="flex items-center justify-between text-xs font-mono">
+        <span class="text-[var(--terra-text-secondary)] font-bold flex items-center gap-2">
+          <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)] animate-pulse"></span>
+          {i18n.locale === 'zh' ? '战术核心实时遥测仪表阵列' : 'TACTICAL CORE TELEMETRY MATRIX'}
+        </span>
+        <span class="font-telemetry text-[10px] text-[var(--terra-accent-primary)]">AIC.SPEC-0022 // LIVE READOUT</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <TerraTelemetryBox
+          stationId="ALPHA-01"
+          protocolTag="AIC.09"
+          label={i18n.locale === 'zh' ? '涡轮主核心效率' : 'TURBINE_CORE_EFFICIENCY'}
+          value={metricEfficiency}
+          min={80}
+          max={100}
+          unit="%"
+          frequencyHz={fps}
+          hazardThreshold={0.98}
+        />
+        <TerraTelemetryBox
+          stationId="BETA-02"
+          protocolTag="BUS.48"
+          label={i18n.locale === 'zh' ? '工业母线电荷状态' : 'INDUSTRIAL_BUS_CHARGE'}
+          value={energyBusValue * 10}
+          min={0}
+          max={100}
+          unit="%"
+          frequencyHz={50}
+          hazardThreshold={0.80}
+        />
+        <TerraTelemetryBox
+          stationId="GAMMA-03"
+          protocolTag="LAT.02"
+          label={i18n.locale === 'zh' ? '神经总线遥测延迟' : 'NEURAL_BUS_LATENCY'}
+          value={metricLatency}
+          min={0}
+          max={3}
+          unit="ms"
+          frequencyHz={120}
+          hazardThreshold={0.70}
+        />
       </div>
     </div>
 

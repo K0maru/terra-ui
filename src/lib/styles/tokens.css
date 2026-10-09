@@ -38,10 +38,10 @@
   --terra-dot-rgb: 0, 216, 255;
   --terra-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
 
-  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Oswald', sans-serif;
-  --terra-font-tactical: 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
-  --terra-font-telemetry: 'Bender', 'Share Tech Mono', 'Chakra Petch', monospace;
-  --terra-font-body: 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Noto Sans SC', 'Inter', sans-serif;
+  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Syne', 'Oswald', sans-serif;
+  --terra-font-tactical: 'Barlow Condensed', 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --terra-font-telemetry: 'Bender', 'Chakra Petch', 'Share Tech Mono', monospace;
+  --terra-font-body: 'Noto Sans SC', 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Inter', sans-serif;
   --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
   --terra-font-mono: var(--terra-font-code);
   --terra-font-sans: var(--terra-font-body);
@@ -107,10 +107,10 @@
   --terra-dot-rgb: 255, 240, 0;
   --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 240, 0, 0.35);
 
-  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Oswald', sans-serif;
-  --terra-font-tactical: 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
-  --terra-font-telemetry: 'Bender', 'Share Tech Mono', 'Chakra Petch', monospace;
-  --terra-font-body: 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Noto Sans SC', 'Inter', sans-serif;
+  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Syne', 'Oswald', sans-serif;
+  --terra-font-tactical: 'Barlow Condensed', 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --terra-font-telemetry: 'Bender', 'Chakra Petch', 'Share Tech Mono', monospace;
+  --terra-font-body: 'Noto Sans SC', 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Inter', sans-serif;
   --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
   --terra-font-mono: var(--terra-font-code);
   --terra-font-sans: var(--terra-font-body);
@@ -176,10 +176,10 @@
   --terra-dot-rgb: 0, 245, 184;
   --terra-shadow: 0 4px 28px rgba(0, 0, 0, 0.7), 0 0 1px rgba(0, 245, 184, 0.4);
 
-  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Oswald', sans-serif;
-  --terra-font-tactical: 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
-  --terra-font-telemetry: 'Bender', 'Share Tech Mono', 'Chakra Petch', monospace;
-  --terra-font-body: 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Noto Sans SC', 'Inter', sans-serif;
+  --terra-font-display: 'Novecento Sans Wide', 'Druk Wide', 'Syne', 'Oswald', sans-serif;
+  --terra-font-tactical: 'Barlow Condensed', 'Oswald', 'DIN Condensed', 'Bebas Neue', sans-serif;
+  --terra-font-telemetry: 'Bender', 'Chakra Petch', 'Share Tech Mono', monospace;
+  --terra-font-body: 'Noto Sans SC', 'DIN 1451', 'DIN Next', 'Source Han Sans SC', 'Inter', sans-serif;
   --terra-font-code: 'JetBrains Mono', 'Fira Code', monospace;
   --terra-font-mono: var(--terra-font-code);
   --terra-font-sans: var(--terra-font-body);
