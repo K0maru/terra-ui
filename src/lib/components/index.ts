@@ -35,3 +35,7 @@ export { default as TerraSparkline } from './TerraSparkline.svelte'
 export { default as TerraStatusStrip, type StatusDayRecord } from './TerraStatusStrip.svelte'
 export { default as TerraActivityHeatmap, type ActivityRecord } from './TerraActivityHeatmap.svelte'
 export { default as TerraHeatmap } from './TerraActivityHeatmap.svelte'
+
+// Tactical Telemetry & Vernier Suite (v0.2.0)
+export { default as TerraVernierMeter } from './TerraVernierMeter.svelte'
+export { default as TerraTelemetryBox } from './TerraTelemetryBox.svelte'

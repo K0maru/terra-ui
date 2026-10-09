@@ -21,7 +21,9 @@
     TerraProfileCard,
     TerraSparkline,
     TerraStatusStrip,
-    TerraActivityHeatmap
+    TerraActivityHeatmap,
+    TerraVernierMeter,
+    TerraTelemetryBox
   } from '../lib'
 
   interface Props {
@@ -40,6 +42,8 @@
   let docPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
   let docPanelCut = $state<'tr-bl' | 'tl-br' | 'tr' | 'br'>('tr-bl')
   let docPanelChamferBorder = $state(true)
+  let vernierDemoVal = $state(74)
+  let telemetryDemoVal = $state(94.2)
 
   // Sync with URL hash
   onMount(() => {
@@ -388,6 +392,61 @@
                   animated={true}
                   variant="warning"
                 />
+              </div>
+            {:else if activePage.id === 'vernier-meter'}
+              <div class="w-full max-w-md space-y-4">
+                <div class="p-4 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] space-y-3">
+                  <div class="flex items-center justify-between text-xs font-mono text-[var(--terra-text-muted)]">
+                    <span class="font-tactical tracking-wider uppercase">PRECISION VERNIER READOUT</span>
+                    <span class="text-[var(--terra-accent-primary)] font-bold font-telemetry">{vernierDemoVal}%</span>
+                  </div>
+                  <TerraVernierMeter
+                    value={vernierDemoVal}
+                    min={0}
+                    max={100}
+                    ticks={10}
+                    hazard={vernierDemoVal >= 85}
+                  />
+                  <div class="flex items-center justify-between pt-2">
+                    <button
+                      type="button"
+                      class="px-2.5 py-1 text-[10px] font-mono border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] transition-colors cursor-pointer"
+                      onclick={() => vernierDemoVal = Math.floor(Math.random() * 101)}
+                    >
+                      RANDOMIZE VALUE
+                    </button>
+                    <span class="font-mono text-[10px] {vernierDemoVal >= 85 ? 'text-[var(--terra-accent-warning)] font-bold' : 'text-[var(--terra-text-muted)]'}">
+                      {vernierDemoVal >= 85 ? 'STATUS: OVERLOAD (HAZARD)' : 'STATUS: NOMINAL'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            {:else if activePage.id === 'telemetry-box'}
+              <div class="w-full max-w-sm space-y-3">
+                <TerraTelemetryBox
+                  stationId="ALPHA-01"
+                  protocolTag="AIC.09"
+                  label="TURBINE_CORE_EFFICIENCY"
+                  value={telemetryDemoVal}
+                  min={0}
+                  max={100}
+                  unit="%"
+                  frequencyHz={60}
+                  hazardThreshold={0.85}
+                  cut="tr-bl"
+                />
+                <div class="flex items-center justify-between p-2.5 bg-black/20 border border-[var(--terra-border)] text-xs font-mono">
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 text-[10px] border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] transition-colors cursor-pointer"
+                    onclick={() => telemetryDemoVal = +(40 + Math.random() * 58).toFixed(1)}
+                  >
+                    SIMULATE READOUT
+                  </button>
+                  <span class="text-[10px] text-[var(--terra-text-muted)]">
+                    HAZARD &ge; 85%
+                  </span>
+                </div>
               </div>
             {:else if activePage.id === 'vertical-slider'}
               <div class="flex items-center gap-8 justify-center">
