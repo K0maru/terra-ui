@@ -1,45 +1,32 @@
 <script lang="ts">
+  import { Spring } from 'svelte/motion'
+  import { SPRING } from '../motion'
+
   export interface ActivityRecord {
-    /** 日期，ISO 格式 'YYYY-MM-DD' */
     date: string
-    /** 提交或活动频次 */
     count: number
-    /** 可选自定义标签 */
     label?: string
-    /** 可选元数据对象 */
-    meta?: Record<string, any>
+    meta?: Record<string, string | number | boolean>
   }
 
   interface Props {
-    /** 核心时序活动数据 */
     data?: ActivityRecord[]
-    /** 结束日期（默认当天） */
     endDate?: string | Date
-    /** 统计周数（默认 52 周） */
     weeks?: number
-    /** 单元格尺寸（px），默认 11 */
     cellSize?: number
-    /** 单元格间距（px），默认 3 */
     cellGap?: number
-    /** 是否展示顶部月份刻度（JAN ~ DEC），默认 true */
     showMonthLabels?: boolean
-    /** 是否展示左侧星期刻度（MON, WED, FRI），默认 true */
     showWeekdayLabels?: boolean
-    /** 是否展示右下角能级标尺（LESS / MORE），默认 true */
     showLegend?: boolean
-    /** 是否展示顶部战术数据概览条，默认 true */
     showOverview?: boolean
-    /** 标题说明 */
     title?: string
-    /** 单元格点击事件回调 */
     oncellclick?: (cell: { date: string; count: number; level: number }) => void
-    /** 自定义 CSS 类 */
     class?: string
   }
 
   let {
     data,
-    endDate = new Date(),
+    endDate,
     weeks = 52,
     cellSize = 11,
     cellGap = 3,
@@ -52,28 +39,25 @@
     class: className = ''
   }: Props = $props()
 
-  // 默认模拟数据生成（保证开箱即用呈现出高频与斑驳交织的专业矩阵）
   function generateDefaultActivities(): ActivityRecord[] {
     const list: ActivityRecord[] = []
-    const end = new Date()
+    const baseMs = Date.UTC(2026, 10, 25)
     const totalDays = 52 * 7
 
     for (let i = totalDays - 1; i >= 0; i--) {
-      const d = new Date(end)
-      d.setDate(d.getDate() - i)
-      const dateStr = d.toISOString().split('T')[0]
-
-      // 模拟研发规律：工作日更高、周末较低、周期性冲刺
-      const dayOfWeek = d.getDay()
+      const ms = baseMs - i * 86_400_000
+      const d = new Date(ms)
+      const dateStr = d.toISOString().slice(0, 10)
+      const dayOfWeek = d.getUTCDay()
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6
-      const rand = Math.random()
+      const seed = ((i * 73 + 19) % 97) / 97
 
       let count = 0
-      if (!isWeekend && rand > 0.18) {
-        count = Math.floor(1 + Math.random() * 8)
-        if (rand > 0.88) count += Math.floor(Math.random() * 12) // 冲刺峰值
-      } else if (isWeekend && rand > 0.65) {
-        count = Math.floor(1 + Math.random() * 4)
+      if (!isWeekend && seed > 0.18) {
+        count = 1 + Math.floor(seed * 9)
+        if (seed > 0.86) count += 8
+      } else if (isWeekend && seed > 0.68) {
+        count = 1 + Math.floor(seed * 4)
       }
 
       list.push({ date: dateStr, count })
@@ -81,18 +65,16 @@
     return list
   }
 
-  // 内部数据映射表
   const records = $derived(data && data.length > 0 ? data : generateDefaultActivities())
 
-  const dateMap = $derived.by(() => {
-    const map = new Map<string, ActivityRecord>()
+  const dateLookup = $derived.by(() => {
+    const dict: Record<string, ActivityRecord> = {}
     for (const r of records) {
-      map.set(r.date, r)
+      dict[r.date] = r
     }
-    return map
+    return dict
   })
 
-  // 峰值
   const maxCount = $derived.by(() => {
     let m = 1
     for (const r of records) {
@@ -101,20 +83,17 @@
     return m
   })
 
-  // 总计与统计
   const totalCount = $derived(records.reduce((acc, cur) => acc + (cur.count || 0), 0))
-  const activeDays = $derived(records.filter(r => r.count > 0).length)
+  const activeDays = $derived(records.filter((r) => r.count > 0).length)
 
-  // 5 阶梯度计算函数
   function getLevel(count: number, max: number): number {
     if (!count || count <= 0) return 0
     if (count <= max * 0.25) return 1
-    if (count <= max * 0.50) return 2
+    if (count <= max * 0.5) return 2
     if (count <= max * 0.75) return 3
     return 4
   }
 
-  // 生成矩阵格子坐标与月份
   const padLeft = $derived(showWeekdayLabels ? 30 : 8)
   const padTop = $derived(showMonthLabels ? 22 : 6)
   const padBottom = $derived(showLegend ? 26 : 8)
@@ -138,70 +117,172 @@
     x: number
   }
 
-  const { cells, monthLabels } = $derived.by(() => {
-    const end = typeof endDate === 'string' ? new Date(endDate) : new Date(endDate)
-    const endDayOfWeek = end.getDay() // 0 is Sun, 6 is Sat
-
-    // 计算起始周日
+  const { cells, cellGrid, monthLabels } = $derived.by(() => {
+    const endMs = endDate
+      ? typeof endDate === 'string'
+        ? Date.parse(endDate)
+        : endDate.getTime()
+      : Date.UTC(2026, 10, 25)
+    const endDayOfWeek = new Date(endMs).getUTCDay()
     const totalDays = weeks * 7
-    const startDate = new Date(end)
-    startDate.setDate(startDate.getDate() - (totalDays - 1) + (6 - endDayOfWeek))
+    const startMs = endMs - (totalDays - 1 - (6 - endDayOfWeek)) * 86_400_000
 
     const gridCells: GridCell[] = []
+    const byCoord: Record<string, GridCell> = {}
     const months: MonthLabel[] = []
+    const monthNames = [
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC'
+    ]
     let lastMonth = -1
 
     for (let c = 0; c < weeks; c++) {
       for (let r = 0; r < 7; r++) {
-        const curDate = new Date(startDate)
-        curDate.setDate(curDate.getDate() + (c * 7 + r))
+        const curMs = startMs + (c * 7 + r) * 86_400_000
+        if (curMs > endMs) continue
 
-        if (curDate > end) continue
-
-        const dateStr = curDate.toISOString().split('T')[0]
-        const rec = dateMap.get(dateStr)
+        const cur = new Date(curMs)
+        const dateStr = cur.toISOString().slice(0, 10)
+        const rec = dateLookup[dateStr]
         const count = rec ? rec.count : 0
         const level = getLevel(count, maxCount)
 
         const x = padLeft + c * (cellSize + cellGap)
         const y = padTop + r * (cellSize + cellGap)
 
-        gridCells.push({
-          date: dateStr,
-          col: c,
-          row: r,
-          x,
-          y,
-          count,
-          level
-        })
+        const cell: GridCell = { date: dateStr, col: c, row: r, x, y, count, level }
+        gridCells.push(cell)
+        byCoord[`${c}:${r}`] = cell
 
-        // 月份标签记录（每月第一周）
-        const m = curDate.getMonth()
+        const m = cur.getUTCMonth()
         if (m !== lastMonth && r === 0) {
-          const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
           months.push({ label: monthNames[m], x })
           lastMonth = m
         }
       }
     }
 
-    return { cells: gridCells, monthLabels: months }
+    return { cells: gridCells, cellGrid: byCoord, monthLabels: months }
   })
 
-  // 悬浮聚焦单元格
+  let svgEl: SVGSVGElement | undefined = $state()
   let hoveredCell = $state<GridCell | null>(null)
+  let lastCell = $state<GridCell | null>(null)
+  let cachedRect: { left: number; top: number; width: number; height: number } | null = null
+  const tipXSpring = new Spring(0, SPRING.pointer)
+  const tipYSpring = new Spring(0, SPRING.pointer)
+  let rafId = 0
+  let pendingClientX = 0
+  let pendingClientY = 0
+
+  $effect(() => {
+    if (hoveredCell) lastCell = hoveredCell
+  })
+
+  const displayCell = $derived(hoveredCell ?? lastCell)
+
+  function cellFill(level: number): string {
+    if (level === 0) return 'var(--terra-bg-surface-active)'
+    if (level === 1) return 'color-mix(in srgb, var(--terra-accent-primary) 26%, transparent)'
+    if (level === 2) return 'color-mix(in srgb, var(--terra-accent-primary) 50%, transparent)'
+    if (level === 3) return 'color-mix(in srgb, var(--terra-accent-primary) 75%, transparent)'
+    return 'var(--terra-accent-primary)'
+  }
+
+  function updateCellFromPointer(clientX: number, clientY: number) {
+    if (!svgEl) return
+    if (!cachedRect) {
+      const r = svgEl.getBoundingClientRect()
+      cachedRect = {
+        left: r.left,
+        top: r.top,
+        width: Math.max(1, r.width),
+        height: Math.max(1, r.height)
+      }
+    }
+    const vx = ((clientX - cachedRect.left) / cachedRect.width) * svgWidth
+    const vy = ((clientY - cachedRect.top) / cachedRect.height) * svgHeight
+    const step = cellSize + cellGap
+    const col = Math.floor((vx - padLeft + cellGap * 0.5) / step)
+    const row = Math.floor((vy - padTop + cellGap * 0.5) / step)
+
+    if (col < 0 || col >= weeks || row < 0 || row >= 7) {
+      hoveredCell = null
+      return
+    }
+    const found = cellGrid[`${col}:${row}`] ?? null
+    const wasNull = hoveredCell === null
+    hoveredCell = found
+    if (found) {
+      const nextTipX = Math.max(padLeft, Math.min(found.x - 70, svgWidth - padRight - 144))
+      const nextTipY = Math.max(2, found.y - 42)
+      if (wasNull) {
+        tipXSpring.set(nextTipX, { instant: true })
+        tipYSpring.set(nextTipY, { instant: true })
+      } else {
+        tipXSpring.target = nextTipX
+        tipYSpring.target = nextTipY
+      }
+    }
+  }
+
+  function handlePointerEnter(e: PointerEvent) {
+    if (svgEl) {
+      const r = svgEl.getBoundingClientRect()
+      cachedRect = {
+        left: r.left,
+        top: r.top,
+        width: Math.max(1, r.width),
+        height: Math.max(1, r.height)
+      }
+    }
+    updateCellFromPointer(e.clientX, e.clientY)
+  }
+
+  function handlePointerMove(e: PointerEvent) {
+    pendingClientX = e.clientX
+    pendingClientY = e.clientY
+    if (rafId !== 0) return
+    rafId = requestAnimationFrame(() => {
+      rafId = 0
+      updateCellFromPointer(pendingClientX, pendingClientY)
+    })
+  }
+
+  function handlePointerLeave() {
+    if (rafId !== 0) {
+      cancelAnimationFrame(rafId)
+      rafId = 0
+    }
+    cachedRect = null
+    hoveredCell = null
+  }
 </script>
 
-<div class="space-y-3 select-none {className}">
-  <!-- 顶部概览统计条 -->
+<div class="isolate space-y-3 select-none {className}">
   {#if showOverview}
-    <div class="flex flex-wrap items-baseline justify-between gap-3 pb-2 border-b border-[var(--terra-border)]">
+    <div
+      class="flex flex-wrap items-baseline justify-between gap-3 pb-2 border-b border-[var(--terra-border)]"
+    >
       <div class="space-y-0.5">
-        <span class="font-mono text-[9px] text-[var(--terra-accent-primary)] tracking-widest uppercase block">
+        <span
+          class="font-mono text-[10px] text-[var(--terra-accent-primary)] tracking-widest uppercase block"
+        >
           // TELEMETRY.MATRIX
         </span>
-        <h4 class="font-mono text-xs sm:text-sm font-bold text-[var(--terra-text-primary)] tracking-wide uppercase">
+        <h4
+          class="font-mono text-xs sm:text-sm font-bold text-[var(--terra-text-primary)] tracking-wide uppercase"
+        >
           {title}
         </h4>
       </div>
@@ -209,138 +290,147 @@
       <div class="flex items-center gap-4 font-mono text-xs">
         <div>
           <span class="text-[10px] text-[var(--terra-text-muted)] block">TOTAL</span>
-          <span class="font-bold text-[var(--terra-accent-primary)]">{totalCount.toLocaleString()}</span>
+          <span class="font-bold text-[var(--terra-accent-primary)] tabular-nums"
+            >{totalCount.toLocaleString()}</span
+          >
         </div>
         <div class="border-l border-[var(--terra-border)] pl-4">
           <span class="text-[10px] text-[var(--terra-text-muted)] block">ACTIVE DAYS</span>
-          <span class="font-bold text-[var(--terra-text-primary)]">{activeDays} / {weeks * 7}</span>
+          <span class="font-bold text-[var(--terra-text-primary)] tabular-nums"
+            >{activeDays} / {weeks * 7}</span
+          >
         </div>
         <div class="border-l border-[var(--terra-border)] pl-4">
           <span class="text-[10px] text-[var(--terra-text-muted)] block">PEAK SURGE</span>
-          <span class="font-bold text-[var(--terra-accent-secondary,#3b82f6)]">{maxCount} / DAY</span>
+          <span class="font-bold text-[var(--terra-text-secondary)] tabular-nums"
+            >{maxCount} / DAY</span
+          >
         </div>
       </div>
     </div>
   {/if}
 
-  <!-- 核心 SVG 矩阵容器 -->
-  <div class="relative w-full overflow-x-auto p-1 border border-[var(--terra-border)] bg-[var(--terra-bg-surface,#11141c)] terra-cut-tr">
+  <div
+    class="relative w-full overflow-x-auto p-2 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)]"
+    role="slider"
+    tabindex="0"
+    aria-roledescription="heatmap"
+    aria-label={title}
+    aria-valuemin={0}
+    aria-valuemax={Math.max(0, cells.length - 1)}
+    aria-valuenow={hoveredCell ? cells.indexOf(hoveredCell) : Math.max(0, cells.length - 1)}
+    aria-valuetext={hoveredCell ? `${hoveredCell.date}: ${hoveredCell.count}` : undefined}
+    onpointerenter={handlePointerEnter}
+    onpointermove={handlePointerMove}
+    onpointerleave={handlePointerLeave}
+    onclick={() => {
+      if (hoveredCell) oncellclick?.(hoveredCell)
+    }}
+    onkeydown={(e) => {
+      if (cells.length === 0) return
+      const curIdx = hoveredCell ? cells.indexOf(hoveredCell) : cells.length - 1
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        hoveredCell = cells[Math.min(cells.length - 1, curIdx + 7)]
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        hoveredCell = cells[Math.max(0, curIdx - 7)]
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        hoveredCell = cells[Math.min(cells.length - 1, curIdx + 1)]
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        hoveredCell = cells[Math.max(0, curIdx - 1)]
+      } else if ((e.key === 'Enter' || e.key === ' ') && hoveredCell) {
+        e.preventDefault()
+        oncellclick?.(hoveredCell)
+      } else if (e.key === 'Escape') {
+        hoveredCell = null
+      }
+    }}
+  >
     <svg
+      bind:this={svgEl}
       viewBox="0 0 {svgWidth} {svgHeight}"
-      class="w-full h-auto min-w-[620px] overflow-visible"
+      class="w-full h-auto min-w-[620px] overflow-visible pointer-events-none"
+      aria-hidden="true"
     >
-      <!-- 月份标尺标签 -->
       {#if showMonthLabels}
-        {#each monthLabels as ml}
+        {#each monthLabels as ml (ml.x)}
           <text
             x={ml.x}
             y={padTop - 8}
-            class="font-mono text-[9px] font-semibold"
-            fill="var(--terra-text-muted, #718096)"
+            class="font-mono text-[10px] font-semibold"
+            fill="var(--terra-text-muted)"
           >
             {ml.label}
           </text>
         {/each}
       {/if}
 
-      <!-- 星期标尺标签 (MON, WED, FRI) -->
       {#if showWeekdayLabels}
         <text
           x={padLeft - 6}
-          y={padTop + 1 * (cellSize + cellGap) + cellSize - 2}
+          y={padTop + 1 * (cellSize + cellGap) + cellSize - 1}
           text-anchor="end"
-          class="font-mono text-[8px]"
-          fill="var(--terra-text-muted, #718096)"
+          class="font-mono text-[10px]"
+          fill="var(--terra-text-muted)"
         >
           MON
         </text>
         <text
           x={padLeft - 6}
-          y={padTop + 3 * (cellSize + cellGap) + cellSize - 2}
+          y={padTop + 3 * (cellSize + cellGap) + cellSize - 1}
           text-anchor="end"
-          class="font-mono text-[8px]"
-          fill="var(--terra-text-muted, #718096)"
+          class="font-mono text-[10px]"
+          fill="var(--terra-text-muted)"
         >
           WED
         </text>
         <text
           x={padLeft - 6}
-          y={padTop + 5 * (cellSize + cellGap) + cellSize - 2}
+          y={padTop + 5 * (cellSize + cellGap) + cellSize - 1}
           text-anchor="end"
-          class="font-mono text-[8px]"
-          fill="var(--terra-text-muted, #718096)"
+          class="font-mono text-[10px]"
+          fill="var(--terra-text-muted)"
         >
           FRI
         </text>
       {/if}
 
-      <!-- 单元格矩阵 -->
-      {#each cells as cell}
+      {#each cells as cell (cell.date)}
         {@const isHovered = hoveredCell === cell}
         <rect
           x={cell.x}
           y={cell.y}
           width={cellSize}
           height={cellSize}
-          rx="1.5"
-          fill={
-            cell.level === 0 ? 'var(--terra-bg-surface-active, rgba(255, 255, 255, 0.05))' :
-            cell.level === 1 ? 'color-mix(in srgb, var(--terra-accent-primary, #00d8ff) 25%, transparent)' :
-            cell.level === 2 ? 'color-mix(in srgb, var(--terra-accent-primary, #00d8ff) 50%, transparent)' :
-            cell.level === 3 ? 'color-mix(in srgb, var(--terra-accent-primary, #00d8ff) 75%, transparent)' :
-            'var(--terra-accent-primary, #00d8ff)'
-          }
-          stroke={
-            isHovered ? 'var(--terra-text-primary, #ffffff)' :
-            cell.level === 0 ? 'var(--terra-border-subtle, rgba(255, 255, 255, 0.08))' :
-            'var(--terra-accent-primary, #00d8ff)'
-          }
-          stroke-width={isHovered ? '1.5' : cell.level === 0 ? '1' : '0.5'}
-          stroke-opacity={cell.level === 0 ? '0.6' : '0.4'}
-          role="button"
-          tabindex="0"
-          aria-label="{cell.date}: {cell.count} activities"
-          class="transition-all duration-150 cursor-pointer focus:outline-hidden"
-          style={isHovered && cell.level > 0 ? 'filter: drop-shadow(0 0 6px var(--terra-accent-primary, #00d8ff));' : ''}
-          onmouseenter={() => hoveredCell = cell}
-          onmouseleave={() => hoveredCell = null}
-          onclick={() => oncellclick?.(cell)}
-          onkeydown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              oncellclick?.(cell)
-            }
-          }}
+          fill={cellFill(cell.level)}
+          stroke={isHovered ? 'var(--terra-text-primary)' : 'var(--terra-border)'}
+          stroke-width={isHovered ? '1.5' : '0.5'}
+          class="terra-t-color pointer-events-none"
         />
       {/each}
 
-      <!-- 底部能级标尺 (LESS ... MORE) -->
       {#if showLegend}
         <g transform="translate({svgWidth - padRight - 150}, {svgHeight - 12})">
           <text
             x="-8"
-            y={cellSize - 2}
+            y={cellSize - 1}
             text-anchor="end"
-            class="font-mono text-[8px]"
-            fill="var(--terra-text-muted, #718096)"
+            class="font-mono text-[10px]"
+            fill="var(--terra-text-muted)"
           >
             LESS
           </text>
-          
-          {#each [0, 1, 2, 3, 4] as lvl, idx}
+
+          {#each [0, 1, 2, 3, 4] as lvl (lvl)}
             <rect
-              x={idx * (cellSize + 3)}
+              x={lvl * (cellSize + 3)}
               y="0"
               width={cellSize}
               height={cellSize}
-              rx="1.5"
-              fill={
-                lvl === 0 ? 'var(--terra-bg-surface-active, rgba(255, 255, 255, 0.05))' :
-                lvl === 1 ? 'color-mix(in srgb, var(--terra-accent-primary, #00d8ff) 25%, transparent)' :
-                lvl === 2 ? 'color-mix(in srgb, var(--terra-accent-primary, #00d8ff) 50%, transparent)' :
-                lvl === 3 ? 'color-mix(in srgb, var(--terra-accent-primary, #00d8ff) 75%, transparent)' :
-                'var(--terra-accent-primary, #00d8ff)'
-              }
+              fill={cellFill(lvl)}
               stroke="var(--terra-border)"
               stroke-width="0.5"
             />
@@ -348,50 +438,46 @@
 
           <text
             x={5 * (cellSize + 3) + 6}
-            y={cellSize - 2}
+            y={cellSize - 1}
             text-anchor="start"
-            class="font-mono text-[8px]"
-            fill="var(--terra-text-muted, #718096)"
+            class="font-mono text-[10px]"
+            fill="var(--terra-text-muted)"
           >
             MORE
           </text>
         </g>
       {/if}
 
-      <!-- 战术 HUD 悬浮指示提示框 (Tooltip Pin Box) -->
-      {#if hoveredCell}
-        {@const tipWidth = 140}
-        {@const tipHeight = 36}
-        {@const tipX = Math.max(padLeft, Math.min(hoveredCell.x - tipWidth / 2, svgWidth - padRight - tipWidth))}
-        {@const tipY = Math.max(2, hoveredCell.y - tipHeight - 8)}
-
-        <g transform="translate({tipX}, {tipY})" class="pointer-events-none transition-transform duration-75">
+      {#if displayCell}
+        <g
+          transform="translate({tipXSpring.current}, {tipYSpring.current})"
+          opacity={hoveredCell ? 1 : 0}
+          class="terra-t-opacity pointer-events-none"
+        >
           <rect
-            width={tipWidth}
-            height={tipHeight}
-            fill="var(--terra-bg-surface, #11141c)"
-            stroke="var(--terra-accent-primary, #00d8ff)"
+            width="144"
+            height="36"
+            fill="var(--terra-text-primary)"
+            stroke="var(--terra-text-primary)"
             stroke-width="1"
-            class="shadow-xl"
           />
+          <rect x="0" y="0" width="3" height="36" fill="var(--terra-accent-primary)" />
           <text
             x="8"
-            y="14"
-            class="font-mono text-[9px]"
-            fill="var(--terra-text-muted, #94a3b8)"
+            y="13"
+            class="font-mono text-[10px]"
+            fill="var(--terra-text-inverse)"
+            opacity="0.75"
           >
-            {hoveredCell.date}
+            {displayCell.date}
           </text>
           <text
             x="8"
             y="28"
             class="font-mono text-[11px] font-bold"
-            fill="var(--terra-text-primary, #ffffff)"
+            fill="var(--terra-text-inverse)"
           >
-            {hoveredCell.count} <tspan font-size="9" font-weight="normal" fill="var(--terra-accent-primary, #00d8ff)">ACTIVITIES</tspan>
-            {#if hoveredCell.count === 0}
-              <tspan font-size="8" fill="var(--terra-text-muted, #718096)"> // IDLE</tspan>
-            {/if}
+            {displayCell.count} ACTIVITIES
           </text>
         </g>
       {/if}

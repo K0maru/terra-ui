@@ -1,0 +1,66 @@
+# Terra-UI
+
+> Svelte 5 flat Swiss editorial and kinetic ASCII UI component library (`@k0maru/terra-ui`). Zero VDOM runtime, four mineral pigment themes across light/dark modes, dt-independent spring motion, and zero-exemption static checks.
+
+- Site & Docs: https://k0maru.github.io/terra-ui/
+- Repository: https://github.com/K0maru/terra-ui
+- English Guide: https://github.com/K0maru/terra-ui/blob/main/README.md
+- Chinese Guide: https://github.com/K0maru/terra-ui/blob/main/README_zh.md
+
+## Package Entry Points
+
+- Components, Motion & i18n: `import { ... } from '@k0maru/terra-ui'`
+- Precompiled CSS (Tailwind + Tokens): `import '@k0maru/terra-ui/css'`
+- CSS Custom Properties only: `import '@k0maru/terra-ui/tokens.css'`
+
+## Theme & Motion Attributes (`<html>`)
+
+- `data-theme`: `'vermilion'` (default) | `'viridian'` | `'cyanotype'` | `'citron'`
+- `data-mode`: `'dark'` (default) | `'light'`
+- `data-motion`: set `'paused'` to pause infinite CSS animations and canvas loops
+- Core Token Families (`src/lib/styles/tokens.css`):
+  - Surfaces & Ink: `--terra-bg-base`, `--terra-bg-surface`, `--terra-bg-surface-hover`, `--terra-text-primary`, `--terra-text-secondary`, `--terra-text-muted`, `--terra-text-inverse`
+  - Accents & Contrast: `--terra-accent-primary`, `--terra-accent-primary-dim`, `--terra-on-accent`, `--terra-accent-success`, `--terra-accent-warning`, `--terra-accent-danger`
+  - Structural & Grid: `--terra-border`, `--terra-border-strong`, `--terra-grid-dot`, `--terra-grain-opacity`, `--terra-scrim`
+  - Motion & Z-Index: `--terra-dur-{instant,fast,base,slow,chart}`, `--terra-ease-{out,in-out,exit}`, `--terra-spring-{snappy,smooth,bouncy}`, `--terra-z-{sticky-sub,sticky-app,progress,scrim,drawer,cursor}`
+  - Surface Utility: `.terra-editorial-canvas` (fixed 36px dot lattice, diagonal pigment wash, SVG grain)
+
+## Exported Components (19 Components)
+
+### Kinetic ASCII & Spatial
+- `TerraAsciiStage`: Real-time 3D butterfly optical vs 16-bucket chroma×luminance ASCII field canvas. Props: `density?: 'fine' | 'bold'`, `splitMode?: 'cursor' | 'sweep' | 'half'`
+- `TerraAmbientField`: Fixed-viewport cursor & click-ripple glyph canvas synced to 36px dot grid (0% idle CPU). No required props.
+- `TerraSpatialCard`: Damped spring 3D perspective card. Props: `maxRotation?: number`, `perspective?: number`, `sheen?: boolean`, `borderGlow?: boolean`
+
+### Observability Charts
+- `TerraLineChart`: SVG waveform chart with Spring crosshair, HTML tooltip, and baseline pinning. Props: `data: { timestamp?: string; value: number; label?: string }[]`, `height?: number`, `unit?: string`, `showGrid?: boolean`, `showCrosshair?: boolean`
+- `TerraBarChart`: Flat segmented bar chart with gap-free container hover and aligned reference line. Props: `data: { label: string; value: number; max?: number; status?: 'normal' | 'warning' | 'critical' }[]`, `height?: number`, `barWidth?: number`, `unit?: string`
+- `TerraStatusStrip`: Continuous 1D uptime strip (`role="slider"` + Spring size-morphing tooltip). Props: `data?: StatusDayRecord[]`, `serviceName?: string`, `days?: number`, `barHeight?: number`, `onbarclick?: (day: StatusDayRecord) => void`
+- `TerraDonutChart`: Polar allocation ring with `color-mix` palette and container legend hover. Props: `data: { label: string; value: number; color?: string; code?: string }[]`, `size?: number`, `thickness?: number`, `title?: string`, `unit?: string`
+- `TerraActivityHeatmap` (alias `TerraHeatmap`): 2D calendar matrix with SVG grid tracking. Props: `data?: ActivityRecord[]`, `weeks?: number`, `cellSize?: number`, `cellGap?: number`, `oncellclick?: (cell) => void`
+- `TerraSparkline`: Inline spline waveform with motion-safe terminal halo. Props: `data?: number[]`, `width?: number | string`, `height?: number`, `variant?: 'accent' | 'success' | 'warning' | 'danger'`, `smooth?: boolean`, `showPulse?: boolean`
+
+### Precision Controls & Numerics
+- `TerraVernierMeter`: Padded caliper slider/meter using `scaleX`/`translate3d` and `Spring`. Props: `value?: number` (bindable), `min?: number`, `max?: number`, `ticks?: number`, `step?: number`, `interactive?: boolean`, `hazard?: boolean`, `onchange?: (v: number) => void`
+- `TerraVerticalTabs`: Distance-scaled vertical tablist with snappy spring rail. Props: `items: TerraTabItem[]`, `selectedKey?: string` (bindable), `itemHeight?: string`, `onchange?: (key: string) => void`
+- `TerraRollingNumber`: Critically damped (`ζ = 1.0`, zero overshoot) numeric counter. Props: `value: number`, `decimals?: number`, `duration?: number`, `prefix?: string`, `suffix?: string`, `unit?: string`
+
+### Editorial Primitives & Identity
+- `TerraButton`: Outer-button magnetic trigger with synchronized `clip-path` outline ink inversion. Props: `variant?: 'primary' | 'outline' | 'ghost' | 'danger'`, `size?: 'sm' | 'md' | 'lg'`, `magneticPull?: boolean`, `scanline?: boolean`, `disabled?: boolean`
+- `TerraPanel`: Flat 1px architectural container. Props: `title?: string`, `tag?: string`, `warning?: boolean`
+- `TerraInput`: Baseline terminal input with focus hairline. Props: `value?: string` (bindable), `prefix?: string`, `placeholder?: string`, `clearable?: boolean`, `disabled?: boolean`
+- `TerraBadge`: Semantic tag with optional code prefix. Props: `label: string`, `code?: string`, `variant?: 'primary' | 'warning' | 'danger' | 'success' | 'outline'`
+- `TerraStatusBeacon`: Sinusoidal status dot. Props: `status?: 'online' | 'standby' | 'alert' | 'offline'`, `label?: string`, `pulse?: boolean`
+- `TerraProfileCard`: Flat maintainer identity card (`avatarUrl`, `username`, `role`, `uid`, `locale`).
+- `TerraBarcode`: Vector barcode (`code`, `serial`, `height`).
+
+## Motion & i18n Exports (`src/lib/motion`, `src/lib/i18n`)
+
+- `TERRA_THEMES`, `SPRING`, `stepSpring`, `magnetic`, `scrollReveal`, `withViewTransition`, `withThemeSwitch`, `animateNumber`
+- `i18n` (`i18n.locale`: `'zh' | 'en'`, `i18n.setLocale(...)`, `i18n.t`)
+
+## Verification Commands
+
+- `npm run lint`: ESLint (`eslint.config.js`), anti-slop AST/regex rules (`scripts/lint-taste.mjs`), Prettier check
+- `npm run check`: Svelte diagnostics (`svelte-check`)
+- `npm run build && npm run package`: Static SPA (`dist/`) and library bundle (`dist-lib/`)

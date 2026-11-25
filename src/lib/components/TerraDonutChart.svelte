@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import TerraRollingNumber from './TerraRollingNumber.svelte'
 
   interface DonutSegment {
     label: string
@@ -32,11 +33,11 @@
 
   const defaultColors = [
     'var(--terra-accent-primary)',
-    'var(--terra-accent-secondary)',
-    'var(--terra-accent-warning)',
+    'var(--terra-text-primary)',
+    'color-mix(in srgb, var(--terra-accent-primary) 55%, var(--terra-text-primary))',
     'var(--terra-accent-success)',
-    '#a855f7',
-    '#ec4899'
+    'var(--terra-accent-warning)',
+    'var(--terra-text-muted)'
   ]
 
   let isMounted = $state(false)
@@ -61,7 +62,6 @@
   const circumference = $derived(2 * Math.PI * radius)
   const outerReticleRadius = $derived(center - 4)
 
-  // Compute SVG segment stroke offsets
   const segments = $derived.by(() => {
     let accumulated = 0
     return data.map((item, index) => {
@@ -108,16 +108,15 @@
   })
 </script>
 
-<div class="flex flex-col md:flex-row items-center gap-6 select-none {className}">
-  <!-- Donut SVG Radar Instrument -->
-  <div class="relative shrink-0 flex items-center justify-center" style="width: {size}px; height: {size}px;">
-    <!-- Outer Polar HUD Ring -->
+<div class="isolate flex flex-col md:flex-row items-center gap-6 select-none {className}">
+  <div
+    class="relative shrink-0 flex items-center justify-center"
+    style="width: {size}px; height: {size}px;"
+  >
     <svg
-      class="absolute inset-0 w-full h-full pointer-events-none opacity-40 overflow-visible"
-      style="overflow: visible;"
+      class="absolute inset-0 w-full h-full pointer-events-none opacity-45 overflow-visible"
       viewBox="0 0 {size} {size}"
     >
-      <!-- Outer dashed guide circle -->
       <circle
         cx={center}
         cy={center}
@@ -127,20 +126,47 @@
         stroke-width="1"
         stroke-dasharray="3 3"
       />
-      <!-- Polar crosshairs -->
-      <line x1={center} y1={center - outerReticleRadius} x2={center} y2={center - outerReticleRadius + 6} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
-      <line x1={center} y1={center + outerReticleRadius - 6} x2={center} y2={center + outerReticleRadius} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
-      <line x1={center - outerReticleRadius} y1={center} x2={center - outerReticleRadius + 6} y2={center} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
-      <line x1={center + outerReticleRadius - 6} y1={center} x2={center + outerReticleRadius} y2={center} stroke="var(--terra-accent-primary)" stroke-width="1.5" />
+      <line
+        x1={center}
+        y1={center - outerReticleRadius}
+        x2={center}
+        y2={center - outerReticleRadius + 6}
+        stroke="var(--terra-accent-primary)"
+        stroke-width="1.5"
+      />
+      <line
+        x1={center}
+        y1={center + outerReticleRadius - 6}
+        x2={center}
+        y2={center + outerReticleRadius}
+        stroke="var(--terra-accent-primary)"
+        stroke-width="1.5"
+      />
+      <line
+        x1={center - outerReticleRadius}
+        y1={center}
+        x2={center - outerReticleRadius + 6}
+        y2={center}
+        stroke="var(--terra-accent-primary)"
+        stroke-width="1.5"
+      />
+      <line
+        x1={center + outerReticleRadius - 6}
+        y1={center}
+        x2={center + outerReticleRadius}
+        y2={center}
+        stroke="var(--terra-accent-primary)"
+        stroke-width="1.5"
+      />
     </svg>
 
-    <!-- Interactive Segments Circle -->
     <svg
+      role="region"
+      aria-label={title}
       class="w-full h-full transform -rotate-90 overflow-visible"
-      style="overflow: visible;"
       viewBox="0 0 {size} {size}"
+      onpointerleave={() => (activeIndex = null)}
     >
-      <!-- Background Track Circle -->
       <circle
         cx={center}
         cy={center}
@@ -151,55 +177,60 @@
         opacity="0.25"
       />
 
-      <!-- Segments -->
       {#each segments as seg (seg.index)}
         {@const isActive = activeIndex === seg.index}
+        {@const dimmed = activeIndex !== null && !isActive}
         <circle
           cx={center}
           cy={center}
           r={radius}
           fill="none"
           stroke={seg.color}
-          stroke-width={isActive ? thickness + 4 : thickness}
+          stroke-width={isActive ? thickness + 3 : thickness}
           stroke-dasharray={seg.strokeDasharray}
           stroke-dashoffset={seg.strokeDashoffset}
           stroke-linecap="butt"
-          class="cursor-pointer transition-all duration-300"
-          style="
-            filter: {isActive ? `drop-shadow(0 0 10px ${seg.color}) drop-shadow(0 0 4px ${seg.color})` : 'none'};
-            transition: stroke-dasharray 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1), stroke-width 0.2s ease;
-          "
-          onpointerenter={() => activeIndex = seg.index}
-          onpointerleave={() => activeIndex = null}
+          opacity={dimmed ? 0.42 : 1}
+          class="terra-donut-seg cursor-pointer"
+          onpointerenter={() => (activeIndex = seg.index)}
           role="presentation"
         />
       {/each}
     </svg>
 
-    <!-- Center Telemetry Readout -->
     <div
       class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-4"
-      style="transform-style: preserve-3d;"
     >
-      <span class="font-mono text-[9px] uppercase tracking-wider text-[var(--terra-text-muted)] leading-none mb-1">
+      <span
+        class="font-mono text-[10px] uppercase tracking-wider text-[var(--terra-text-muted)] leading-none mb-1"
+      >
         {currentDisplay.code}
       </span>
-      <div class="font-display font-black text-2xl sm:text-3xl tracking-tight leading-none text-[var(--terra-text-primary)]">
-        {currentDisplay.value}<span class="font-mono text-xs font-normal text-[var(--terra-text-secondary)] ml-0.5">{unit}</span>
+      <div class="text-2xl sm:text-3xl leading-none text-[var(--terra-text-primary)]">
+        <TerraRollingNumber value={currentDisplay.value} decimals={0} {unit} />
       </div>
-      <div class="font-mono text-[10px] font-bold tracking-wider mt-1 truncate max-w-[100px]" style="color: {currentDisplay.color};">
+      <div
+        class="terra-t-color font-mono text-[10px] font-bold tracking-wider mt-1 truncate max-w-[110px]"
+        style="color: {currentDisplay.color};"
+      >
         {currentDisplay.label}
       </div>
-      <div class="font-mono text-[9px] text-[var(--terra-text-muted)] mt-0.5">
+      <div class="font-mono text-[10px] text-[var(--terra-text-muted)] mt-0.5">
         {currentDisplay.sub}
       </div>
     </div>
   </div>
 
-  <!-- Tactical Legend Bay -->
   {#if showLegend}
-    <div class="flex-1 w-full flex flex-col gap-2 font-mono text-xs min-w-[180px]">
-      <div class="flex items-center justify-between pb-1 border-b border-[var(--terra-border)] text-[9px] text-[var(--terra-text-muted)] tracking-wider">
+    <div
+      role="region"
+      aria-label={title}
+      class="flex-1 w-full flex flex-col gap-1.5 font-mono text-xs min-w-[180px]"
+      onpointerleave={() => (activeIndex = null)}
+    >
+      <div
+        class="flex items-center justify-between pb-1 border-b border-[var(--terra-border)] text-[10px] text-[var(--terra-text-muted)] tracking-wider"
+      >
         <span>SECTOR / TARGET</span>
         <span>LOAD / RATIO</span>
       </div>
@@ -208,30 +239,35 @@
         {@const isActive = activeIndex === seg.index}
         <button
           type="button"
-          class="flex items-center justify-between px-2.5 py-1.5 border transition-all duration-150 text-left w-full cursor-pointer {isActive ? 'border-[var(--terra-border-strong)] bg-white/5' : 'border-transparent hover:border-[var(--terra-border)] hover:bg-white/[0.02]'}"
-          onpointerenter={() => activeIndex = seg.index}
-          onpointerleave={() => activeIndex = null}
+          class="terra-t-color flex items-center justify-between px-2.5 py-1.5 border text-left w-full cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {isActive
+            ? 'border-[var(--terra-border-strong)] bg-[var(--terra-bg-surface-hover)]'
+            : 'border-transparent hover:border-[var(--terra-border)] hover:bg-[var(--terra-bg-surface-hover)]/50'}"
+          onpointerenter={() => (activeIndex = seg.index)}
+          onfocus={() => (activeIndex = seg.index)}
+          onblur={() => {
+            if (activeIndex === seg.index) activeIndex = null
+          }}
         >
           <div class="flex items-center gap-2 min-w-0">
             <span
-              class="w-2.5 h-2.5 shrink-0 transition-transform duration-200"
-              style="background-color: {seg.color}; transform: {isActive ? 'scale(1.3)' : 'scale(1)'};"
+              class="terra-t-snappy w-2.5 h-2.5 shrink-0"
+              style="background-color: {seg.color}; transform: scale({isActive ? 1.25 : 1});"
             ></span>
             <div class="flex flex-col min-w-0">
               <span class="font-bold text-[11px] truncate text-[var(--terra-text-primary)]">
                 {seg.label}
               </span>
-              <span class="text-[9px] text-[var(--terra-text-muted)]">
+              <span class="text-[10px] text-[var(--terra-text-muted)]">
                 {seg.code}
               </span>
             </div>
           </div>
 
           <div class="flex flex-col items-end shrink-0 pl-2">
-            <span class="font-bold text-[var(--terra-text-primary)]">
+            <span class="font-bold text-[var(--terra-text-primary)] tabular-nums">
               {seg.value}{unit}
             </span>
-            <span class="text-[10px] text-[var(--terra-accent-secondary)]">
+            <span class="text-[10px] text-[var(--terra-text-secondary)] tabular-nums">
               {seg.percent}%
             </span>
           </div>
@@ -240,3 +276,13 @@
     </div>
   {/if}
 </div>
+
+<style>
+  .terra-donut-seg {
+    transition:
+      stroke-dasharray var(--terra-dur-chart) var(--terra-spring-smooth),
+      stroke-dashoffset var(--terra-dur-chart) var(--terra-spring-smooth),
+      stroke-width var(--terra-dur-fast) var(--terra-ease-out),
+      opacity var(--terra-dur-fast) var(--terra-ease-out);
+  }
+</style>

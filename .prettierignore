@@ -1,0 +1,8 @@
+dist
+dist-lib
+node_modules
+references
+.svelte-kit
+package-lock.json
+specs
+scripts/taste-baseline.json
