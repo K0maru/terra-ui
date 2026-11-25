@@ -1,7 +1,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
+  import { stepSpring, type SpringState } from '../motion'
 
   interface Props {
+    /** @deprecated Chamfer cuts removed in flat editorial system. */
     cut?: 'none' | 'tr' | 'tl-br' | 'tr-bl'
     maxRotation?: number
     perspective?: number
@@ -12,8 +14,8 @@
   }
 
   let {
-    cut = 'tr-bl',
-    maxRotation = 16,
+    cut: _cut = 'none',
+    maxRotation = 12,
     perspective = 1000,
     sheen = true,
     borderGlow = true,
@@ -27,88 +29,146 @@
   let sheenY = $state(50)
   let isHovered = $state(false)
 
-  const cutClass = $derived(
-    cut === 'tl-br' ? 'terra-cut-tl-br' :
-    cut === 'tr-bl' ? 'terra-cut-tr-bl' :
-    cut === 'tr' ? 'terra-cut-tr' : ''
-  )
+  let targetRx = 0
+  let targetRy = 0
+  const rxState: SpringState = { x: 0, v: 0 }
+  const ryState: SpringState = { x: 0, v: 0 }
+  let cachedRect: { left: number; top: number; width: number; height: number } | null = null
+  let rafId = 0
+  let lastNow = 0
 
-  function handlePointerMove(e: PointerEvent) {
+  function kickSpring() {
+    if (rafId !== 0) return
+    lastNow = performance.now()
+    rafId = requestAnimationFrame(stepTilt)
+  }
+
+  function stepTilt(now: number) {
+    rafId = 0
+    const dt = (now - lastNow) / 1000
+    lastNow = now
+    const s1 = stepSpring(rxState, targetRx, dt, 300, 24)
+    const s2 = stepSpring(ryState, targetRy, dt, 300, 24)
+    rx = rxState.x
+    ry = ryState.x
+    if (!s1 || !s2) {
+      rafId = requestAnimationFrame(stepTilt)
+    }
+  }
+
+  function handlePointerEnter(e: PointerEvent) {
+    if (e.pointerType === 'touch') return
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return
+    }
     const card = e.currentTarget as HTMLElement
-    if (!card) return
-    const rect = card.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-
-    // Calculate rotation (-maxRotation to +maxRotation)
-    rx = ((y - centerY) / rect.height) * -maxRotation
-    ry = ((x - centerX) / rect.width) * maxRotation
-    sheenX = Math.round((x / rect.width) * 100)
-    sheenY = Math.round((y / rect.height) * 100)
+    const r = card.getBoundingClientRect()
+    cachedRect = {
+      left: r.left,
+      top: r.top,
+      width: Math.max(1, r.width),
+      height: Math.max(1, r.height)
+    }
     isHovered = true
   }
 
+  function handlePointerMove(e: PointerEvent) {
+    if (e.pointerType === 'touch') return
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return
+    }
+    if (!cachedRect) {
+      const card = e.currentTarget as HTMLElement
+      const r = card.getBoundingClientRect()
+      cachedRect = {
+        left: r.left,
+        top: r.top,
+        width: Math.max(1, r.width),
+        height: Math.max(1, r.height)
+      }
+    }
+    const x = e.clientX - cachedRect.left
+    const y = e.clientY - cachedRect.top
+    const centerX = cachedRect.width / 2
+    const centerY = cachedRect.height / 2
+
+    targetRx = ((y - centerY) / cachedRect.height) * -maxRotation
+    targetRy = ((x - centerX) / cachedRect.width) * maxRotation
+    sheenX = Math.round((x / cachedRect.width) * 100)
+    sheenY = Math.round((y / cachedRect.height) * 100)
+    isHovered = true
+    kickSpring()
+  }
+
   function handlePointerLeave() {
-    rx = 0
-    ry = 0
+    cachedRect = null
+    targetRx = 0
+    targetRy = 0
     isHovered = false
+    kickSpring()
   }
 </script>
 
 <div
-  class="relative select-none {className}"
+  class="isolate relative select-none {className}"
   style="perspective: {perspective}px;"
+  onpointerenter={handlePointerEnter}
   onpointermove={handlePointerMove}
   onpointerleave={handlePointerLeave}
   role="region"
   aria-label="3D Spatial Card"
 >
-  <!-- 3D Tilting Inner Plate -->
   <div
     class="relative w-full h-full will-change-transform"
     style="
       transform-style: preserve-3d;
-      transform: rotateX({rx}deg) rotateY({ry}deg);
-      transition: {isHovered ? 'transform 0.08s ease-out' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)'};
+      transform: rotateX({rx.toFixed(2)}deg) rotateY({ry.toFixed(2)}deg);
     "
   >
-    <!-- Background Chassis with Chamfer Cut and Dynamic Border Glow -->
     <div
-      class="absolute inset-0 bg-[var(--terra-bg-surface)] border transition-all duration-300 pointer-events-none {cutClass}"
+      class="terra-t-color absolute inset-0 bg-[var(--terra-bg-surface)] border pointer-events-none"
       class:border-[var(--terra-border)]={!isHovered}
       class:border-[var(--terra-accent-primary)]={isHovered && borderGlow}
-      class:shadow-[0_12px_40px_rgba(0,0,0,0.6)]={!isHovered}
-      class:shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_30px_var(--terra-accent-primary-dim),inset_0_0_12px_var(--terra-accent-primary-dim)]={isHovered && borderGlow}
     >
-      <!-- Sub-surface CAD circuit texture -->
-      <div class="absolute inset-0 opacity-15 bg-[radial-gradient(var(--terra-text-muted)_1px,transparent_1px)] [background-size:16px_16px]"></div>
+      <div
+        class="absolute inset-0 opacity-15 bg-[radial-gradient(var(--terra-text-muted)_1px,transparent_1px)] [background-size:16px_16px]"
+      ></div>
 
-      <!-- Corner Reticle Markers with hover ignition -->
-      <span class="absolute top-1 left-2 font-mono text-[10px] text-[var(--terra-accent-primary)] transition-all duration-200 select-none" class:opacity-30={!isHovered} class:opacity-100={isHovered} class:scale-125={isHovered}>+</span>
-      <span class="absolute top-1 right-2 font-mono text-[10px] text-[var(--terra-accent-primary)] transition-all duration-200 select-none" class:opacity-30={!isHovered} class:opacity-100={isHovered} class:scale-125={isHovered}>+</span>
-      <span class="absolute bottom-1 left-2 font-mono text-[10px] text-[var(--terra-accent-primary)] transition-all duration-200 select-none" class:opacity-30={!isHovered} class:opacity-100={isHovered} class:scale-125={isHovered}>+</span>
-      <span class="absolute bottom-1 right-2 font-mono text-[10px] text-[var(--terra-accent-primary)] transition-all duration-200 select-none" class:opacity-30={!isHovered} class:opacity-100={isHovered} class:scale-125={isHovered}>+</span>
+      <span
+        class="terra-t-snappy absolute top-1 left-2 font-mono text-[10px] text-[var(--terra-accent-primary)] select-none"
+        style="opacity: {isHovered ? 1 : 0.35}; transform: scale({isHovered ? 1.2 : 1});">+</span
+      >
+      <span
+        class="terra-t-snappy absolute top-1 right-2 font-mono text-[10px] text-[var(--terra-accent-primary)] select-none"
+        style="opacity: {isHovered ? 1 : 0.35}; transform: scale({isHovered ? 1.2 : 1});">+</span
+      >
+      <span
+        class="terra-t-snappy absolute bottom-1 left-2 font-mono text-[10px] text-[var(--terra-accent-primary)] select-none"
+        style="opacity: {isHovered ? 1 : 0.35}; transform: scale({isHovered ? 1.2 : 1});">+</span
+      >
+      <span
+        class="terra-t-snappy absolute bottom-1 right-2 font-mono text-[10px] text-[var(--terra-accent-primary)] select-none"
+        style="opacity: {isHovered ? 1 : 0.35}; transform: scale({isHovered ? 1.2 : 1});">+</span
+      >
     </div>
 
-    <!-- 3D Spatial Content Layer (Preserves 3D depth for floating children) -->
-    <div
-      class="relative z-10 w-full h-full p-5 sm:p-6"
-      style="transform-style: preserve-3d;"
-    >
+    <div class="relative z-[1] w-full h-full p-5 sm:p-6" style="transform-style: preserve-3d;">
       {@render children?.()}
     </div>
 
-    <!-- Overlay Specular Reflection Sheen Layer (follows pointer ON TOP of content) -->
     {#if sheen}
       <div
-        class="absolute inset-0 pointer-events-none transition-opacity duration-300 z-30 overflow-hidden {cutClass}"
+        class="terra-t-opacity absolute inset-0 pointer-events-none z-[5] overflow-hidden"
         style="
-          background: radial-gradient(circle at {sheenX}% {sheenY}%, rgba(255, 255, 255, 0.26), rgba(0, 216, 255, 0.12) 35%, transparent 65%);
-          mix-blend-mode: screen;
+          background: radial-gradient(circle at {sheenX}% {sheenY}%, rgba(var(--terra-dot-rgb), 0.14), transparent 62%);
           opacity: {isHovered ? 1 : 0};
-          transform: translateZ(28px);
+          transform: translateZ(20px);
         "
       ></div>
     {/if}

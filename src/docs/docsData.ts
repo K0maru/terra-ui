@@ -32,16 +32,24 @@ export const docCategories: DocCategory[] = [
       {
         id: 'overview',
         title: 'System Architecture',
-        titleZh: '系统架构与双轴机能哲学',
+        titleZh: '平面编辑部 × 动态字符架构',
         tag: 'ARCHITECTURE // CORE',
         category: 'getting-started',
-        description: 'Terra-UI is a high-performance Svelte 5 functional cybernetic design system built for telemetry dashboards and developer tools. It pioneers a dual-axis design philosophy: 2D Flat Graphic Primitives (Swiss Typographic Grid) and 3D Spatial Topology.',
-        descriptionZh: 'Terra-UI 是专为数据监控大盘、开发者中枢与机能控制台打造的 Svelte 5 高性能设计系统。首创双轴设计哲学：2D 纯平面图形图元（瑞士高密度排印网格）与 3D 空间交互拓扑。',
+        description:
+          'Terra-UI is a Svelte 5 component system uniting Swiss flat editorial grid discipline with parametric kinetic ASCII specimens and spring-physics motion tokens.',
+        descriptionZh:
+          'Terra-UI 是基于 Svelte 5 Runes 构建的组件设计系统，以「平面编辑部排印 × 动态字符场」为核心美学：纯平 1px 网格、4 套校色矿物颜料与帧率无关的物理弹簧动效体系。',
         features: [
-          'Zero-VDOM: Pure native Svelte 5 reactive compile-time runes ($state, $derived, $props)',
-          '100% GPU Hardware Accelerated Compositing (clip-path, transform, opacity)',
-          'Dual-Axis IP Aesthetic: 2D Swiss Graphic Grid vs 3D Industrial Complex',
-          'Zero External Dependencies: Native SVG Telemetry charts and physics calculations'
+          'Zero-VDOM Svelte 5 Runes ($state, $derived, $props) with Spring physics',
+          '1px architectural borders & tonal ink/paper elevation without heavy glow or chamfer cuts',
+          'Calibrated 4 mineral pigments (vermilion, viridian, cyanotype, citron) × dark/light modes',
+          'GPU-composited clip-path, transform, opacity transitions and View Transitions API'
+        ],
+        featuresZh: [
+          '零 VDOM 的 Svelte 5 原生 Runes 驱动，结合帧率无关的 dt 物理弹簧算法',
+          '纯平 1px 结构网格与纸墨明暗对比，彻底剔除廉价发光与厚重斜切角',
+          '4 套校色矿物颜料（朱砂、铬绿、普鲁士蓝、酸性柠）× 深/浅双模完整适配',
+          '全合成层（transform / opacity / clip-path）动效并遵循 prefers-reduced-motion'
         ]
       },
       {
@@ -51,221 +59,229 @@ export const docCategories: DocCategory[] = [
         tag: 'SETUP // GUIDE',
         category: 'getting-started',
         description: 'Set up Terra-UI in any Vite + Svelte 5 project with Tailwind CSS support.',
-        descriptionZh: '在任何基于 Vite + Svelte 5 + Tailwind CSS 的前端工程中集成 Terra-UI。',
-        codeSnippet: `// 1. Install package
-npm install @k0maru/terra-ui
+        descriptionZh: '在基于 Vite + Svelte 5 + Tailwind CSS 的前端工程中快速集成 Terra-UI。',
+        codeSnippet: `npm install @k0maru/terra-ui
 
-// 2. Import compiled stylesheet in your main entry (src/main.ts or app.css)
 import '@k0maru/terra-ui/css'
 
-// 3. Import and use any component in Svelte 5
 <script lang="ts">
   import { TerraButton, TerraLineChart } from '@k0maru/terra-ui'
 </script>
 
-<TerraButton variant="primary">LAUNCH CONSOLE</TerraButton>`
+<TerraButton variant="primary">EXECUTE</TerraButton>`
       },
       {
         id: 'tokens',
-        title: 'Design Tokens & Themes',
-        titleZh: 'Design Tokens 视觉变量',
-        tag: 'THEMING // TOKENS',
+        title: 'Design & Motion Tokens',
+        titleZh: '视觉与物理动效 Tokens',
+        tag: 'THEMING // PHYSICS',
         category: 'getting-started',
-        description: 'Terra-UI provides 3 functional themes (Blueprint Cyan, Industrial Hazard Amber, Telemetry Emerald) across both Dark Mode and Light Mode, governed by CSS custom properties.',
-        descriptionZh: 'Terra-UI 提供 3 大功能主题（工程蓝图青光、工业高压琥珀、数据监控绿晶），全面支持深色与浅色双模切换，全量由 CSS 自定义属性驱动。',
-        codeSnippet: `/* Toggle themes via data-theme and data-mode attributes */
-<html data-theme="cyan" data-mode="dark">
-  ...
-</html>
+        description:
+          'Governed by CSS custom properties for 4 mineral pigment themes, z-index layering, layout geometry, and script-solved CSS linear() spring curves.',
+        descriptionZh:
+          '全站颜色、层叠刻度、布局高度与物理弹簧曲线均收敛于 tokens.css，确保主题同步切换零撕裂与全站统一动效手感。',
+        codeSnippet: `<html data-theme="vermilion" data-mode="dark">
 
-/* Core variables defined in tokens.css */
---terra-bg-base: #090b0e;
---terra-bg-surface: #11141c;
---terra-accent-primary: #00d8ff;
---terra-border: rgba(255, 255, 255, 0.15);
---terra-font-mono: 'Fira Code', 'JetBrains Mono', monospace;`
+--terra-bg-base: #0d0e10;
+--terra-accent-primary: #ee4b2b;
+--terra-on-accent: #ffffff;
+
+--terra-dur-instant: 90ms;
+--terra-dur-fast: 150ms;
+--terra-dur-base: 300ms;
+--terra-dur-slow: 420ms;
+--terra-spring-snappy: linear(0, 0.054, ... 1);
+--terra-spring-smooth: linear(0, 0.081, ... 1);`
       }
     ]
   },
   {
-    id: 'spatial',
-    title: '02 // 3D SPATIAL & INDUSTRIAL',
-    titleZh: '02 // 3D 空间拓扑与工业母线',
+    id: 'kinetic',
+    title: '02 // KINETIC ASCII & SPATIAL',
+    titleZh: '02 // 动态字符与空间交互',
     items: [
+      {
+        id: 'ascii-stage',
+        title: 'TerraAsciiStage',
+        titleZh: '3D 实时动态字符标本台',
+        tag: 'CANVAS // ASCII 3D',
+        componentName: 'TerraAsciiStage',
+        category: 'kinetic',
+        description:
+          'Real-time 3D articulated Papilio specimen dissolving along an interactive divider into a 16-bucket chroma × luminance ASCII glyph field.',
+        descriptionZh:
+          '实时参数化 3D 凤蝶在可拖拽分割线两侧呈现光学立体渲染与 16 桶「色度 × 明度」字符场，支持深浅双模极性自动反转与视口离屏休眠。',
+        codeSnippet: `<script lang="ts">
+  import { TerraAsciiStage } from '@k0maru/terra-ui'
+</script>
+
+<TerraAsciiStage density="fine" splitMode="cursor" />`,
+        props: [
+          {
+            name: 'density',
+            type: "'fine' | 'bold'",
+            default: "'fine'",
+            description: 'Initial glyph grid density'
+          },
+          {
+            name: 'splitMode',
+            type: "'cursor' | 'sweep' | 'half'",
+            default: "'cursor'",
+            description: 'Initial optical vs ASCII split controller mode'
+          },
+          { name: 'class', type: 'string', default: "''", description: 'Additional CSS classes' }
+        ]
+      },
+      {
+        id: 'ambient-field',
+        title: 'TerraAmbientField',
+        titleZh: '开放点阵字符微场',
+        tag: 'CANVAS // AMBIENT',
+        componentName: 'TerraAmbientField',
+        category: 'kinetic',
+        description:
+          'Fixed-viewport interactive dot-lattice Canvas synchronized 1:1 with the 36px background matrix, waking ASCII glyphs near the cursor and ripple waves on click with zero idle CPU burn.',
+        descriptionZh:
+          '与背景 36px 开放点阵严格 1:1 对齐的轻量视口 Canvas：仅重绘光标局部与点击波纹范围内的字符，静止即停帧零功耗。',
+        codeSnippet: `<script lang="ts">
+  import { TerraAmbientField } from '@k0maru/terra-ui'
+</script>
+
+<div class="terra-editorial-canvas relative min-h-screen">
+  <TerraAmbientField />
+</div>`,
+        props: []
+      },
       {
         id: 'spatial-card',
         title: 'TerraSpatialCard',
-        titleZh: '3D 物理悬浮卡片',
+        titleZh: '物理倾角悬浮卡片',
         tag: 'PHYSICS // 3D',
         componentName: 'TerraSpatialCard',
-        category: 'spatial',
-        description: 'Physical 3D interactive card that calculates multi-axis tilt and dynamic specular reflection sheen in response to cursor pointer position. Supports internal Z-depth parallax.',
-        descriptionZh: '光标驱动的多轴 3D 透视物理卡片，动态跟踪光标倾角与镜面高光反射（Sheen），子元素支持 translateZ 真实空间视差浮空。',
+        category: 'kinetic',
+        description:
+          'Pointer-driven 3D perspective card backed by dt-independent spring integration, Z-depth parallax layers, and subtle hairline accent border.',
+        descriptionZh:
+          '基于 dt 无关物理弹簧驱动的多轴 3D 透视交互卡片，纯平 1px 线框与微弱颜料高光响应光标位置，触摸端与减弱动效自动降级。',
         codeSnippet: `<script lang="ts">
-  import { TerraSpatialCard, TerraBadge } from 'terra-ui'
+  import { TerraSpatialCard, TerraBadge } from '@k0maru/terra-ui'
 </script>
 
-<TerraSpatialCard maxRotation={16} perspective={1000} cut="tr-bl">
+<TerraSpatialCard maxRotation={12} perspective={1000}>
   <div class="space-y-3">
-    <div class="flex justify-between items-center" style="transform: translateZ(25px);">
-      <h3 class="font-bold text-white">SPATIAL SENSOR NODE</h3>
+    <div class="flex justify-between items-center" style="transform: translateZ(20px);">
+      <h4 class="font-mono text-sm font-bold text-[var(--terra-text-primary)]">
+        SPATIAL SENSOR NODE
+      </h4>
       <TerraBadge label="NOMINAL" variant="primary" />
     </div>
-    <p class="text-xs text-slate-400" style="transform: translateZ(15px);">
-      Multi-axis hardware compositor tilt tracking.
+    <p class="text-xs text-[var(--terra-text-secondary)]" style="transform: translateZ(12px);">
+      Spring-damped perspective tracking.
     </p>
   </div>
 </TerraSpatialCard>`,
         props: [
-          { name: 'cut', type: "'none' | 'tr' | 'tl-br' | 'tr-bl'", default: "'tr-bl'", description: '45° geometric chamfer corner cut style' },
-          { name: 'maxRotation', type: 'number', default: '16', description: 'Maximum tilt angle in degrees along X and Y axes' },
-          { name: 'perspective', type: 'number', default: '1000', description: 'CSS 3D perspective depth in pixels' },
-          { name: 'sheen', type: 'boolean', default: 'true', description: 'Whether to render dynamic cursor-following specular sheen' },
-          { name: 'class', type: 'string', default: "''", description: 'Additional CSS utility classes' }
-        ]
-      },
-      {
-        id: 'segment-bar',
-        title: 'TerraSegmentBar',
-        titleZh: '下沉式工业能量母线',
-        tag: 'INDUSTRIAL // BUS',
-        componentName: 'TerraSegmentBar',
-        category: 'spatial',
-        description: 'Industrial recessed energy rail chassis with -20° slanted segmented slots and real-time charging leading-edge spark pulse.',
-        descriptionZh: '下沉式工业金属外槽能量母线，采用 -20° 平行斜切卡槽，充能末端带有实时高亮脉冲光波。',
-        codeSnippet: `<script lang="ts">
-  import { TerraSegmentBar } from 'terra-ui'
-</script>
-
-<TerraSegmentBar
-  label="AIC_MAIN_GRID (自动化工业主干网负荷)"
-  sublabel="⚡ 480V THREE-PHASE // LOAD 70%"
-  value={7}
-  total={10}
-  animated={true}
-  variant="nominal"
-/>`,
-        props: [
-          { name: 'value', type: 'number', default: '7', description: 'Current active segments count' },
-          { name: 'total', type: 'number', default: '10', description: 'Total capacity segments count' },
-          { name: 'label', type: 'string', default: "''", description: 'Primary telemetry label' },
-          { name: 'sublabel', type: 'string', default: "''", description: 'Secondary status/voltage readout' },
-          { name: 'variant', type: "'nominal' | 'warning' | 'danger' | 'success'", default: "'nominal'", description: 'Color semantics profile' },
-          { name: 'slant', type: 'number', default: '-20', description: 'Slash slant angle in degrees' },
-          { name: 'animated', type: 'boolean', default: 'true', description: 'Enable leading-edge charging pulse animation' }
-        ]
-      },
-      {
-        id: 'contour-lines',
-        title: 'TerraContourLines',
-        titleZh: '山峦等高线地形图层',
-        tag: 'TOPOGRAPHY // CAD',
-        componentName: 'TerraContourLines',
-        category: 'spatial',
-        description: 'Realistic geographic mountainous elevation contours with dual-peak elevation labels, saddle passes, and canyon basins.',
-        descriptionZh: '真实地理山峦等高线图层，包含双主峰、鞍部、峡谷与海拔标定 crosshairs。',
-        codeSnippet: `<script lang="ts">
-  import { TerraContourLines } from 'terra-ui'
-</script>
-
-<div class="relative w-full h-64 bg-black overflow-hidden">
-  <TerraContourLines opacity={0.25} />
-</div>`,
-        props: [
-          { name: 'opacity', type: 'number', default: '0.22', description: 'Overall contour line opacity' },
-          { name: 'class', type: 'string', default: "''", description: 'Custom CSS classes' }
+          {
+            name: 'maxRotation',
+            type: 'number',
+            default: '12',
+            description: 'Maximum tilt angle in degrees along X and Y axes'
+          },
+          {
+            name: 'perspective',
+            type: 'number',
+            default: '1000',
+            description: 'CSS 3D perspective depth in pixels'
+          },
+          {
+            name: 'sheen',
+            type: 'boolean',
+            default: 'true',
+            description: 'Render subtle cursor-following specular accent sheen'
+          },
+          {
+            name: 'borderGlow',
+            type: 'boolean',
+            default: 'true',
+            description: 'Highlight border with accent primary on hover'
+          },
+          { name: 'class', type: 'string', default: "''", description: 'Additional CSS classes' }
         ]
       }
     ]
   },
   {
     id: 'charts',
-    title: '03 // TELEMETRY SVG CHARTS',
-    titleZh: '03 // 零依赖原生矢量图表',
+    title: '03 // OBSERVABILITY CHARTS',
+    titleZh: '03 // 扁平矢量可观测图表',
     items: [
       {
         id: 'line-chart',
         title: 'TerraLineChart',
-        titleZh: '数据流折线图',
-        tag: 'SVG // TELEMETRY',
+        titleZh: '时序数据折线图',
+        tag: 'SVG // STREAM',
         componentName: 'TerraLineChart',
         category: 'charts',
-        description: 'Native SVG telemetry line and area waveform chart. Features smooth cubic bezier curves, gradient area fill, CAD crosshair inspection, adaptive X-axis tick sampling, and high-contrast HUD tooltip pin box.',
-        descriptionZh: '纯原生矢量折线图，包含贝塞尔平滑波形、渐变网格、十字准星探针、自适应 X 轴刻度抽样与高对比度悬浮读数提示框。',
+        description:
+          'Native SVG waveform chart with Spring-interpolated crosshair tracking, HTML crisp tooltip, baseline pinning, and keyboard navigation.',
+        descriptionZh:
+          '原生矢量折线图，十字准星由 Spring 连续追踪插值，HTML 浮动提示框保持移动端清晰字号，支持单点锚定对比与完整键盘导航。',
         codeSnippet: `<script lang="ts">
-  import { TerraLineChart } from 'terra-ui'
+  import { TerraLineChart } from '@k0maru/terra-ui'
 
   const data = [
-    { timestamp: '18:00:12', value: 38, label: 'NODE-01' },
-    { timestamp: '18:15:30', value: 52, label: 'NODE-03' },
-    { timestamp: '18:30:45', value: 86, label: 'PEAK-05' },
-    { timestamp: '18:45:10', value: 68, label: 'BAL-07' },
-    { timestamp: '18:57:56', value: 92, label: 'NODE-10' }
+    { timestamp: '18:00', value: 38, label: 'NODE-01' },
+    { timestamp: '18:15', value: 52, label: 'NODE-03' },
+    { timestamp: '18:30', value: 86, label: 'PEAK-05' },
+    { timestamp: '18:45', value: 68, label: 'BAL-07' },
+    { timestamp: '19:00', value: 92, label: 'NODE-10' }
   ]
 </script>
 
-<TerraLineChart
-  {data}
-  height={160}
-  unit="MB/s"
-  showCrosshair={true}
-  showGrid={true}
-/>`,
+<TerraLineChart {data} height={160} unit="GB/s" />`,
         props: [
-          { name: 'data', type: 'Array<{ timestamp?: string; value: number; label?: string }>', default: '[]', required: true, description: 'Telemetry time-series data points array' },
-          { name: 'height', type: 'number', default: '160', description: 'SVG canvas height in pixels' },
-          { name: 'unit', type: 'string', default: "'VAL'", description: 'Custom measurement unit displayed in the tooltip pin box' },
-          { name: 'color', type: 'string', default: "'var(--terra-accent-primary)'", description: 'Stroke and accent color' },
-          { name: 'fillOpacity', type: 'number', default: '0.18', description: 'Gradient area fill opacity' },
-          { name: 'showGrid', type: 'boolean', default: 'true', description: 'Render CAD background grid lines and ticks' },
-          { name: 'showCrosshair', type: 'boolean', default: 'true', description: 'Enable pointer crosshair and tooltip pin box inspection' }
-        ]
-      },
-      {
-        id: 'donut-chart',
-        title: 'TerraDonutChart',
-        titleZh: '环形度量分布图',
-        tag: 'SVG // POLAR',
-        componentName: 'TerraDonutChart',
-        category: 'charts',
-        description: 'Circular polar telemetry donut chart with polar guide reticles, dynamic haloPadding safety margin (no square clipping), and center readout.',
-        descriptionZh: '极坐标环形资源度量分布图，配备外层引导刻度、动态安全内边距（杜绝光晕方形硬切）与中心度量读数。',
-        codeSnippet: `<script lang="ts">
-  import { TerraDonutChart } from 'terra-ui'
-
-  const donutData = [
-    { label: 'PRIMARY CORE', value: 42, color: 'var(--terra-accent-primary)', code: 'PWR-01' },
-    { label: 'DEFENSE SHIELD', value: 28, color: 'var(--terra-accent-secondary)', code: 'DEF-02' },
-    { label: 'BUS BUFFER', value: 18, color: 'var(--terra-accent-warning)', code: 'BUS-03' }
-  ]
-</script>
-
-<TerraDonutChart
-  data={donutData}
-  size={220}
-  thickness={22}
-  title="ENERGY ALLOCATION"
-  unit="MW"
-/>`,
-        props: [
-          { name: 'data', type: 'Array<{ label: string; value: number; color?: string; code?: string }>', default: '[]', required: true, description: 'Sector distribution data items' },
-          { name: 'size', type: 'number', default: '200', description: 'Outer diameter in pixels' },
-          { name: 'thickness', type: 'number', default: '20', description: 'Stroke ring thickness in pixels' },
-          { name: 'title', type: 'string', default: "'ALLOCATION'", description: 'Center title label' },
-          { name: 'unit', type: 'string', default: "'%'", description: 'Metric unit for center value display' }
+          {
+            name: 'data',
+            type: 'Array<{ timestamp?: string; value: number; label?: string }>',
+            default: '[]',
+            required: true,
+            description: 'Time-series data points array'
+          },
+          { name: 'height', type: 'number', default: '160', description: 'SVG viewBox height' },
+          { name: 'unit', type: 'string', default: "''", description: 'Measurement unit suffix' },
+          {
+            name: 'color',
+            type: 'string',
+            default: "'var(--terra-accent-primary)'",
+            description: 'Stroke and accent color'
+          },
+          {
+            name: 'showGrid',
+            type: 'boolean',
+            default: 'true',
+            description: 'Render dashed grid lines and axis ticks'
+          },
+          {
+            name: 'showCrosshair',
+            type: 'boolean',
+            default: 'true',
+            description: 'Enable spring-tracked crosshair and tooltip inspection'
+          }
         ]
       },
       {
         id: 'bar-chart',
         title: 'TerraBarChart',
-        titleZh: '分段直方柱状图',
-        tag: 'SVG // HISTOGRAM',
+        titleZh: '分段资源柱状图',
+        tag: 'SVG // LOAD',
         componentName: 'TerraBarChart',
         category: 'charts',
-        description: 'Segmented histogram bar chart with 45° chamfer cut tops, multi-tier threshold color coding (normal/warning/critical), and staggered entry animation.',
-        descriptionZh: '分段直方柱状图，顶部采用 45° 切角几何，支持阈值语义警示分色与交错进场动效。',
+        description:
+          'Flat histogram bar chart with gap-free container hover tracking, staggered smooth spring growth, and exact coordinate reference line comparison.',
+        descriptionZh:
+          '纯平分段柱状图，容器级连续指针追踪消除柱间空隙闪烁，参考虚线与柱体共用精确轨道坐标系，支持平滑数字滚表与对比参考线。',
         codeSnippet: `<script lang="ts">
-  import { TerraBarChart } from 'terra-ui'
+  import { TerraBarChart } from '@k0maru/terra-ui'
 
   const barData = [
     { label: 'CPU-01', value: 64, max: 100, status: 'normal' },
@@ -276,49 +292,16 @@ import '@k0maru/terra-ui/css'
 
 <TerraBarChart data={barData} height={160} barWidth={24} unit="%" />`,
         props: [
-          { name: 'data', type: 'Array<{ label: string; value: number; max?: number; status?: "normal" | "warning" | "critical" }>', default: '[]', required: true, description: 'Bar chart data items' },
-          { name: 'height', type: 'number', default: '160', description: 'Chart canvas height' },
-          { name: 'barWidth', type: 'number', default: '22', description: 'Width of each individual bar' },
+          {
+            name: 'data',
+            type: 'Array<{ label: string; value: number; max?: number; status?: "normal" | "warning" | "critical" }>',
+            default: '[]',
+            required: true,
+            description: 'Bar chart data items'
+          },
+          { name: 'height', type: 'number', default: '180', description: 'Chart height in pixels' },
+          { name: 'barWidth', type: 'number', default: '36', description: 'Base bar track width' },
           { name: 'unit', type: 'string', default: "'%'", description: 'Value unit string' }
-        ]
-      },
-      {
-        id: 'activity-heatmap',
-        title: 'TerraActivityHeatmap',
-        titleZh: '时序活动矩阵热力图',
-        tag: 'SVG // MATRIX',
-        componentName: 'TerraActivityHeatmap',
-        category: 'charts',
-        description: '2D calendar activity and commit frequency heatmap inspired by GitHub. Features pure native Date calculations, 5-level energy grading, HUD tooltip pin box, and responsive SVG layout.',
-        descriptionZh: 'GitHub 同款 2D 时序活动与提交频率热力图。纯原生 JS 日期运算，5 阶能级梯度，战术 HUD 悬浮读数提示框，全响应式矢量网格。',
-        codeSnippet: `<script lang="ts">
-  import { TerraActivityHeatmap } from 'terra-ui'
-
-  // Optional custom activity records
-  const data = [
-    { date: '2026-09-18', count: 12 },
-    { date: '2026-09-19', count: 4 },
-    { date: '2026-09-20', count: 28 }
-  ]
-</script>
-
-<TerraActivityHeatmap
-  {data}
-  weeks={52}
-  cellSize={11}
-  cellGap={3}
-  showOverview={true}
-  showLegend={true}
-/>`,
-        props: [
-          { name: 'data', type: 'ActivityRecord[]', default: 'mockData', description: 'Activity/commit sequence by ISO date' },
-          { name: 'weeks', type: 'number', default: '52', description: 'Number of week columns (1~53)' },
-          { name: 'cellSize', type: 'number', default: '11', description: 'Square cell size in pixels' },
-          { name: 'cellGap', type: 'number', default: '3', description: 'Gap between cells in pixels' },
-          { name: 'showMonthLabels', type: 'boolean', default: 'true', description: 'Render top month labels (JAN~DEC)' },
-          { name: 'showWeekdayLabels', type: 'boolean', default: 'true', description: 'Render left weekday labels (MON, WED, FRI)' },
-          { name: 'showLegend', type: 'boolean', default: 'true', description: 'Render bottom-right LESS...MORE scale' },
-          { name: 'showOverview', type: 'boolean', default: 'true', description: 'Render top metrics summary bar' }
         ]
       },
       {
@@ -328,32 +311,94 @@ import '@k0maru/terra-ui/css'
         tag: 'SLA // STATUS',
         componentName: 'TerraStatusStrip',
         category: 'charts',
-        description: '1D continuous SLA uptime and service health strip inspired by GitHub and Cloudflare Status. Features 4 status grades, aggregated uptime calculation, and pinpoint event tooltips.',
-        descriptionZh: 'GitHub 与 Cloudflare Status 同款 1D 连续服务可用率状态条。支持 4 档健康等级、周期总可用率统计与悬浮事件探针。',
+        description:
+          'Continuous 1D uptime strip with gap-free container pointer tracking, Gaussian opacity falloff, roving keyboard navigation, and Spring-interpolated tooltip.',
+        descriptionZh:
+          '90 天连续服务健康度细条：容器坐标反算与高斯透明度彻底消除横扫间隙闪烁，支持方向键单焦点巡检与 Spring 跟随提示框。',
         codeSnippet: `<script lang="ts">
-  import { TerraStatusStrip } from 'terra-ui'
+  import { TerraStatusStrip } from '@k0maru/terra-ui'
+</script>
 
-  // Optional status records by day
-  const statusData = [
-    { date: '2026-09-18', status: 'operational', uptime: 100 },
-    { date: '2026-09-19', status: 'degraded', uptime: 98.4, description: 'High latency' }
+<TerraStatusStrip serviceName="CORE_GATEWAY_ROUTER" days={60} />`,
+        props: [
+          {
+            name: 'data',
+            type: 'StatusDayRecord[]',
+            default: 'generated',
+            description: 'Daily uptime records'
+          },
+          {
+            name: 'serviceName',
+            type: 'string',
+            default: "'GLOBAL_EDGE_ROUTER'",
+            description: 'Service identifier'
+          },
+          { name: 'days', type: 'number', default: '90', description: 'Number of day bars' },
+          {
+            name: 'barHeight',
+            type: 'number',
+            default: '30',
+            description: 'Bar strip height in pixels'
+          }
+        ]
+      },
+      {
+        id: 'donut-chart',
+        title: 'TerraDonutChart',
+        titleZh: '环形资源分布图',
+        tag: 'SVG // POLAR',
+        componentName: 'TerraDonutChart',
+        category: 'charts',
+        description:
+          'Polar allocation ring using theme-derived color-mix palette, smooth spring stroke reveal, container legend hover, and damped central numeric readout.',
+        descriptionZh:
+          '极坐标环形资源分布图，采用主题派生梯度配色与临界阻尼中心读数，图例容器级防闪烁追踪。',
+        codeSnippet: `<script lang="ts">
+  import { TerraDonutChart } from '@k0maru/terra-ui'
+
+  const donutData = [
+    { label: 'CORE LOAD', value: 46, code: 'PWR-01' },
+    { label: 'SHIELD BUS', value: 34, code: 'DEF-02' },
+    { label: 'INVERTER', value: 20, code: 'BUS-03' }
   ]
 </script>
 
-<TerraStatusStrip
-  data={statusData}
-  serviceName="CORE_GATEWAY_SERVICE"
-  days={90}
-  showSummary={true}
-  showTimelineLabels={true}
-/>`,
+<TerraDonutChart data={donutData} size={200} thickness={20} title="ALLOCATION" unit="%" />`,
         props: [
-          { name: 'data', type: 'StatusDayRecord[]', default: 'mockData', description: 'Daily uptime records' },
-          { name: 'serviceName', type: 'string', default: "'CLUSTER_SERVICE_GATEWAY'", description: 'Service or node label' },
-          { name: 'days', type: 'number', default: '90', description: 'Number of daily status bars (30/60/90)' },
-          { name: 'barHeight', type: 'number', default: '30', description: 'Bar strip height in pixels' },
-          { name: 'showSummary', type: 'boolean', default: 'true', description: 'Show top health beacon and overall uptime' },
-          { name: 'showTimelineLabels', type: 'boolean', default: 'true', description: 'Show bottom 90 DAYS AGO / TODAY labels' }
+          {
+            name: 'data',
+            type: 'Array<{ label: string; value: number; color?: string; code?: string }>',
+            default: '[]',
+            required: true,
+            description: 'Sector distribution items'
+          },
+          { name: 'size', type: 'number', default: '200', description: 'Outer diameter in pixels' },
+          { name: 'thickness', type: 'number', default: '22', description: 'Ring stroke width' },
+          { name: 'title', type: 'string', default: "'SYSTEM LOAD'", description: 'Center label' },
+          { name: 'unit', type: 'string', default: "'%'", description: 'Metric unit' }
+        ]
+      },
+      {
+        id: 'activity-heatmap',
+        title: 'TerraActivityHeatmap',
+        titleZh: '时序活动矩阵热力图',
+        tag: 'SVG // MATRIX',
+        componentName: 'TerraActivityHeatmap',
+        category: 'charts',
+        description:
+          '2D calendar activity matrix with continuous SVG grid coordinate tracking and Spring-positioned tooltip.',
+        descriptionZh:
+          '高密度 2D 时序活动热力矩阵，直接在 SVG 坐标系反算行列定位并由 Spring 驱动悬浮读数框，跨格移动零闪动。',
+        codeSnippet: `<script lang="ts">
+  import { TerraActivityHeatmap } from '@k0maru/terra-ui'
+</script>
+
+<TerraActivityHeatmap weeks={38} cellSize={11} cellGap={3} />`,
+        props: [
+          { name: 'data', type: 'ActivityRecord[]', default: 'generated', description: 'Records' },
+          { name: 'weeks', type: 'number', default: '52', description: 'Week column count' },
+          { name: 'cellSize', type: 'number', default: '11', description: 'Cell size in pixels' },
+          { name: 'cellGap', type: 'number', default: '3', description: 'Cell gap in pixels' }
         ]
       },
       {
@@ -363,44 +408,36 @@ import '@k0maru/terra-ui/css'
         tag: 'SVG // INLINE',
         componentName: 'TerraSparkline',
         category: 'charts',
-        description: 'Ultra-lightweight zero-margin inline waveform chart for KPI metrics, data tables, and headers. Features smooth cubic Bezier splines, gradient area fill, and terminal live pulse dot.',
-        descriptionZh: '超轻量零边距行内走势波形图，适用于 KPI 指标卡片、数据表格与头部读数。支持贝塞尔平滑波形、渐变阴影填充与末端实时呼吸脉冲点。',
+        description:
+          'Lightweight inline waveform with smooth spline interpolation and motion-safe terminal indicator.',
+        descriptionZh: '轻量行内趋势折线图，内置渐变阴影与遵守全局减弱动效协议的末端呼吸指示器。',
         codeSnippet: `<script lang="ts">
-  import { TerraSparkline } from 'terra-ui'
-
-  const stream = [45, 52, 48, 65, 78, 70, 92, 88, 104]
+  import { TerraSparkline } from '@k0maru/terra-ui'
 </script>
 
-<!-- Embedded inside any stat card or table cell -->
-<div class="flex items-center gap-4 p-4 border border-[var(--terra-border)]">
-  <div>
-    <span class="text-xs text-slate-400">LATENCY</span>
-    <span class="text-xl font-bold text-cyan-400">0.82ms</span>
-  </div>
-  <TerraSparkline
-    data={stream}
-    width={120}
-    height={32}
-    variant="accent"
-    showPulse={true}
-  />
-</div>`,
+<TerraSparkline data={[20, 28, 42, 35, 58, 48, 72, 64]} height={28} variant="accent" />`,
         props: [
-          { name: 'data', type: 'number[]', default: '[24, 38, ...]', required: true, description: 'Numeric sequence values' },
-          { name: 'width', type: 'number | string', default: "'100%'", description: 'Width in pixels or CSS dimension' },
-          { name: 'height', type: 'number', default: '32', description: 'Canvas height in pixels' },
-          { name: 'variant', type: "'accent' | 'success' | 'warning' | 'danger'", default: "'accent'", description: 'Color theme variant' },
-          { name: 'fill', type: 'boolean', default: 'true', description: 'Render translucent gradient area fill' },
-          { name: 'smooth', type: 'boolean', default: 'true', description: 'Smooth cubic Bezier vs straight CAD polyline' },
-          { name: 'showPulse', type: 'boolean', default: 'true', description: 'Render animated ping dot at last data point' }
+          {
+            name: 'data',
+            type: 'number[]',
+            default: '[24, 38, ...]',
+            description: 'Numeric array'
+          },
+          { name: 'height', type: 'number', default: '32', description: 'Height in pixels' },
+          {
+            name: 'variant',
+            type: "'accent' | 'success' | 'warning' | 'danger'",
+            default: "'accent'",
+            description: 'Theme token variant'
+          }
         ]
       }
     ]
   },
   {
-    id: 'telemetry',
-    title: '04 // TACTICAL TELEMETRY & METERS',
-    titleZh: '04 // 战术遥测与精密仪表',
+    id: 'controls',
+    title: '04 // PRECISION CONTROLS',
+    titleZh: '04 // 精密控制器与仪表',
     items: [
       {
         id: 'vernier-meter',
@@ -408,261 +445,224 @@ import '@k0maru/terra-ui/css'
         titleZh: '游标微刻度尺指示器',
         tag: 'PRECISION // METER',
         componentName: 'TerraVernierMeter',
-        category: 'telemetry',
-        description: 'Micro vernier precision scale meter featuring 10-tier physical slide ticks, dual major/minor tick marks, smooth GPU-accelerated needle translation, active segment illumination, and WAI-ARIA role="meter" compliance.',
-        descriptionZh: '微型精密游标卡尺指示器，具备 10 段式精密刻度滑槽、长短主副刻度线、GPU 硬件加速滑动指示针、动态分段点亮以及 WAI-ARIA 仪表语义标准。',
+        category: 'controls',
+        description:
+          'Spring-driven precision caliper slider and meter aligned exactly to padded tick geometry via GPU scaleX/translate3d compositing.',
+        descriptionZh:
+          '全合成层驱动的精密游标卡尺与可拖拽微调器，指针与填充条与刻度槽精确对齐且无边缘错位，松手后呈自然阻尼落位。',
         codeSnippet: `<script lang="ts">
   import { TerraVernierMeter } from '@k0maru/terra-ui'
+  let val = $state(74)
 </script>
 
-<!-- Standard vernier meter -->
-<TerraVernierMeter value={74} min={0} max={100} ticks={10} />
-
-<!-- Overload / Hazard warning state -->
-<TerraVernierMeter value={92} min={0} max={100} hazard={true} />`,
+<TerraVernierMeter bind:value={val} interactive={true} min={0} max={100} ticks={21} />`,
         props: [
-          { name: 'value', type: 'number', required: true, description: 'Current numeric value of the meter' },
-          { name: 'min', type: 'number', default: '0', description: 'Minimum scale range value' },
-          { name: 'max', type: 'number', default: '100', description: 'Maximum scale range value' },
-          { name: 'ticks', type: 'number', default: '10', description: 'Number of precision tick marks on the scale' },
-          { name: 'hazard', type: 'boolean', default: 'false', description: 'Whether the meter is in a hazard / overload warning state' },
-          { name: 'class', type: 'string', default: "''", description: 'Additional CSS classes' }
-        ],
-        features: [
-          'GPU Compositor-first sliding needle via translate3d(ratio * 100%, 0, 0)',
-          'Major/minor dual tick marks (6px major at index % 5 === 0, 3px minor)',
-          'Automatic theme accent or hazard warning illumination',
-          'Full accessibility: role="meter", aria-valuenow, aria-valuemin, aria-valuemax'
-        ],
-        featuresZh: [
-          '基于 GPU 合成层 translate3d 驱动的高流畅度滑动指示针',
-          '精密主副刻度槽（每 5 刻度出现 6px 主标尺，3px 副标尺）',
-          '自适应当前主题青光/琥珀/翡翠及超限告警金黄分色',
-          '完备 WAI-ARIA 仪表无障碍规范支持'
-        ]
-      },
-      {
-        id: 'telemetry-box',
-        title: 'TerraTelemetryBox',
-        titleZh: '高集成战术遥测仪表箱',
-        tag: 'AEROSPACE // TELEMETRY',
-        componentName: 'TerraTelemetryBox',
-        category: 'telemetry',
-        description: 'High-density aerospace and industrial tactical telemetry box inspired by Arknights UI engineering. Features 45° chamfer container, high-contrast accent left rail, protocol tags, frequency-derived hexadecimal status codes, augmented-fourth bold typography, embedded vernier meter, and micro barcode matrix.',
-        descriptionZh: '源自《明日方舟》UI 工程体系的高集成度战术遥测仪表箱。融合 45° 几何切角、高对比度导轨左边框、出厂协议号、频率派生十六进制状态码、增四度大字阶读数、内嵌游标卡尺与微型条码矩阵。',
-        codeSnippet: `<script lang="ts">
-  import { TerraTelemetryBox } from '@k0maru/terra-ui'
-</script>
-
-<TerraTelemetryBox
-  stationId="ALPHA-01"
-  protocolTag="AIC.09"
-  label="CORE_TURBINE_EFFICIENCY"
-  value={94.2}
-  min={0}
-  max={100}
-  unit="%"
-  frequencyHz={60}
-  hazardThreshold={0.85}
-  cut="tr-bl"
-/>`,
-        props: [
-          { name: 'stationId', type: 'string', default: "'STATION-01'", description: 'Station or node identifier' },
-          { name: 'protocolTag', type: 'string', default: "'AIC.09'", description: 'Industrial protocol identifier tag' },
-          { name: 'label', type: 'string', required: true, description: 'Readout telemetry metric label' },
-          { name: 'value', type: 'number', required: true, description: 'Current numeric metric value' },
-          { name: 'min', type: 'number', default: '0', description: 'Minimum metric range value' },
-          { name: 'max', type: 'number', default: '100', description: 'Maximum metric range value' },
-          { name: 'unit', type: 'string', default: "'%'", description: 'Measurement unit symbol' },
-          { name: 'frequencyHz', type: 'number', default: '60', description: 'Operating frequency in Hz (used to compute 0x hex status code)' },
-          { name: 'hazard', type: 'boolean', description: 'Explicit override for hazard overload state' },
-          { name: 'hazardThreshold', type: 'number', default: '0.85', description: 'Ratio threshold (0.0 - 1.0) above which hazard activates automatically' },
-          { name: 'showBarcode', type: 'boolean', default: 'true', description: 'Display micro barcode matrix in footer' },
-          { name: 'cut', type: "'tr' | 'tl-br' | 'tr-bl' | 'none'", default: "'tr-bl'", description: '45° geometric chamfer cut pattern' },
-          { name: 'class', type: 'string', default: "''", description: 'Additional CSS classes' }
-        ],
-        features: [
-          'High-density tactical cockpit readout layout',
-          'Integrated TerraVernierMeter with real-time sync',
-          'Automatic 0x status code derived from operating frequency',
-          'Dual state: Nominal vs Overload / Warning'
-        ],
-        featuresZh: [
-          '高集成度航空与战术工业仪表视口排版',
-          '原生内置 TerraVernierMeter 精密游标卡尺',
-          '基于运行频率自动派生十六进制状态码 (0x...)',
-          '双稳态工作机制：正常态与过载告警态自适应'
-        ]
-      }
-    ]
-  },
-  {
-    id: 'controls',
-    title: '05 // CONTROLS & HUD',
-    titleZh: '05 // 精密控制与 HUD 标定',
-    items: [
-      {
-        id: 'vertical-slider',
-        title: 'TerraVerticalSlider',
-        titleZh: '精密垂直滑块控制台',
-        tag: 'CONTROL // SLIDER',
-        componentName: 'TerraVerticalSlider',
-        category: 'controls',
-        description: 'High-contrast tactile vertical scale with GPU-composited scaleY fill, stepped frame buttons (+/-), pointer drag tracking, and keyboard arrow navigation.',
-        descriptionZh: '工业精密垂直滑块控制器，100% 由 GPU scaleY 合成层驱动，配备微切角步进按键与全套无障碍滑块语义。',
-        codeSnippet: `<script lang="ts">
-  import { TerraVerticalSlider } from 'terra-ui'
-  let zoom = $state(1.2)
-</script>
-
-<TerraVerticalSlider
-  bind:value={zoom}
-  min={0.5}
-  max={2.5}
-  step={0.1}
-  label="ZOOM"
-  unit="x"
-  showButtons={true}
-  height={180}
-/>`,
-        props: [
-          { name: 'value', type: 'number', default: '1.0', description: 'Bound slider value (supports bind:value)' },
-          { name: 'min', type: 'number', default: '0', description: 'Minimum allowed value' },
-          { name: 'max', type: 'number', default: '100', description: 'Maximum allowed value' },
-          { name: 'step', type: 'number', default: '1', description: 'Step increment per click or drag step' },
-          { name: 'label', type: 'string', default: "''", description: 'Telemetry label text' },
-          { name: 'unit', type: 'string', default: "''", description: 'Unit abbreviation' },
-          { name: 'showButtons', type: 'boolean', default: 'true', description: 'Render [+] and [-] tactile step buttons' },
-          { name: 'height', type: 'number', default: '180', description: 'Track height in pixels' }
+          { name: 'value', type: 'number', default: '0', description: 'Current numeric value' },
+          { name: 'min', type: 'number', default: '0', description: 'Scale minimum' },
+          { name: 'max', type: 'number', default: '100', description: 'Scale maximum' },
+          { name: 'ticks', type: 'number', default: '21', description: 'Tick count' },
+          {
+            name: 'interactive',
+            type: 'boolean',
+            default: 'false',
+            description: 'Enable drag/keys'
+          },
+          { name: 'hazard', type: 'boolean', default: 'false', description: 'Overload accent' }
         ]
       },
       {
         id: 'vertical-tabs',
         title: 'TerraVerticalTabs',
-        titleZh: '垂直悬浮游标标签页',
+        titleZh: '垂直游标索引标签',
         tag: 'NAVIGATION // TABS',
         componentName: 'TerraVerticalTabs',
         category: 'controls',
-        description: 'Vertical tab switcher with a flying animated indicator pill driven by GPU translateY using official Atlos easing curves.',
-        descriptionZh: '垂直悬浮游标标签页，激活项指示滑块由 GPU translateY 驱动，采用官方精密缓动贝塞尔曲线。',
+        description:
+          'Vertical tablist whose sliding rail scales duration with jump distance under a snappy 2% overshoot spring curve.',
+        descriptionZh: '垂直索引标签栏，激活游标随跳转跨度自适应时长与 2% 微过冲回弹落位。',
         codeSnippet: `<script lang="ts">
-  import { TerraVerticalTabs } from 'terra-ui'
-
+  import { TerraVerticalTabs } from '@k0maru/terra-ui'
   let selected = $state('us-east')
-  const tabs = [
-    { key: 'us-east', label: 'US-EAST-01 CLUSTER', shortCode: 'VA-01' },
-    { key: 'ap-east', label: 'AP-EAST-02 REGION', shortCode: 'HK-02' },
-    { key: 'eu-west', label: 'EU-WEST-03 CORE', shortCode: 'DE-03' }
-  ]
 </script>
 
 <TerraVerticalTabs items={tabs} bind:selectedKey={selected} />`,
         props: [
-          { name: 'items', type: 'Array<{ key: string; label: string; shortCode?: string; badge?: string; disabled?: boolean }>', default: '[]', required: true, description: 'Tab item specifications' },
-          { name: 'selectedKey', type: 'string', default: "''", description: 'Currently active tab key (supports bind:selectedKey)' }
+          {
+            name: 'items',
+            type: 'TerraTabItem[]',
+            default: '[]',
+            required: true,
+            description: 'Tab definitions'
+          },
+          { name: 'selectedKey', type: 'string', default: "''", description: 'Bindable active key' }
         ]
       },
       {
-        id: 'corner-brackets',
-        title: 'TerraCornerBrackets',
-        titleZh: '四角包角线框容器',
-        tag: 'HUD // BRACKETS',
-        componentName: 'TerraCornerBrackets',
+        id: 'rolling-number',
+        title: 'TerraRollingNumber',
+        titleZh: '临界阻尼数字计数器',
+        tag: 'TELEMETRY // NUMERIC',
+        componentName: 'TerraRollingNumber',
         category: 'controls',
-        description: 'Four-corner brackets wrapping container with optional status label and glowing reticle accents.',
-        descriptionZh: '四角包角聚焦外框，支持头部状态标签与发光强调角标。',
+        description:
+          'Critically damped spring numeric counter (zero overshoot) for bounded KPI readouts and percentages.',
+        descriptionZh: '严格临界阻尼数字滚表（ζ=1.0，绝不过冲越界），确保有界百分比不闪烁超限值。',
         codeSnippet: `<script lang="ts">
-  import { TerraCornerBrackets } from 'terra-ui'
+  import { TerraRollingNumber } from '@k0maru/terra-ui'
 </script>
 
-<TerraCornerBrackets label="[SEC-01 // TELEMETRY]">
-  <div class="p-4 bg-black/40 text-white font-mono text-sm">
-    TARGET LOCKED: AIC-GRID-09
-  </div>
-</TerraCornerBrackets>`,
+<TerraRollingNumber value={99.98} decimals={2} suffix="%" />`,
         props: [
-          { name: 'label', type: 'string', default: "''", description: 'Optional HUD title tag placed on top-left bracket' },
-          { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Corner bracket line thickness and size' },
-          { name: 'glow', type: 'boolean', default: 'false', description: 'Enable neon accent glow on corner ticks' }
+          { name: 'value', type: 'number', required: true, description: 'Target numeric value' },
+          { name: 'decimals', type: 'number', default: '0', description: 'Decimal places' },
+          {
+            name: 'duration',
+            type: 'number',
+            default: '420',
+            description: 'Nominal settle time (ms)'
+          },
+          { name: 'suffix', type: 'string', default: "''", description: 'Trailing unit text' }
         ]
       }
     ]
   },
   {
     id: 'primitives',
-    title: '06 // ATOMIC PRIMITIVES',
-    titleZh: '06 // 原子控制图元与人员卡',
+    title: '05 // EDITORIAL PRIMITIVES',
+    titleZh: '05 // 编辑部基础图元',
     items: [
       {
         id: 'button',
         title: 'TerraButton',
-        titleZh: '45° 几何切角流光按键',
+        titleZh: '磁吸与反色擦除按钮',
         tag: 'ATOMIC // BUTTON',
         componentName: 'TerraButton',
         category: 'primitives',
-        description: 'Signature 45° chamfer cut button with GPU hardware-accelerated shimmer light sweep on hover, multiple semantic variants, and loading state.',
-        descriptionZh: '标志性 45° 几何切角按钮，悬浮时触发 GPU 硬件加速的流光扫光（Shimmer），具备四种语义变体与加载态。',
+        description:
+          'Flat tactile trigger with outer-button spring magnetic pull, synchronized clip-path ink inversion for outline variants, and spring release.',
+        descriptionZh:
+          '全按钮范围磁吸触发器，outline 变体通过同步 clip-path 文字层消除擦除过程反色闪烁，按下瞬态与松开回弹手感分明。',
         codeSnippet: `<script lang="ts">
-  import { TerraButton } from 'terra-ui'
+  import { TerraButton } from '@k0maru/terra-ui'
 </script>
 
 <div class="flex gap-3">
-  <TerraButton variant="primary">EXECUTE</TerraButton>
+  <TerraButton variant="primary" magneticPull={true}>EXECUTE</TerraButton>
   <TerraButton variant="outline">STANDBY</TerraButton>
-  <TerraButton variant="ghost">PURGE</TerraButton>
-  <TerraButton variant="danger">TERMINATE</TerraButton>
+  <TerraButton variant="ghost">RESET</TerraButton>
+  <TerraButton variant="danger">ABORT</TerraButton>
 </div>`,
         props: [
-          { name: 'variant', type: "'primary' | 'outline' | 'ghost' | 'danger'", default: "'primary'", description: 'Button visual and semantic style' },
-          { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Padding and font scale' },
-          { name: 'disabled', type: 'boolean', default: 'false', description: 'Disabled interaction state' },
-          { name: 'loading', type: 'boolean', default: 'false', description: 'Displays scanning spinner' }
+          {
+            name: 'variant',
+            type: "'primary' | 'outline' | 'ghost' | 'danger'",
+            default: "'primary'",
+            description: 'Button semantic style'
+          },
+          { name: 'size', type: "'sm' | 'md' | 'lg'", default: "'md'", description: 'Size scale' },
+          {
+            name: 'magneticPull',
+            type: 'boolean',
+            default: 'false',
+            description: 'Enable pointer spring pull'
+          },
+          { name: 'disabled', type: 'boolean', default: 'false', description: 'Disable button' }
+        ]
+      },
+      {
+        id: 'input',
+        title: 'TerraInput',
+        titleZh: '底线指令输入框',
+        tag: 'ATOMIC // INPUT',
+        componentName: 'TerraInput',
+        category: 'primitives',
+        description:
+          'Minimal baseline terminal input with asymmetric enter/exit focus rail timing and bilingual default placeholder.',
+        descriptionZh:
+          '纯平底线指令输入框，聚焦时以弹簧曲线中心展开，失焦时快速收敛，内置清除操作。',
+        codeSnippet: `<script lang="ts">
+  import { TerraInput } from '@k0maru/terra-ui'
+  let cmd = $state('deploy --env=production')
+</script>
+
+<TerraInput bind:value={cmd} prefix="CMD>" />`,
+        props: [
+          { name: 'value', type: 'string', default: "''", description: 'Bindable text value' },
+          { name: 'prefix', type: 'string', default: "''", description: 'Prompt prefix label' },
+          { name: 'clearable', type: 'boolean', default: 'true', description: 'Show clear button' }
         ]
       },
       {
         id: 'panel',
         title: 'TerraPanel',
-        titleZh: '机能装甲面板',
-        tag: 'ATOMIC // CONTAINER',
+        titleZh: '纯平 1px 档案容器',
+        tag: 'ATOMIC // SURFACE',
         componentName: 'TerraPanel',
         category: 'primitives',
-        description: 'Armor panel container featuring continuous 1px vector chamfer borders, industrial title bar with telemetry tags, and 5 modular decoration presets (endfield, rhodes, industrial, brackets, clean).',
-        descriptionZh: '机能装甲面板容器，支持 100% 闭合的 1px 矢量斜切金属边框、出厂铭牌标题栏与 5 种官方级边角装饰预设（终末地加强筋、罗德岛微刻度、重工铆钉孔、经典包角、极简纯净）。',
+        description:
+          'Flat 1px architectural container bounded cleanly by paper/ink borders, optional header rail, and warning accent band.',
+        descriptionZh: '遵循 1px 结构网格约束的纯平编辑部档案容器，去除切角与重投影。',
         codeSnippet: `<script lang="ts">
-  import { TerraPanel } from 'terra-ui'
+  import { TerraPanel } from '@k0maru/terra-ui'
 </script>
 
-<TerraPanel title="SYSTEM STATUS" tag="// SEC-01" cut="tr-bl" decoration="endfield">
-  <p class="text-sm font-mono text-slate-300">All nodes operational.</p>
+<TerraPanel title="SYSTEM STATUS" tag="// SEC-01">
+  <p class="text-xs text-[var(--terra-text-secondary)]">All nodes operational.</p>
 </TerraPanel>`,
         props: [
-          { name: 'title', type: 'string', default: "''", description: 'Panel header title' },
-          { name: 'tag', type: 'string', default: "''", description: 'Secondary telemetry tag' },
-          { name: 'cut', type: "'none' | 'tr' | 'tl-br' | 'tr-bl' | 'br'", default: "'tr'", description: 'Chamfer corner cut geometry' },
-          { name: 'chamferBorder', type: 'boolean', default: 'true', description: 'Whether the 45° chamfer cut has a 1px border (true = sealed, false = open cut)' },
-          { name: 'decoration', type: "'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'", default: "'endfield'", description: 'Modular architectural decoration preset' },
-          { name: 'focus', type: "'auto' | 'chamfer' | 'corner' | 'both'", default: "'auto'", description: 'Mutually exclusive decorator placement target' },
-          { name: 'cutSize', type: 'number', default: '16', description: 'Chamfer cut depth in pixels' },
-          { name: 'warning', type: 'boolean', default: 'false', description: 'Render top industrial hazard warning stripe' }
+          { name: 'title', type: 'string', default: "''", description: 'Panel title' },
+          { name: 'tag', type: 'string', default: "''", description: 'Right-aligned tag' },
+          {
+            name: 'warning',
+            type: 'boolean',
+            default: 'false',
+            description: 'Top warning accent bar'
+          }
+        ]
+      },
+      {
+        id: 'status-beacon',
+        title: 'TerraStatusBeacon',
+        titleZh: '正弦呼吸状态信标',
+        tag: 'ATOMIC // STATUS',
+        componentName: 'TerraStatusBeacon',
+        category: 'primitives',
+        description:
+          'Status indicator with sinusoidal breathe ring honoring motion pause settings.',
+        descriptionZh: '状态信标指示器，采用平滑正弦呼吸节律并接入全局动效暂停控制。',
+        codeSnippet: `<script lang="ts">
+  import { TerraStatusBeacon } from '@k0maru/terra-ui'
+</script>
+
+<TerraStatusBeacon status="online" label="ACTIVE" />`,
+        props: [
+          {
+            name: 'status',
+            type: "'online' | 'standby' | 'alert' | 'offline'",
+            default: "'online'",
+            description: 'Health state'
+          },
+          { name: 'label', type: 'string', default: "''", description: 'Status text' },
+          { name: 'pulse', type: 'boolean', default: 'true', description: 'Animate outer halo' }
         ]
       },
       {
         id: 'profile-card',
         title: 'TerraProfileCard',
-        titleZh: '开发者中枢与人员卡',
+        titleZh: '开发者档案名片',
         tag: 'IDENTITY // CARD',
         componentName: 'TerraProfileCard',
         category: 'primitives',
-        description: 'Swiss typographic identity card displaying authentic GitHub maintainer information (K0maru), public UID barcode, role badges, and direct repository links.',
-        descriptionZh: '极简瑞士排印风格的真实 GitHub 开发者档案卡（主创 K0maru），带有官方公开 UID 条码与仓库直达外链。',
+        description:
+          'Swiss typographic maintainer profile card displaying public GitHub metadata, UID barcode, and dual-mode tokens.',
+        descriptionZh: '纯平瑞士排印开发者档案卡，完整兼容深/浅双模配色。',
         codeSnippet: `<script lang="ts">
-  import { TerraProfileCard } from 'terra-ui'
+  import { TerraProfileCard } from '@k0maru/terra-ui'
 </script>
 
 <TerraProfileCard />`,
         props: [
-          { name: 'username', type: 'string', default: "'K0maru'", description: 'Public GitHub handle' },
-          { name: 'role', type: 'string', default: "'Lead Maintainer & Architect'", description: 'Project role label' },
+          { name: 'username', type: 'string', default: "'K0maru'", description: 'GitHub handle' },
           { name: 'uid', type: 'string', default: "'UID-93422639'", description: 'Public UID code' }
         ]
       }
@@ -670,26 +670,28 @@ import '@k0maru/terra-ui/css'
   },
   {
     id: 'legal',
-    title: '07 // LEGAL & ATTRIBUTION',
-    titleZh: '07 // 免责声明与设计致敬',
+    title: '06 // ATTRIBUTION & LICENSE',
+    titleZh: '06 // 开源协议与致敬声明',
     items: [
       {
         id: 'attribution',
         title: 'Disclaimer & Attribution',
-        titleZh: '免责声明与设计致敬来源',
-        tag: 'LEGAL // HYPERGRYPH',
+        titleZh: '开源协议与设计演进说明',
+        tag: 'LEGAL // MIT',
         category: 'legal',
-        description: 'Terra-UI is an independent open-source frontend research project. Its aesthetic style, typography density, and interactive patterns are inspired by Shanghai HYPERGRYPH Network Technology Co., Ltd. (上海鹰角网络科技有限公司) works "Arknights" (明日方舟) and "Arknights: Endfield" (明日方舟：终末地).',
-        descriptionZh: '本项目为独立研发的开源学术与前端技术探索项目。美学风格、排版逻辑及交互灵感直接汲取并参考自上海鹰角网络科技有限公司（HYPERGRYPH）开发的作品《明日方舟》与《明日方舟：终末地》。',
+        description:
+          'Terra-UI is an independent MIT-licensed clean-room Svelte 5 component library. Earlier aesthetic explorations referenced Arknights and Arknights: Endfield by HYPERGRYPH; the system has since evolved into an original flat editorial and kinetic ASCII design system.',
+        descriptionZh:
+          'Terra-UI 是一套遵循 MIT 协议的独立开源 Svelte 5 组件库（Clean-Room Implementation）。项目早期灵感曾参考鹰角网络《明日方舟》与《明日方舟：终末地》相关界面美学，现已演进为独立的平面编辑部与动态字符设计系统。',
         features: [
-          'Trademarks & Game IP: All trademarks, logos, game titles, and original game art/worldview designs associated with "Arknights" and "Arknights: Endfield" are the sole property of Shanghai HYPERGRYPH Network Technology Co., Ltd.',
-          'Independent Clean-Room Implementation: Terra-UI is an original open-source UI component library (MIT License). All Svelte 5 components, CSS design tokens, and SVG graphics were authored independently from scratch as design references, with zero extraction, copying, or redistribution of official proprietary game assets.',
-          'Non-Affiliation Notice: This project is an independent developer community creation and is not affiliated with, endorsed by, or sponsored by HYPERGRYPH. References to game titles are strictly for nominative design attribution.'
+          'Trademarks & Game IP belong exclusively to Shanghai HYPERGRYPH Network Technology Co., Ltd.',
+          '100% independent clean-room Svelte 5, CSS Token, and procedural Canvas/SVG implementation.',
+          'Zero extracted or proprietary game assets are distributed in this repository.'
         ],
         featuresZh: [
-          '鹰角网络专有权利：所有与《明日方舟》及《明日方舟：终末地》相关的商标、Logo、游戏名称、官方美术原案与世界观设计均完全归属于上海鹰角网络科技有限公司。',
-          '独立原创与干净重写：Terra-UI 是一套从零独立编写的开源 UI 组件库（遵循 MIT 许可证）。所有 Svelte 5 代码、CSS 设计令牌与 SVG 图标均为自主开发实现，仅在视觉风格上进行参考与致敬，未直接复制、解包或提取任何官方专有切片或加密数据。',
-          '非官方与无关联声明：本项目为独立开源技术探索，非官方产品，亦未获得鹰角网络的商业赞助、授权或背书，提及相关游戏名称仅用于指明美学设计灵感来源。'
+          '所有与《明日方舟》及《明日方舟：终末地》相关的商标与美术著作权归上海鹰角网络科技有限公司所有。',
+          '全量组件、CSS Tokens 与程序化 Canvas/SVG 均为从零独立编写的干净实现。',
+          '本仓库不包含任何解包、提取或分发的专有游戏资源。'
         ]
       }
     ]

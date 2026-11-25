@@ -30,3 +30,9 @@ references/rhine-lab/code/
 references/rhine-lab/repo/
 references/ak-ui/
 references/**/repo/
+
+# AI internal directories
+.scratch/
+.agents/
+.internal/
+.k0maru/

@@ -1,29 +1,28 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { docCategories, type DocPage } from './docsData'
+  import { Menu, X } from 'lucide-svelte'
+  import { docCategories } from './docsData'
   import TerraCodePlayground from './TerraCodePlayground.svelte'
   import TerraPropsTable from './components/TerraPropsTable.svelte'
-
-  // Component imports for live playgrounds
   import {
-    TerraButton,
-    TerraPanel,
-    TerraBadge,
-    TerraStatusBeacon,
-    TerraSpatialCard,
-    TerraSegmentBar,
-    TerraLineChart,
-    TerraDonutChart,
-    TerraBarChart,
-    TerraVerticalSlider,
-    TerraVerticalTabs,
-    TerraCornerBrackets,
-    TerraProfileCard,
-    TerraSparkline,
-    TerraStatusStrip,
+    TerraAmbientField,
+    TerraAsciiStage,
     TerraActivityHeatmap,
+    TerraBadge,
+    TerraBarChart,
+    TerraButton,
+    TerraDonutChart,
+    TerraInput,
+    TerraLineChart,
+    TerraPanel,
+    TerraProfileCard,
+    TerraRollingNumber,
+    TerraSparkline,
+    TerraSpatialCard,
+    TerraStatusBeacon,
+    TerraStatusStrip,
     TerraVernierMeter,
-    TerraTelemetryBox
+    TerraVerticalTabs
   } from '../lib'
 
   interface Props {
@@ -33,19 +32,16 @@
 
   let { locale = 'en', onSwitchToDemo }: Props = $props()
 
-  // Flattened list for linear prev/next navigation
   const allPages = $derived(docCategories.flatMap((cat) => cat.items))
 
   let activePageId = $state('overview')
   let searchQuery = $state('')
   let isMobileMenuOpen = $state(false)
-  let docPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
-  let docPanelCut = $state<'tr-bl' | 'tl-br' | 'tr' | 'br'>('tr-bl')
-  let docPanelChamferBorder = $state(true)
+  let docPanelWarning = $state(false)
   let vernierDemoVal = $state(74)
-  let telemetryDemoVal = $state(94.2)
+  let rollingDemoVal = $state(99.4)
+  let inputDemoVal = $state('deploy --env=production')
 
-  // Sync with URL hash
   onMount(() => {
     function handleHash() {
       const hash = window.location.hash
@@ -65,12 +61,10 @@
     activePageId = id
     window.location.hash = `#/docs/${id}`
     isMobileMenuOpen = false
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.scrollTo({ top: 0, behavior: 'instant' })
   }
 
-  const activePage = $derived(
-    allPages.find((p) => p.id === activePageId) || allPages[0]
-  )
+  const activePage = $derived(allPages.find((p) => p.id === activePageId) || allPages[0])
 
   const activeCategory = $derived(
     docCategories.find((cat) => cat.items.some((p) => p.id === activePage.id))
@@ -78,11 +72,8 @@
 
   const activeIndex = $derived(allPages.findIndex((p) => p.id === activePage.id))
   const prevPage = $derived(activeIndex > 0 ? allPages[activeIndex - 1] : null)
-  const nextPage = $derived(
-    activeIndex < allPages.length - 1 ? allPages[activeIndex + 1] : null
-  )
+  const nextPage = $derived(activeIndex < allPages.length - 1 ? allPages[activeIndex + 1] : null)
 
-  // Filtered categories based on search
   const filteredCategories = $derived.by(() => {
     if (!searchQuery.trim()) return docCategories
     const q = searchQuery.toLowerCase()
@@ -99,8 +90,6 @@
       .filter((cat) => cat.items.length > 0)
   })
 
-  // Live playground state bindings
-  let sliderVal = $state(1.5)
   let activeTabKey = $state('us-east')
   const demoTabs = [
     { key: 'us-east', label: 'US-EAST-01 CLUSTER', shortCode: 'VA-01' },
@@ -117,9 +106,9 @@
   ]
 
   const sampleDonutData = [
-    { label: 'CORE LOAD', value: 46, color: 'var(--terra-accent-primary)', code: 'PWR-01' },
-    { label: 'SHIELD BUS', value: 34, color: 'var(--terra-accent-secondary)', code: 'DEF-02' },
-    { label: 'INVERTER', value: 20, color: 'var(--terra-accent-warning)', code: 'BUS-03' }
+    { label: 'CORE LOAD', value: 46, code: 'PWR-01' },
+    { label: 'SHIELD BUS', value: 34, code: 'DEF-02' },
+    { label: 'INVERTER', value: 20, code: 'BUS-03' }
   ]
 
   const sampleBarData = [
@@ -129,38 +118,43 @@
   ]
 </script>
 
-<div class="min-h-screen bg-[var(--terra-bg-base)] text-[var(--terra-text-primary)] font-sans antialiased">
-  <!-- Top Docs Sub-header Bar -->
-  <div class="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-8 py-3 bg-[var(--terra-bg-surface)]/90 backdrop-blur-md border-b border-[var(--terra-border)] select-none">
-    <div class="flex items-center gap-3">
-      <!-- Mobile menu toggle -->
+<div class="min-h-screen text-[var(--terra-text-primary)] font-sans antialiased">
+  <div
+    class="sticky top-[var(--terra-header-h)] z-[var(--terra-z-sticky-sub)] h-[var(--terra-docsbar-h)] flex items-center justify-between px-4 sm:px-8 bg-[var(--terra-bg-surface)]/95 backdrop-blur-md border-b border-[var(--terra-border)] select-none"
+  >
+    <div class="flex items-center gap-3 min-w-0">
       <button
         type="button"
-        onclick={() => isMobileMenuOpen = !isMobileMenuOpen}
-        class="lg:hidden p-1.5 border border-[var(--terra-border)] text-[var(--terra-text-primary)] hover:border-[var(--terra-accent-primary)]"
+        onclick={() => (isMobileMenuOpen = !isMobileMenuOpen)}
+        class="terra-pressable lg:hidden p-1.5 border border-[var(--terra-border)] text-[var(--terra-text-primary)] hover:border-[var(--terra-accent-primary)] cursor-pointer"
         aria-label="Toggle Navigation"
       >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+        {#if isMobileMenuOpen}
+          <X class="w-4 h-4" />
+        {:else}
+          <Menu class="w-4 h-4" />
+        {/if}
       </button>
 
-      <span class="font-mono text-xs font-bold tracking-widest text-[var(--terra-accent-primary)] flex items-center gap-1.5">
-        <span class="w-2 h-2 bg-[var(--terra-accent-primary)]"></span>
-        TERRA UI // DOCS & RUNTIME PLAYPEN
+      <span
+        class="font-mono text-xs font-bold tracking-widest text-[var(--terra-accent-primary)] flex items-center gap-1.5 truncate"
+      >
+        <span class="w-2 h-2 bg-[var(--terra-accent-primary)] shrink-0"></span>
+        TERRA UI // DOCS
       </span>
-      <span class="hidden md:inline font-mono text-[10px] text-[var(--terra-text-muted)] border-l border-[var(--terra-border)] pl-3">
-        v0.8.0-alpha // SVELTE 5 NATIVE RUNES
+      <span
+        class="hidden md:inline font-mono text-[10px] text-[var(--terra-text-muted)] border-l border-[var(--terra-border)] pl-3 shrink-0"
+      >
+        SVELTE 5 NATIVE RUNES
       </span>
     </div>
 
-    <!-- Return to Demo button -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3 shrink-0">
       {#if onSwitchToDemo}
         <button
           type="button"
           onclick={onSwitchToDemo}
-          class="font-mono text-xs font-bold px-3 py-1 bg-[var(--terra-bg-base)] border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] text-[var(--terra-text-primary)] hover:text-[var(--terra-accent-primary)] transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+          class="terra-pressable font-mono text-xs font-bold px-3 py-1 bg-[var(--terra-bg-base)] border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] text-[var(--terra-text-primary)] hover:text-[var(--terra-accent-primary)] flex items-center gap-1.5 cursor-pointer"
         >
           <span>←</span>
           <span>{locale === 'zh' ? '返回全屏展台' : 'LIVE DEMO'}</span>
@@ -169,54 +163,56 @@
     </div>
   </div>
 
-  <!-- Main Container: Sidebar + Content -->
-  <div class="max-w-7xl mx-auto flex">
-    <!-- Left Sidebar Navigation -->
+  <div class="max-w-7xl mx-auto flex items-start">
     <aside
-      class="fixed inset-y-0 left-0 z-40 w-72 lg:w-64 bg-[var(--terra-bg-surface)] border-r border-[var(--terra-border)] flex flex-col transition-transform duration-300 lg:static lg:translate-x-0 pt-16 lg:pt-0 {isMobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}"
+      class="terra-t-snappy fixed inset-y-0 left-0 z-[var(--terra-z-drawer)] w-72 lg:w-64 bg-[var(--terra-bg-surface)] border-r border-[var(--terra-border)] flex flex-col pt-[calc(var(--terra-header-h)+var(--terra-docsbar-h))] lg:pt-0 lg:sticky lg:z-auto lg:self-start lg:top-[calc(var(--terra-header-h)+var(--terra-docsbar-h))] lg:h-[calc(100dvh-var(--terra-header-h)-var(--terra-docsbar-h))] lg:translate-x-0 {isMobileMenuOpen
+        ? 'translate-x-0'
+        : '-translate-x-full'}"
     >
-      <!-- Search Filter Input -->
-      <div class="p-3 border-b border-[var(--terra-border)]">
+      <div class="p-3 border-b border-[var(--terra-border)] shrink-0">
         <div class="relative">
           <input
             type="text"
             bind:value={searchQuery}
             placeholder={locale === 'zh' ? '检索组件与规范...' : 'Filter documentation...'}
-            class="w-full bg-[var(--terra-bg-base)] border border-[var(--terra-border)] px-2.5 py-1.5 text-xs font-mono text-[var(--terra-text-primary)] placeholder-[var(--terra-text-muted)] focus:outline-none focus:border-[var(--terra-accent-primary)]"
+            class="terra-t-color w-full bg-[var(--terra-bg-base)] border border-[var(--terra-border)] px-2.5 py-1.5 text-xs font-mono text-[var(--terra-text-primary)] placeholder-[var(--terra-text-muted)] focus:outline-none focus:border-[var(--terra-accent-primary)]"
           />
           {#if searchQuery}
             <button
               type="button"
-              onclick={() => searchQuery = ''}
-              class="absolute right-2 top-1.5 text-xs text-[var(--terra-text-muted)] hover:text-white"
+              onclick={() => (searchQuery = '')}
+              aria-label="Clear filter"
+              class="terra-t-color absolute right-2 top-1.5 text-xs text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)] cursor-pointer"
             >
-              ×
+              <X class="w-3.5 h-3.5" />
             </button>
           {/if}
         </div>
       </div>
 
-      <!-- Categories & Items Tree -->
       <div class="flex-1 overflow-y-auto p-3 space-y-6 select-none font-mono">
-        {#each filteredCategories as cat}
+        {#each filteredCategories as cat (cat.id)}
           <div class="space-y-1.5">
-            <h4 class="text-[10px] font-bold text-[var(--terra-text-muted)] uppercase tracking-wider px-2">
+            <h4
+              class="text-[10px] font-bold text-[var(--terra-text-muted)] uppercase tracking-wider px-2"
+            >
               {locale === 'zh' ? cat.titleZh : cat.title}
             </h4>
             <div class="space-y-0.5">
-              {#each cat.items as item}
+              {#each cat.items as item (item.id)}
                 <button
                   type="button"
                   onclick={() => selectPage(item.id)}
-                  class="w-full text-left px-2 py-1.5 text-xs transition-all flex items-center justify-between {activePageId === item.id ? 'bg-[var(--terra-accent-primary)] text-black font-bold shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)] hover:bg-[var(--terra-bg-surface-hover)]'}"
+                  class="terra-t-color w-full text-left px-2 py-1.5 text-xs flex items-center justify-between cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {activePageId ===
+                  item.id
+                    ? 'bg-[var(--terra-accent-primary)] text-[var(--terra-on-accent)] font-bold'
+                    : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)] hover:bg-[var(--terra-bg-surface-hover)]'}"
                 >
                   <span class="truncate">
                     {locale === 'zh' ? item.titleZh : item.title}
                   </span>
                   {#if item.componentName}
-                    <span class="text-[9px] opacity-75 font-mono">
-                      &lt;/&gt;
-                    </span>
+                    <span class="text-[10px] opacity-75 font-mono"> &lt;/&gt; </span>
                   {/if}
                 </button>
               {/each}
@@ -225,387 +221,406 @@
         {/each}
       </div>
 
-      <!-- Sidebar Footer -->
-      <div class="p-3 border-t border-[var(--terra-border)] text-[9px] font-mono text-[var(--terra-text-muted)] flex justify-between items-center">
+      <div
+        class="p-3 border-t border-[var(--terra-border)] text-[10px] font-mono text-[var(--terra-text-muted)] flex justify-between items-center shrink-0"
+      >
         <span>K0maru // Terra-UI</span>
         <span class="text-[var(--terra-accent-success)]">ONLINE</span>
       </div>
     </aside>
 
-    <!-- Overlay for mobile drawer -->
     {#if isMobileMenuOpen}
       <button
         type="button"
-        onclick={() => isMobileMenuOpen = false}
-        class="fixed inset-0 bg-black/60 z-30 lg:hidden"
+        onclick={() => (isMobileMenuOpen = false)}
+        class="fixed inset-0 bg-[var(--terra-scrim)] z-[var(--terra-z-scrim)] lg:hidden"
         aria-label="Close Navigation"
       ></button>
     {/if}
 
-    <!-- Right Main Documentation Content -->
-    <main class="flex-1 min-w-0 px-4 sm:px-8 py-8 space-y-8">
-      <!-- Breadcrumb Bar -->
-      <div class="flex items-center gap-2 font-mono text-[11px] text-[var(--terra-text-muted)]">
-        <span>TERRA UI</span>
-        <span>/</span>
-        <span>{activeCategory ? (locale === 'zh' ? activeCategory.titleZh : activeCategory.title) : 'DOCS'}</span>
-        <span>/</span>
-        <span class="text-[var(--terra-accent-primary)] font-bold">
-          {locale === 'zh' ? activePage.titleZh : activePage.title}
-        </span>
-      </div>
-
-      <!-- Page Header Banner -->
-      <div class="space-y-2 pb-4 border-b border-[var(--terra-border)]">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="px-1.5 py-0.5 font-mono text-[9px] bg-[var(--terra-accent-primary)]/10 text-[var(--terra-accent-primary)] border border-[var(--terra-accent-primary)]/30 font-bold">
-            {activePage.tag}
-          </span>
-          {#if activePage.componentName}
-            <span class="px-1.5 py-0.5 font-mono text-[9px] bg-black/40 text-slate-300 border border-white/10">
-              &lt;{activePage.componentName} /&gt;
+    <main class="flex-1 min-w-0 px-4 sm:px-8 py-8">
+      {#key activePage.id}
+        <div class="terra-stage-enter space-y-8">
+          <div class="flex items-center gap-2 font-mono text-[11px] text-[var(--terra-text-muted)]">
+            <span>TERRA UI</span>
+            <span>/</span>
+            <span>
+              {activeCategory
+                ? locale === 'zh'
+                  ? activeCategory.titleZh
+                  : activeCategory.title
+                : 'DOCS'}
             </span>
+            <span>/</span>
+            <span class="text-[var(--terra-accent-primary)] font-bold">
+              {locale === 'zh' ? activePage.titleZh : activePage.title}
+            </span>
+          </div>
+
+          <div class="space-y-2 pb-4 border-b border-[var(--terra-border)]">
+            <div class="flex flex-wrap items-center gap-2">
+              <span
+                class="px-1.5 py-0.5 font-mono text-[10px] bg-[var(--terra-accent-primary-dim)] text-[var(--terra-accent-primary)] border border-[var(--terra-border-accent)] font-bold"
+              >
+                {activePage.tag}
+              </span>
+              {#if activePage.componentName}
+                <span
+                  class="px-1.5 py-0.5 font-mono text-[10px] bg-[var(--terra-bg-surface)] text-[var(--terra-text-secondary)] border border-[var(--terra-border)]"
+                >
+                  &lt;{activePage.componentName} /&gt;
+                </span>
+              {/if}
+            </div>
+            <h1
+              class="text-2xl sm:text-3xl font-bold font-display tracking-tight text-[var(--terra-text-primary)]"
+            >
+              {locale === 'zh' ? activePage.titleZh : activePage.title}
+            </h1>
+            <p
+              class="text-sm text-[var(--terra-text-secondary)] font-sans leading-relaxed max-w-3xl"
+            >
+              {locale === 'zh' ? activePage.descriptionZh : activePage.description}
+            </p>
+          </div>
+
+          {#if (locale === 'zh' ? activePage.featuresZh || activePage.features : activePage.features)?.length}
+            <div
+              class="p-4 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-2"
+            >
+              <h3
+                class="font-mono text-xs font-bold text-[var(--terra-text-primary)] uppercase tracking-wider flex items-center gap-2"
+              >
+                <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)]"></span>
+                {locale === 'zh' ? '核心规约与说明' : 'KEY SPECIFICATIONS'}
+              </h3>
+              <ul class="space-y-1.5 text-xs text-[var(--terra-text-secondary)] font-sans">
+                {#each (locale === 'zh' ? activePage.featuresZh || activePage.features : activePage.features) || [] as feature (feature)}
+                  <li class="flex items-start gap-2">
+                    <span class="text-[var(--terra-accent-primary)] font-mono">▪</span>
+                    <span>{feature}</span>
+                  </li>
+                {/each}
+              </ul>
+            </div>
           {/if}
-        </div>
-        <h1 class="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[var(--terra-text-primary)]">
-          {locale === 'zh' ? activePage.titleZh : activePage.title}
-        </h1>
-        <p class="text-sm text-[var(--terra-text-secondary)] font-sans leading-relaxed max-w-3xl">
-          {locale === 'zh' ? activePage.descriptionZh : activePage.description}
-        </p>
-      </div>
 
-      <!-- Features Checklist (If defined) -->
-      {#if (locale === 'zh' ? (activePage.featuresZh || activePage.features) : activePage.features)?.length}
-        <div class="p-4 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)]/50 space-y-2">
-          <h3 class="font-mono text-xs font-bold text-[var(--terra-text-primary)] uppercase tracking-wider flex items-center gap-2">
-            <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)]"></span>
-            {locale === 'zh' ? '核心规约与说明 // SPECIFICATIONS' : 'KEY SPECIFICATIONS // COMPLIANCE'}
-          </h3>
-          <ul class="space-y-1.5 text-xs text-[var(--terra-text-secondary)] font-sans">
-            {#each (locale === 'zh' ? (activePage.featuresZh || activePage.features) : activePage.features) || [] as feature}
-              <li class="flex items-start gap-2">
-                <span class="text-[var(--terra-accent-primary)] font-mono">▪</span>
-                <span>{feature}</span>
-              </li>
-            {/each}
-          </ul>
-        </div>
-      {/if}
+          {#if activePage.componentName}
+            <section class="space-y-3">
+              <h2
+                class="text-base font-bold font-display text-[var(--terra-text-primary)] tracking-tight flex items-center gap-2"
+              >
+                <span class="font-mono text-xs text-[var(--terra-accent-primary)]">01.</span>
+                <span>{locale === 'zh' ? '交互运行演练场' : 'INTERACTIVE PLAYGROUND'}</span>
+              </h2>
+              <p class="text-xs text-[var(--terra-text-muted)] font-sans">
+                {locale === 'zh'
+                  ? '下方视口由 Svelte 5 原生渲染，支持真实交互并查看源码。'
+                  : 'Rendered natively by Svelte 5 with live physical interaction and copyable code.'}
+              </p>
 
-      <!-- Interactive Playground (For components) -->
-      {#if activePage.componentName}
-        <section class="space-y-3">
-          <h2 class="text-base font-bold font-mono text-[var(--terra-text-primary)] tracking-wide flex items-center gap-2">
-            <span class="text-[var(--terra-accent-primary)]">01.</span>
-            INTERACTIVE RUNTIME PLAYGROUND // 交互演练场
-          </h2>
-          <p class="text-xs text-[var(--terra-text-muted)] font-sans">
-            {locale === 'zh' ? '下方视口由 Svelte 5 原生渲染，支持即时鼠标物理交互与主题响应；右侧/下方提供随时可用的源代码。' : 'The preview below is rendered natively by Svelte 5. You can interact with it physically, and inspect the copyable code snippet.'}
-          </p>
-
-          <TerraCodePlayground
-            title="{activePage.componentName} Preview"
-            code={activePage.codeSnippet || ''}
-            activeView="split"
-          >
-            <!-- Specific live component rendering per page ID -->
-            {#if activePage.id === 'spatial-card'}
-              <div class="w-full max-w-md">
-                <TerraSpatialCard maxRotation={16} perspective={1000} cut="tr-bl">
-                  <div class="space-y-3">
-                    <div class="flex justify-between items-center" style="transform: translateZ(25px);">
-                      <h4 class="font-mono text-sm font-bold text-white">SPATIAL SENSOR NODE</h4>
-                      <TerraBadge label="NOMINAL" variant="primary" />
+              <TerraCodePlayground
+                title="{activePage.componentName} Preview"
+                code={activePage.codeSnippet || ''}
+                activeView="split"
+              >
+                {#if activePage.id === 'ascii-stage'}
+                  <div class="w-full">
+                    <TerraAsciiStage density="fine" splitMode="cursor" />
+                  </div>
+                {:else if activePage.id === 'ambient-field'}
+                  <div
+                    class="relative w-full py-8 px-4 border border-[var(--terra-border)] bg-[var(--terra-bg-base)]/60 text-center space-y-2"
+                  >
+                    <TerraAmbientField />
+                    <div class="font-mono text-xs text-[var(--terra-accent-primary)] font-semibold">
+                      ACTIVE OVERLAY // 36PX LATTICE
                     </div>
-                    <p class="text-xs text-slate-400 font-sans" style="transform: translateZ(15px);">
-                      Move your cursor over this card to observe multi-axis physical tilt and specular sheen.
+                    <p class="text-xs text-[var(--terra-text-secondary)]">
+                      {locale === 'zh'
+                        ? '移动鼠标唤醒周围的字符微场，或点击画布任意位置触发同心波纹。'
+                        : 'Move pointer across the viewport to wake local glyphs or click to emit ripples.'}
                     </p>
                   </div>
-                </TerraSpatialCard>
-              </div>
-            {:else if activePage.id === 'line-chart'}
-              <div class="w-full max-w-xl">
-                <TerraLineChart
-                  data={sampleLineData}
-                  height={150}
-                  unit="MB/s"
-                  showCrosshair={true}
-                  showGrid={true}
-                />
-              </div>
-            {:else if activePage.id === 'donut-chart'}
-              <div class="flex justify-center">
-                <TerraDonutChart
-                  data={sampleDonutData}
-                  size={200}
-                  thickness={20}
-                  title="ALLOCATION"
-                  unit="%"
-                />
-              </div>
-            {:else if activePage.id === 'bar-chart'}
-              <div class="w-full max-w-md">
-                <TerraBarChart data={sampleBarData} height={140} barWidth={24} unit="%" />
-              </div>
-            {:else if activePage.id === 'activity-heatmap'}
-              <div class="w-full max-w-2xl">
-                <TerraActivityHeatmap weeks={38} cellSize={11} cellGap={3} />
-              </div>
-            {:else if activePage.id === 'status-strip'}
-              <div class="w-full max-w-xl space-y-4">
-                <TerraStatusStrip serviceName="CORE_GATEWAY_ROUTER" days={60} />
-                <TerraStatusStrip serviceName="PAYMENT_AUTH_SERVICE" days={60} />
-              </div>
-            {:else if activePage.id === 'sparkline'}
-              <div class="w-full max-w-md grid grid-cols-2 gap-4">
-                <div class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1">
-                  <div class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]">
-                    <span>CPU LOAD</span>
-                    <span class="text-[var(--terra-accent-primary)] font-bold">64.2%</span>
+                {:else if activePage.id === 'spatial-card'}
+                  <div class="w-full max-w-md">
+                    <TerraSpatialCard maxRotation={12} perspective={1000}>
+                      <div class="space-y-3">
+                        <div
+                          class="flex justify-between items-center"
+                          style="transform: translateZ(20px);"
+                        >
+                          <h4 class="font-mono text-sm font-bold text-[var(--terra-text-primary)]">
+                            SPATIAL SENSOR NODE
+                          </h4>
+                          <TerraBadge label="NOMINAL" variant="primary" />
+                        </div>
+                        <p
+                          class="text-xs text-[var(--terra-text-secondary)] font-sans"
+                          style="transform: translateZ(12px);"
+                        >
+                          Move your cursor across this card to test damped multi-axis spring tilt.
+                        </p>
+                      </div>
+                    </TerraSpatialCard>
                   </div>
-                  <TerraSparkline data={[20, 28, 42, 35, 58, 48, 72, 64]} height={28} variant="accent" />
-                </div>
-                <div class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1">
-                  <div class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]">
-                    <span>I/O BUFFER</span>
-                    <span class="text-[var(--terra-accent-success,#00f076)] font-bold">98.8%</span>
+                {:else if activePage.id === 'line-chart'}
+                  <div class="w-full max-w-xl">
+                    <TerraLineChart
+                      data={sampleLineData}
+                      height={150}
+                      unit="GB/s"
+                      showCrosshair={true}
+                      showGrid={true}
+                    />
                   </div>
-                  <TerraSparkline data={[60, 68, 75, 82, 80, 88, 95, 99]} height={28} variant="success" />
-                </div>
-              </div>
-            {:else if activePage.id === 'segment-bar'}
-              <div class="w-full max-w-md space-y-4">
-                <TerraSegmentBar
-                  label="AIC_MAIN_GRID (自动化工业主干网负荷)"
-                  sublabel="⚡ 480V THREE-PHASE // LOAD 70%"
-                  value={7}
-                  total={10}
-                  animated={true}
-                  variant="nominal"
-                />
-                <TerraSegmentBar
-                  label="SECONDARY_POWER_CELL (高能电容缓冲阵列)"
-                  sublabel="⚡ DUAL-INVERTER BUFFER // 1000V"
-                  value={9}
-                  total={12}
-                  animated={true}
-                  variant="warning"
-                />
-              </div>
-            {:else if activePage.id === 'vernier-meter'}
-              <div class="w-full max-w-md space-y-4">
-                <div class="p-4 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] space-y-3">
-                  <div class="flex items-center justify-between text-xs font-mono text-[var(--terra-text-muted)]">
-                    <span class="font-tactical tracking-wider uppercase">PRECISION VERNIER READOUT</span>
-                    <span class="text-[var(--terra-accent-primary)] font-bold font-telemetry">{vernierDemoVal}%</span>
+                {:else if activePage.id === 'donut-chart'}
+                  <div class="flex justify-center">
+                    <TerraDonutChart
+                      data={sampleDonutData}
+                      size={200}
+                      thickness={20}
+                      title="ALLOCATION"
+                      unit="%"
+                    />
                   </div>
-                  <TerraVernierMeter
-                    value={vernierDemoVal}
-                    min={0}
-                    max={100}
-                    ticks={10}
-                    hazard={vernierDemoVal >= 85}
-                  />
-                  <div class="flex items-center justify-between pt-2">
-                    <button
-                      type="button"
-                      class="px-2.5 py-1 text-[10px] font-mono border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] transition-colors cursor-pointer"
-                      onclick={() => vernierDemoVal = Math.floor(Math.random() * 101)}
+                {:else if activePage.id === 'bar-chart'}
+                  <div class="w-full max-w-md">
+                    <TerraBarChart data={sampleBarData} height={150} barWidth={24} unit="%" />
+                  </div>
+                {:else if activePage.id === 'activity-heatmap'}
+                  <div class="w-full max-w-2xl">
+                    <TerraActivityHeatmap weeks={38} cellSize={11} cellGap={3} />
+                  </div>
+                {:else if activePage.id === 'status-strip'}
+                  <div class="w-full max-w-xl space-y-4">
+                    <TerraStatusStrip serviceName="CORE_GATEWAY_ROUTER" days={60} />
+                    <TerraStatusStrip serviceName="PAYMENT_AUTH_SERVICE" days={60} />
+                  </div>
+                {:else if activePage.id === 'sparkline'}
+                  <div class="w-full max-w-md grid grid-cols-2 gap-4">
+                    <div
+                      class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1"
                     >
-                      RANDOMIZE VALUE
-                    </button>
-                    <span class="font-mono text-[10px] {vernierDemoVal >= 85 ? 'text-[var(--terra-accent-warning)] font-bold' : 'text-[var(--terra-text-muted)]'}">
-                      {vernierDemoVal >= 85 ? 'STATUS: OVERLOAD (HAZARD)' : 'STATUS: NOMINAL'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            {:else if activePage.id === 'telemetry-box'}
-              <div class="w-full max-w-sm space-y-3">
-                <TerraTelemetryBox
-                  stationId="ALPHA-01"
-                  protocolTag="AIC.09"
-                  label="TURBINE_CORE_EFFICIENCY"
-                  value={telemetryDemoVal}
-                  min={0}
-                  max={100}
-                  unit="%"
-                  frequencyHz={60}
-                  hazardThreshold={0.85}
-                  cut="tr-bl"
-                />
-                <div class="flex items-center justify-between p-2.5 bg-black/20 border border-[var(--terra-border)] text-xs font-mono">
-                  <button
-                    type="button"
-                    class="px-2.5 py-1 text-[10px] border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] transition-colors cursor-pointer"
-                    onclick={() => telemetryDemoVal = +(40 + Math.random() * 58).toFixed(1)}
-                  >
-                    SIMULATE READOUT
-                  </button>
-                  <span class="text-[10px] text-[var(--terra-text-muted)]">
-                    HAZARD &ge; 85%
-                  </span>
-                </div>
-              </div>
-            {:else if activePage.id === 'vertical-slider'}
-              <div class="flex items-center gap-8 justify-center">
-                <TerraVerticalSlider
-                  bind:value={sliderVal}
-                  min={0.5}
-                  max={2.5}
-                  step={0.1}
-                  label="SCALE"
-                  unit="x"
-                  showButtons={true}
-                  height="160px"
-                />
-                <div class="font-mono text-xs text-[var(--terra-text-muted)] space-y-1">
-                  <div>VALUE: <span class="text-[var(--terra-accent-primary)] font-bold">{sliderVal.toFixed(1)}x</span></div>
-                  <div>GPU SCALEY COMPOSITED</div>
-                </div>
-              </div>
-            {:else if activePage.id === 'vertical-tabs'}
-              <div class="w-full max-w-xs">
-                <TerraVerticalTabs items={demoTabs} bind:selectedKey={activeTabKey} />
-              </div>
-            {:else if activePage.id === 'corner-brackets'}
-              <TerraCornerBrackets label="[SEC-01 // TELEMETRY]" glow={true}>
-                <div class="p-6 bg-black/40 text-[var(--terra-text-primary)] font-mono text-xs space-y-1">
-                  <div>CLUSTER LINKED: AIC-NODE-99</div>
-                  <div class="text-[var(--terra-accent-primary)]">STATUS: TELEMETRY NOMINAL</div>
-                </div>
-              </TerraCornerBrackets>
-            {:else if activePage.id === 'button'}
-              <div class="flex flex-wrap gap-3 items-center justify-center">
-                <TerraButton variant="primary">PRIMARY</TerraButton>
-                <TerraButton variant="outline">OUTLINE</TerraButton>
-                <TerraButton variant="ghost">GHOST</TerraButton>
-                <TerraButton variant="danger">DANGER</TerraButton>
-              </div>
-            {:else if activePage.id === 'panel'}
-              <div class="w-full max-w-md space-y-3">
-                <!-- Live Preset Switcher in Docs -->
-                <div class="flex flex-wrap items-center justify-between gap-2 p-2 bg-black/20 border border-[var(--terra-border)] rounded-xs">
-                  <div class="flex items-center gap-1 flex-wrap">
-                    <span class="font-mono text-[9px] text-[var(--terra-text-muted)] uppercase">PRESET:</span>
-                    {#each (['endfield', 'rhodes', 'industrial', 'brackets', 'clean'] as const) as style}
-                      <button
-                        type="button"
-                        class="px-1.5 py-0.5 font-mono text-[9px] uppercase border transition-colors {docPanelDecoration === style ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-transparent text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
-                        onclick={() => docPanelDecoration = style}
+                      <div
+                        class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]"
                       >
-                        {style}
-                      </button>
-                    {/each}
-                  </div>
-                  <div class="flex items-center gap-1 flex-wrap">
-                    <span class="font-mono text-[9px] text-[var(--terra-text-muted)] uppercase">CUT:</span>
-                    {#each (['tr-bl', 'tl-br', 'tr', 'br'] as const) as c}
-                      <button
-                        type="button"
-                        class="px-1 py-0.5 font-mono text-[9px] uppercase border transition-colors {docPanelCut === c ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] font-bold' : 'border-transparent text-[var(--terra-text-muted)]'}"
-                        onclick={() => docPanelCut = c}
-                      >
-                        {c}
-                      </button>
-                    {/each}
-                    <button
-                      type="button"
-                      class="ml-1 px-1.5 py-0.5 font-mono text-[9px] uppercase border transition-colors {docPanelChamferBorder ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)]'}"
-                      onclick={() => docPanelChamferBorder = !docPanelChamferBorder}
+                        <span>CPU LOAD</span>
+                        <span class="text-[var(--terra-accent-primary)] font-bold">64.2%</span>
+                      </div>
+                      <TerraSparkline
+                        data={[20, 28, 42, 35, 58, 48, 72, 64]}
+                        height={28}
+                        variant="accent"
+                      />
+                    </div>
+                    <div
+                      class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1"
                     >
-                      {docPanelChamferBorder ? 'SEALED' : 'OPEN'}
-                    </button>
+                      <div
+                        class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]"
+                      >
+                        <span>I/O BUFFER</span>
+                        <span class="text-[var(--terra-accent-success)] font-bold">98.8%</span>
+                      </div>
+                      <TerraSparkline
+                        data={[60, 68, 75, 82, 80, 88, 95, 99]}
+                        height={28}
+                        variant="success"
+                      />
+                    </div>
                   </div>
-                </div>
+                {:else if activePage.id === 'vernier-meter'}
+                  <div class="w-full max-w-md space-y-4">
+                    <div
+                      class="p-4 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] space-y-3"
+                    >
+                      <div
+                        class="flex items-center justify-between text-xs font-mono text-[var(--terra-text-muted)]"
+                      >
+                        <span class="tracking-wider uppercase">VERNIER CALIPER READOUT</span>
+                        <TerraRollingNumber
+                          value={vernierDemoVal}
+                          decimals={0}
+                          suffix="%"
+                          class="text-lg text-[var(--terra-accent-primary)]"
+                        />
+                      </div>
+                      <TerraVernierMeter
+                        bind:value={vernierDemoVal}
+                        interactive={true}
+                        min={0}
+                        max={100}
+                        ticks={21}
+                        hazard={vernierDemoVal >= 85}
+                      />
+                      <div class="flex items-center justify-between pt-2">
+                        <TerraButton
+                          variant="outline"
+                          size="sm"
+                          onclick={() => (vernierDemoVal = Math.floor(Math.random() * 101))}
+                        >
+                          RANDOMIZE VALUE
+                        </TerraButton>
+                        <span
+                          class="font-mono text-[10px] {vernierDemoVal >= 85
+                            ? 'text-[var(--terra-accent-warning)] font-bold'
+                            : 'text-[var(--terra-text-muted)]'}"
+                        >
+                          {vernierDemoVal >= 85 ? 'STATUS: OVERLOAD' : 'STATUS: NOMINAL'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                {:else if activePage.id === 'vertical-tabs'}
+                  <div class="w-full max-w-xs">
+                    <TerraVerticalTabs items={demoTabs} bind:selectedKey={activeTabKey} />
+                  </div>
+                {:else if activePage.id === 'rolling-number'}
+                  <div class="flex flex-col items-center gap-4">
+                    <TerraRollingNumber
+                      value={rollingDemoVal}
+                      decimals={1}
+                      suffix="%"
+                      class="text-4xl"
+                    />
+                    <TerraButton
+                      variant="outline"
+                      size="sm"
+                      onclick={() => (rollingDemoVal = +(50 + Math.random() * 50).toFixed(1))}
+                    >
+                      UPDATE VALUE
+                    </TerraButton>
+                  </div>
+                {:else if activePage.id === 'button'}
+                  <div class="flex flex-wrap gap-3 items-center justify-center">
+                    <TerraButton variant="primary" magneticPull={true}>PRIMARY</TerraButton>
+                    <TerraButton variant="outline">OUTLINE</TerraButton>
+                    <TerraButton variant="ghost">GHOST</TerraButton>
+                    <TerraButton variant="danger">DANGER</TerraButton>
+                  </div>
+                {:else if activePage.id === 'input'}
+                  <div class="w-full max-w-sm">
+                    <TerraInput bind:value={inputDemoVal} prefix="CMD>" />
+                  </div>
+                {:else if activePage.id === 'panel'}
+                  <div class="w-full max-w-md space-y-3">
+                    <div class="flex items-center justify-between">
+                      <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">
+                        FLAT 1PX CONTAINER
+                      </span>
+                      <TerraButton
+                        variant="outline"
+                        size="sm"
+                        onclick={() => (docPanelWarning = !docPanelWarning)}
+                      >
+                        {docPanelWarning ? 'CLEAR WARNING' : 'TOGGLE WARNING'}
+                      </TerraButton>
+                    </div>
+                    <TerraPanel
+                      title="SYSTEM STATUS // NODE.01"
+                      tag="FLAT 2D"
+                      warning={docPanelWarning}
+                    >
+                      <p class="text-xs font-mono text-[var(--terra-text-secondary)]">
+                        Pure 1px editorial surface bounded by paper/ink borders without chamfer cuts
+                        or drop shadows.
+                      </p>
+                    </TerraPanel>
+                  </div>
+                {:else if activePage.id === 'status-beacon'}
+                  <div class="flex flex-wrap gap-6 items-center">
+                    <TerraStatusBeacon status="online" label="ONLINE" />
+                    <TerraStatusBeacon status="standby" label="STANDBY" />
+                    <TerraStatusBeacon status="alert" label="ALERT" />
+                    <TerraStatusBeacon status="offline" label="OFFLINE" pulse={false} />
+                  </div>
+                {:else if activePage.id === 'profile-card'}
+                  <div class="w-full max-w-md">
+                    <TerraProfileCard />
+                  </div>
+                {:else}
+                  <div class="text-xs font-mono text-[var(--terra-text-muted)]">
+                    COMPONENT PREVIEW
+                  </div>
+                {/if}
+              </TerraCodePlayground>
+            </section>
+          {/if}
 
-                <TerraPanel
-                  title="SYSTEM STATUS // AIC.01"
-                  tag="// ACTIVE.NODE"
-                  cut={docPanelCut}
-                  decoration={docPanelDecoration}
-                  chamferBorder={docPanelChamferBorder}
-                  warning={docPanelDecoration === 'endfield'}
+          {#if activePage.props && activePage.props.length > 0}
+            <section class="space-y-3 pt-4">
+              <h2
+                class="text-base font-bold font-display text-[var(--terra-text-primary)] tracking-tight flex items-center gap-2"
+              >
+                <span class="font-mono text-xs text-[var(--terra-accent-primary)]">02.</span>
+                <span>{locale === 'zh' ? '属性接口规范 (PROPS)' : 'API SPECIFICATION'}</span>
+              </h2>
+              <TerraPropsTable items={activePage.props} />
+            </section>
+          {/if}
+
+          {#if !activePage.componentName && activePage.codeSnippet}
+            <section class="space-y-3 pt-4">
+              <h2
+                class="text-base font-bold font-display text-[var(--terra-text-primary)] tracking-tight flex items-center gap-2"
+              >
+                <span class="font-mono text-xs text-[var(--terra-accent-primary)]">01.</span>
+                <span>{locale === 'zh' ? '配置与集成示例' : 'CODE IMPLEMENTATION'}</span>
+              </h2>
+              <TerraCodePlayground
+                title="Implementation Snippet"
+                code={activePage.codeSnippet}
+                activeView="code"
+              />
+            </section>
+          {/if}
+
+          <div
+            class="pt-10 border-t border-[var(--terra-border)] flex items-center justify-between"
+          >
+            {#if prevPage}
+              <button
+                type="button"
+                onclick={() => selectPage(prevPage.id)}
+                class="terra-pressable text-left group cursor-pointer"
+              >
+                <div
+                  class="terra-t-color font-mono text-[10px] text-[var(--terra-text-muted)] group-hover:text-[var(--terra-accent-primary)]"
                 >
-                  <p class="text-xs font-mono text-slate-300">
-                    Industrial armor chassis with {docPanelChamferBorder ? 'sealed 1px continuous vector border' : 'open-cut chamfer (no diagonal stroke)'}, {docPanelDecoration.toUpperCase()} preset styling, and zero tooth/lug clutter.
-                  </p>
-                </TerraPanel>
-              </div>
-            {:else if activePage.id === 'profile-card'}
-              <div class="w-full max-w-md">
-                <TerraProfileCard />
-              </div>
+                  ← PREVIOUS
+                </div>
+                <div
+                  class="terra-t-color font-display text-sm font-bold text-[var(--terra-text-primary)] group-hover:text-[var(--terra-accent-primary)]"
+                >
+                  {locale === 'zh' ? prevPage.titleZh : prevPage.title}
+                </div>
+              </button>
             {:else}
-              <div class="text-xs font-mono text-[var(--terra-text-muted)]">
-                COMPONENT DEMO CONTAINER
-              </div>
+              <div></div>
             {/if}
-          </TerraCodePlayground>
-        </section>
-      {/if}
 
-      <!-- Props & API Reference Table -->
-      {#if activePage.props && activePage.props.length > 0}
-        <section class="space-y-3 pt-4">
-          <h2 class="text-base font-bold font-mono text-[var(--terra-text-primary)] tracking-wide flex items-center gap-2">
-            <span class="text-[var(--terra-accent-primary)]">02.</span>
-            API SPECIFICATION // 属性规约 (PROPS)
-          </h2>
-          <TerraPropsTable items={activePage.props} />
-        </section>
-      {/if}
-
-      <!-- Static Code Guide (If no component, e.g. Installation / Tokens) -->
-      {#if !activePage.componentName && activePage.codeSnippet}
-        <section class="space-y-3 pt-4">
-          <h2 class="text-base font-bold font-mono text-[var(--terra-text-primary)] tracking-wide flex items-center gap-2">
-            <span class="text-[var(--terra-accent-primary)]">01.</span>
-            CODE IMPLEMENTATION // 配置与实现
-          </h2>
-          <TerraCodePlayground
-            title="Implementation Snippet"
-            code={activePage.codeSnippet}
-            activeView="code"
-          />
-        </section>
-      {/if}
-
-      <!-- Bottom Linear Navigation (Previous / Next) -->
-      <div class="pt-10 border-t border-[var(--terra-border)] flex items-center justify-between">
-        {#if prevPage}
-          <button
-            type="button"
-            onclick={() => selectPage(prevPage.id)}
-            class="text-left group cursor-pointer"
-          >
-            <div class="font-mono text-[10px] text-[var(--terra-text-muted)] group-hover:text-[var(--terra-accent-primary)]">
-              ← PREVIOUS
-            </div>
-            <div class="font-mono text-sm font-bold text-[var(--terra-text-primary)] group-hover:text-[var(--terra-accent-primary)] transition-colors">
-              {locale === 'zh' ? prevPage.titleZh : prevPage.title}
-            </div>
-          </button>
-        {:else}
-          <div></div>
-        {/if}
-
-        {#if nextPage}
-          <button
-            type="button"
-            onclick={() => selectPage(nextPage.id)}
-            class="text-right group cursor-pointer"
-          >
-            <div class="font-mono text-[10px] text-[var(--terra-text-muted)] group-hover:text-[var(--terra-accent-primary)]">
-              NEXT →
-            </div>
-            <div class="font-mono text-sm font-bold text-[var(--terra-text-primary)] group-hover:text-[var(--terra-accent-primary)] transition-colors">
-              {locale === 'zh' ? nextPage.titleZh : nextPage.title}
-            </div>
-          </button>
-        {/if}
-      </div>
+            {#if nextPage}
+              <button
+                type="button"
+                onclick={() => selectPage(nextPage.id)}
+                class="terra-pressable text-right group cursor-pointer"
+              >
+                <div
+                  class="terra-t-color font-mono text-[10px] text-[var(--terra-text-muted)] group-hover:text-[var(--terra-accent-primary)]"
+                >
+                  NEXT →
+                </div>
+                <div
+                  class="terra-t-color font-display text-sm font-bold text-[var(--terra-text-primary)] group-hover:text-[var(--terra-accent-primary)]"
+                >
+                  {locale === 'zh' ? nextPage.titleZh : nextPage.title}
+                </div>
+              </button>
+            {/if}
+          </div>
+        </div>
+      {/key}
     </main>
   </div>
 </div>

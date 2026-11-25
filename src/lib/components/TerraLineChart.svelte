@@ -1,5 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { Spring } from 'svelte/motion'
+  import { i18n } from '../i18n'
+  import { SPRING } from '../motion'
 
   interface DataPoint {
     timestamp?: string
@@ -23,40 +26,51 @@
     data = [],
     height = 160,
     color = 'var(--terra-accent-primary)',
-    fillOpacity = 0.18,
+    fillOpacity = 0.14,
     showGrid = true,
     showCrosshair = true,
     animated = true,
-    unit = 'VAL',
+    unit = '',
     class: className = ''
   }: Props = $props()
 
-  const chartId = Math.random().toString(36).substring(2, 9)
+  const isZh = $derived(i18n.locale === 'zh')
+  const chartId = Math.random().toString(36).slice(2, 9)
   const width = 600
-  const padLeft = 46
+  const padLeft = 44
   const padRight = 16
   const padTop = 18
   const padBottom = 26
-  const tooltipWidth = 140
-  const tooltipHeight = 38
 
   let isMounted = $state(false)
   let hoveredPointIndex = $state<number | null>(null)
+  let pinnedPointIndex = $state<number | null>(null)
+  let pinPulseCount = $state(0)
   let svgElement = $state<SVGSVGElement | null>(null)
+  let plotWidthPx = $state(600)
+  let plotHeightPx = $state(160)
+  let tipContentW = $state(0)
+  let tipContentH = $state(0)
+  let snapNextTipSize = true
+  let cachedSvgRect: { left: number; width: number } | null = null
+
+  const crosshairXSpring = new Spring(padLeft, SPRING.pointer)
+  const crosshairYSpring = new Spring(padTop, SPRING.pointer)
+  const tipW = new Spring(132, SPRING.pointer)
+  const tipH = new Spring(44, SPRING.pointer)
 
   onMount(() => {
-    if (animated) {
-      const timer = setTimeout(() => {
-        isMounted = true
-      }, 50)
-      return () => clearTimeout(timer)
-    } else {
+    if (!animated) {
       isMounted = true
+      return
     }
+    const timer = setTimeout(() => {
+      isMounted = true
+    }, 40)
+    return () => clearTimeout(timer)
   })
 
   const isExpanded = $derived(!animated || isMounted)
-
   const values = $derived(data.map((d) => d.value))
   const rawMin = $derived(values.length > 0 ? Math.min(...values) : 0)
   const rawMax = $derived(values.length > 0 ? Math.max(...values) : 100)
@@ -64,7 +78,6 @@
   const minVal = $derived(Math.floor(rawMin - range * 0.08))
   const maxVal = $derived(Math.ceil(rawMax + range * 0.08))
   const span = $derived(maxVal - minVal || 1)
-
   const plotWidth = $derived(width - padLeft - padRight)
   const plotHeight = $derived(height - padTop - padBottom)
 
@@ -77,17 +90,15 @@
         x,
         y,
         val: d.value,
-        timestamp: d.timestamp || `T+${i}s`,
-        label: d.label || `NODE-${i + 1}`
+        timestamp: d.timestamp || `T+${i}`,
+        label: d.label || `N-${i + 1}`
       }
     })
   })
 
-  // Smooth bezier curve path generation
   const linePath = $derived.by(() => {
     if (points.length === 0) return ''
     if (points.length === 1) return `M ${points[0].x} ${points[0].y}`
-
     let d = `M ${points[0].x},${points[0].y}`
     for (let i = 0; i < points.length - 1; i++) {
       const p0 = points[i]
@@ -101,38 +112,24 @@
   const areaPath = $derived.by(() => {
     if (points.length === 0) return ''
     const bottomY = padTop + plotHeight
-    const firstX = points[0].x
-    const lastX = points[points.length - 1].x
-    return `${linePath} L ${lastX},${bottomY} L ${firstX},${bottomY} Z`
+    return `${linePath} L ${points[points.length - 1].x},${bottomY} L ${points[0].x},${bottomY} Z`
   })
 
-  // Y-axis grid ticks
   const yTicks = $derived([
     { val: maxVal, y: padTop },
     { val: Math.round((maxVal + minVal) / 2), y: padTop + plotHeight / 2 },
     { val: minVal, y: padTop + plotHeight }
   ])
 
-  // X-axis adaptive sampled ticks (prevents label overlap and edge clipping)
   const xTicks = $derived.by(() => {
     if (points.length === 0) return []
-    if (points.length === 1) {
-      return [{ pt: points[0], anchor: 'middle' as const }]
-    }
-
-    const minGap = 75 // Minimum pixel distance between adjacent tick labels
-    const sampled: Array<{
-      pt: (typeof points)[0]
-      anchor: 'start' | 'middle' | 'end'
-    }> = []
-
-    // 1. First tick (aligned to start of text to avoid left edge clipping)
-    sampled.push({ pt: points[0], anchor: 'start' })
-
+    if (points.length === 1) return [{ pt: points[0], anchor: 'middle' as const }]
+    const minGap = 75
+    const sampled: Array<{ pt: (typeof points)[0]; anchor: 'start' | 'middle' | 'end' }> = [
+      { pt: points[0], anchor: 'start' }
+    ]
     const lastPt = points[points.length - 1]
     let prevX = points[0].x
-
-    // 2. Intermediate ticks (spaced by minGap from prev and from last point)
     for (let i = 1; i < points.length - 1; i++) {
       const pt = points[i]
       if (pt.x - prevX >= minGap && lastPt.x - pt.x >= minGap) {
@@ -140,21 +137,40 @@
         prevX = pt.x
       }
     }
-
-    // 3. Last tick (aligned to end of text to avoid right edge clipping)
     if (lastPt.x - prevX >= minGap * 0.5) {
       sampled.push({ pt: lastPt, anchor: 'end' })
     }
-
     return sampled
   })
 
+  function setHoverIndex(idx: number | null) {
+    const wasNull = hoveredPointIndex === null
+    hoveredPointIndex = idx
+    if (idx !== null && points[idx]) {
+      const pt = points[idx]
+      if (wasNull) {
+        crosshairXSpring.set(pt.x, { instant: true })
+        crosshairYSpring.set(pt.y, { instant: true })
+      } else {
+        crosshairXSpring.target = pt.x
+        crosshairYSpring.target = pt.y
+      }
+    }
+  }
+
+  function handlePointerEnter() {
+    if (!svgElement) return
+    const rect = svgElement.getBoundingClientRect()
+    cachedSvgRect = { left: rect.left, width: Math.max(1, rect.width) }
+  }
+
   function handlePointerMove(e: PointerEvent) {
     if (!svgElement || points.length === 0) return
-    const rect = svgElement.getBoundingClientRect()
-    const mouseX = ((e.clientX - rect.left) / rect.width) * width
-
-    // Find point with minimal distance on X
+    if (!cachedSvgRect) {
+      const rect = svgElement.getBoundingClientRect()
+      cachedSvgRect = { left: rect.left, width: Math.max(1, rect.width) }
+    }
+    const mouseX = ((e.clientX - cachedSvgRect.left) / cachedSvgRect.width) * width
     let closestIdx = 0
     let minDiff = Infinity
     for (let i = 0; i < points.length; i++) {
@@ -164,277 +180,356 @@
         closestIdx = i
       }
     }
-    hoveredPointIndex = closestIdx
+    setHoverIndex(closestIdx)
   }
 
   function handlePointerLeave() {
-    hoveredPointIndex = null
+    cachedSvgRect = null
+    setHoverIndex(null)
+  }
+
+  function togglePin(idx: number | null) {
+    if (idx === null) return
+    pinnedPointIndex = pinnedPointIndex === idx ? null : idx
+    if (pinnedPointIndex !== null) {
+      pinPulseCount += 1
+    }
+  }
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (points.length === 0) return
+    if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      setHoverIndex(
+        hoveredPointIndex === null ? 0 : Math.min(points.length - 1, hoveredPointIndex + 1)
+      )
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      setHoverIndex(
+        hoveredPointIndex === null ? points.length - 1 : Math.max(0, hoveredPointIndex - 1)
+      )
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      togglePin(hoveredPointIndex)
+    } else if (e.key === 'Escape') {
+      pinnedPointIndex = null
+    }
   }
 
   const activePoint = $derived(
-    hoveredPointIndex !== null && points[hoveredPointIndex]
-      ? points[hoveredPointIndex]
-      : null
+    hoveredPointIndex !== null && points[hoveredPointIndex] ? points[hoveredPointIndex] : null
   )
+  const pinnedPoint = $derived(
+    pinnedPointIndex !== null && points[pinnedPointIndex] ? points[pinnedPointIndex] : null
+  )
+  const deltaText = $derived.by(() => {
+    if (!activePoint || !pinnedPoint || hoveredPointIndex === pinnedPointIndex) return ''
+    const diff = activePoint.val - pinnedPoint.val
+    const sign = diff >= 0 ? '+' : ''
+    return `${sign}${diff.toFixed(1)}${unit ? ` ${unit}` : ''}`
+  })
+
+  $effect(() => {
+    if (!activePoint) {
+      snapNextTipSize = true
+      return
+    }
+    if (tipContentW > 0 && tipContentH > 0) {
+      if (snapNextTipSize) {
+        tipW.set(tipContentW, { instant: true })
+        tipH.set(tipContentH, { instant: true })
+        snapNextTipSize = false
+      } else {
+        tipW.target = tipContentW
+        tipH.target = tipContentH
+      }
+    }
+  })
+
+  const tipPixelX = $derived((crosshairXSpring.current / width) * plotWidthPx)
+  const tipPixelY = $derived((crosshairYSpring.current / height) * plotHeightPx)
+  const effectiveTipW = $derived(tipContentW > 0 ? tipContentW : tipW.current)
+  const tipLeftPx = $derived(
+    Math.max(8, Math.min(plotWidthPx - effectiveTipW - 8, tipPixelX - effectiveTipW * 0.5))
+  )
+  const tipTopPx = $derived(tipPixelY < 54 ? tipPixelY + 12 : Math.max(4, tipPixelY - 52))
 </script>
 
-<div class="relative w-full bg-[var(--terra-bg-base)]/40 border border-[var(--terra-border)] p-3 select-none overflow-hidden {className}">
-  <!-- Top Telemetry Status Line -->
-  <div class="flex items-center justify-between font-mono text-[9px] text-[var(--terra-text-muted)] tracking-wider mb-1 px-1">
+<div
+  class="isolate relative w-full bg-[var(--terra-bg-base)] border border-[var(--terra-border)] p-3.5 select-none {className}"
+>
+  <div
+    class="flex flex-wrap items-center justify-between gap-2 font-mono text-[10px] text-[var(--terra-text-muted)] tracking-wider mb-2 pb-2 border-b border-[var(--terra-border)]"
+  >
     <div class="flex items-center gap-2">
-      <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)] animate-pulse"></span>
-      <span class="text-[var(--terra-text-primary)] font-bold">SIGNAL // TELEMETRY_STREAM</span>
+      <span class="w-1.5 h-1.5 rounded-full bg-[var(--terra-accent-primary)]"></span>
+      <span class="text-[var(--terra-text-primary)] font-semibold">
+        {isZh ? '时序波形采样' : 'SERIES STREAM'}
+      </span>
     </div>
+
     <div class="flex items-center gap-3">
-      <span>SAMPLING: 100HZ</span>
-      {#if activePoint}
-        <span class="text-[var(--terra-accent-primary)] font-bold">INSPECT: {activePoint.val.toFixed(1)}</span>
+      {#if pinnedPoint}
+        <button
+          type="button"
+          onclick={() => (pinnedPointIndex = null)}
+          class="text-[var(--terra-accent-primary)] hover:underline cursor-pointer"
+        >
+          {isZh
+            ? `基线: ${pinnedPoint.val.toFixed(1)} (清除)`
+            : `PIN: ${pinnedPoint.val.toFixed(1)} (CLEAR)`}
+        </button>
       {:else}
-        <span>STATUS: NOMINAL</span>
+        <span>{isZh ? '点击节点锚定基线' : 'CLICK NODE TO PIN'}</span>
+      {/if}
+
+      {#if activePoint}
+        <span class="text-[var(--terra-text-primary)] font-semibold tabular-nums">
+          {activePoint.val.toFixed(1)}{unit ? ` ${unit}` : ''}
+          {#if deltaText}
+            <span class="text-[var(--terra-accent-primary)] ml-1">({deltaText})</span>
+          {/if}
+        </span>
       {/if}
     </div>
   </div>
 
-  <!-- SVG Chart Canvas -->
-  <svg
-    bind:this={svgElement}
-    viewBox="0 0 {width} {height}"
-    class="w-full h-auto overflow-visible cursor-crosshair"
+  <div
+    class="relative w-full focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] cursor-crosshair"
+    bind:clientWidth={plotWidthPx}
+    bind:clientHeight={plotHeightPx}
+    role="slider"
+    tabindex="0"
+    aria-roledescription="chart"
+    aria-label={isZh ? '交互式时序折线图' : 'Interactive line chart'}
+    aria-valuemin={0}
+    aria-valuemax={Math.max(0, points.length - 1)}
+    aria-valuenow={hoveredPointIndex ?? 0}
+    aria-valuetext={activePoint ? `${activePoint.timestamp}: ${activePoint.val}${unit}` : undefined}
+    onpointerenter={handlePointerEnter}
     onpointermove={handlePointerMove}
     onpointerleave={handlePointerLeave}
-    role="img"
-    aria-label="Tactical Line Chart"
+    onclick={() => togglePin(hoveredPointIndex)}
+    onkeydown={handleKeyDown}
   >
-    <defs>
-      <!-- Gradient Fill -->
-      <linearGradient id="area-grad-{chartId}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color={color} stop-opacity={fillOpacity} />
-        <stop offset="90%" stop-color={color} stop-opacity="0.02" />
-        <stop offset="100%" stop-color={color} stop-opacity="0" />
-      </linearGradient>
+    <svg
+      bind:this={svgElement}
+      viewBox="0 0 {width} {height}"
+      class="w-full h-auto overflow-visible pointer-events-none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="area-grad-{chartId}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color={color} stop-opacity={fillOpacity} />
+          <stop offset="100%" stop-color={color} stop-opacity="0" />
+        </linearGradient>
+      </defs>
 
-      <!-- Glow Filter -->
-      <filter id="glow-{chartId}" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="2.5" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
+      {#if showGrid}
+        {#each yTicks as tick (tick.val)}
+          <line
+            x1={padLeft}
+            y1={tick.y}
+            x2={width - padRight}
+            y2={tick.y}
+            stroke="var(--terra-border)"
+            stroke-width="1"
+            stroke-dasharray="2 4"
+          />
+          <text
+            x={padLeft - 8}
+            y={tick.y + 3}
+            text-anchor="end"
+            fill="var(--terra-text-muted)"
+            font-family="var(--terra-font-mono)"
+            font-size="10px"
+          >
+            {tick.val}
+          </text>
+        {/each}
 
-      <!-- Tooltip Drop Shadow Filter -->
-      <filter id="tooltip-shadow-{chartId}" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.65" />
-      </filter>
-    </defs>
-
-    <!-- CAD Grid Background -->
-    {#if showGrid}
-      <!-- Horizontal lines & Y Ticks -->
-      {#each yTicks as tick}
         <line
           x1={padLeft}
-          y1={tick.y}
+          y1={padTop + plotHeight}
           x2={width - padRight}
-          y2={tick.y}
-          stroke="var(--terra-border)"
-          stroke-width="1"
-          stroke-dasharray="2 4"
-          opacity="0.4"
-        />
-        <text
-          x={padLeft - 8}
-          y={tick.y + 3}
-          text-anchor="end"
-          fill="var(--terra-text-secondary, #94a3b8)"
-          font-family="var(--terra-font-mono, monospace)"
-          font-size="9px"
-          font-weight="600"
-        >
-          {tick.val}
-        </text>
-      {/each}
-
-      <!-- Bottom X Axis Line -->
-      <line
-        x1={padLeft}
-        y1={padTop + plotHeight}
-        x2={width - padRight}
-        y2={padTop + plotHeight}
-        stroke="var(--terra-border)"
-        stroke-width="1"
-        opacity="0.7"
-      />
-
-      <!-- Vertical CAD Ticks (Adaptive Sampled) -->
-      {#each xTicks as tick}
-        <line
-          x1={tick.pt.x}
-          y1={padTop}
-          x2={tick.pt.x}
           y2={padTop + plotHeight}
-          stroke="var(--terra-border)"
-          stroke-width="1"
-          stroke-dasharray="1 5"
-          opacity="0.3"
-        />
-        <text
-          x={tick.pt.x}
-          y={padTop + plotHeight + 14}
-          text-anchor={tick.anchor}
-          fill="var(--terra-text-secondary, #94a3b8)"
-          font-family="var(--terra-font-mono, monospace)"
-          font-size="8.5px"
-          letter-spacing="0.02em"
-        >
-          {tick.pt.timestamp}
-        </text>
-      {/each}
-    {/if}
-
-    <!-- Area Gradient Mesh -->
-    {#if areaPath}
-      <path
-        d={areaPath}
-        fill="url(#area-grad-{chartId})"
-        class="transition-opacity duration-700"
-        style="opacity: {isExpanded ? 1 : 0};"
-      />
-    {/if}
-
-    <!-- Line Path with Drawing Animation -->
-    {#if linePath}
-      <path
-        d={linePath}
-        fill="none"
-        stroke={color}
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        filter="url(#glow-{chartId})"
-        style="
-          stroke-dasharray: 2000;
-          stroke-dashoffset: {isExpanded ? 0 : 2000};
-          transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1);
-        "
-      />
-    {/if}
-
-    <!-- Discrete Data Knots -->
-    {#each points as pt, idx}
-      <circle
-        cx={pt.x}
-        cy={pt.y}
-        r="2.5"
-        fill="var(--terra-bg-surface)"
-        stroke={color}
-        stroke-width="1.5"
-        class="opacity-70 transition-transform duration-200"
-      />
-    {/each}
-
-    <!-- Interactive Crosshair & Inspection Marker -->
-    {#if showCrosshair && activePoint}
-      <!-- Vertical Scanning Crosshair -->
-      <line
-        x1={activePoint.x}
-        y1={padTop}
-        x2={activePoint.x}
-        y2={padTop + plotHeight}
-        stroke="var(--terra-accent-primary)"
-        stroke-width="1"
-        stroke-dasharray="3 2"
-        opacity="0.8"
-      />
-      <!-- Horizontal Crosshair -->
-      <line
-        x1={padLeft}
-        y1={activePoint.y}
-        x2={width - padRight}
-        y2={activePoint.y}
-        stroke="var(--terra-accent-primary)"
-        stroke-width="1"
-        stroke-dasharray="3 2"
-        opacity="0.8"
-      />
-
-      <!-- Reticle Ring -->
-      <circle
-        cx={activePoint.x}
-        cy={activePoint.y}
-        r="6"
-        fill="none"
-        stroke="var(--terra-accent-primary)"
-        stroke-width="2"
-        class="animate-ping opacity-75"
-      />
-      <circle
-        cx={activePoint.x}
-        cy={activePoint.y}
-        r="3.5"
-        fill="var(--terra-accent-primary)"
-      />
-
-      <!-- Tactical Tooltip Pin Box -->
-      {@const tooltipX = Math.min(Math.max(activePoint.x - tooltipWidth / 2, padLeft), width - padRight - tooltipWidth)}
-      {@const tooltipY = activePoint.y - tooltipHeight - 10 < padTop ? activePoint.y + 12 : activePoint.y - tooltipHeight - 10}
-      <g
-        transform="translate({tooltipX}, {tooltipY})"
-        filter="url(#tooltip-shadow-{chartId})"
-      >
-        <!-- Box Chassis -->
-        <rect
-          width={tooltipWidth}
-          height={tooltipHeight}
-          fill="var(--terra-bg-surface)"
           stroke="var(--terra-border-strong)"
           stroke-width="1"
         />
-        <!-- Left Tactical Indicator Bar -->
-        <rect
-          x="0"
-          y="0"
-          width="3"
-          height={tooltipHeight}
-          fill="var(--terra-accent-primary)"
-        />
-        <!-- Top-Right Micro Chamfer Accent -->
-        <polygon
-          points="{tooltipWidth - 8},0 {tooltipWidth},0 {tooltipWidth},8"
-          fill="var(--terra-accent-primary)"
-          opacity="0.6"
-        />
-        <!-- Timestamp & Node Label (Row 1) -->
-        <text
-          x="10"
-          y="15"
-          fill="var(--terra-text-secondary, #94a3b8)"
-          font-family="var(--terra-font-mono, monospace)"
-          font-size="8.5px"
-          letter-spacing="0.04em"
-        >
-          {activePoint.timestamp} // {activePoint.label}
-        </text>
-        <!-- Telemetry Metric Value & Unit (Row 2) -->
-        <text
-          x="10"
-          y="30"
-          fill="var(--terra-text-primary, #ffffff)"
-          font-family="var(--terra-font-mono, monospace)"
-          font-size="12px"
-          font-weight="700"
-        >
-          {activePoint.val.toFixed(1)}
-          <tspan
-            dx="4"
-            font-size="8px"
-            font-weight="600"
-            fill="var(--terra-accent-primary, #00d8ff)"
+
+        {#each xTicks as tick (tick.pt.timestamp)}
+          <line
+            x1={tick.pt.x}
+            y1={padTop}
+            x2={tick.pt.x}
+            y2={padTop + plotHeight}
+            stroke="var(--terra-border)"
+            stroke-width="1"
+            stroke-dasharray="1 5"
+          />
+          <text
+            x={tick.pt.x}
+            y={padTop + plotHeight + 14}
+            text-anchor={tick.anchor}
+            fill="var(--terra-text-muted)"
+            font-family="var(--terra-font-mono)"
+            font-size="10px"
           >
-            {unit}
-          </tspan>
-        </text>
-      </g>
+            {tick.pt.timestamp}
+          </text>
+        {/each}
+      {/if}
+
+      {#if areaPath}
+        <path
+          d={areaPath}
+          fill="url(#area-grad-{chartId})"
+          class="terra-t-opacity"
+          style="opacity: {isExpanded ? 1 : 0};"
+        />
+      {/if}
+
+      {#if linePath}
+        <path
+          d={linePath}
+          fill="none"
+          stroke={color}
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="terra-line-stroke"
+          style="
+            stroke-dasharray: 2000;
+            stroke-dashoffset: {isExpanded ? 0 : 2000};
+          "
+        />
+      {/if}
+
+      {#if showCrosshair && activePoint}
+        <line
+          x1={crosshairXSpring.current}
+          y1={padTop}
+          x2={crosshairXSpring.current}
+          y2={padTop + plotHeight}
+          stroke="var(--terra-border-strong)"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+        <line
+          x1={padLeft}
+          y1={crosshairYSpring.current}
+          x2={width - padRight}
+          y2={crosshairYSpring.current}
+          stroke="var(--terra-border-strong)"
+          stroke-width="1"
+          stroke-dasharray="3 3"
+        />
+      {/if}
+
+      {#if pinnedPoint}
+        <line
+          x1={padLeft}
+          y1={pinnedPoint.y}
+          x2={width - padRight}
+          y2={pinnedPoint.y}
+          stroke="var(--terra-text-primary)"
+          stroke-width="1"
+          stroke-dasharray="4 3"
+          opacity="0.7"
+        />
+        {#key pinPulseCount}
+          <circle
+            cx={pinnedPoint.x}
+            cy={pinnedPoint.y}
+            r="6"
+            fill="var(--terra-bg-base)"
+            stroke="var(--terra-text-primary)"
+            stroke-width="2"
+            class="terra-pin-ring"
+          />
+        {/key}
+      {/if}
+
+      {#each points as pt, idx (idx)}
+        {@const isCurrent = hoveredPointIndex === idx}
+        <g class="pointer-events-none">
+          <circle
+            cx={pt.x}
+            cy={pt.y}
+            r="2.8"
+            fill={isCurrent ? color : 'var(--terra-bg-base)'}
+            stroke={color}
+            stroke-width="1.5"
+            class="terra-line-dot"
+            style="transform: scale({isCurrent ? 1.45 : 1});"
+          />
+        </g>
+      {/each}
+    </svg>
+
+    {#if showCrosshair}
+      <div
+        aria-hidden={!activePoint}
+        class="terra-line-tooltip pointer-events-none absolute top-0 left-0 z-[9] overflow-hidden bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)] border-l-2 border-[var(--terra-accent-primary)] font-mono whitespace-nowrap"
+        style="
+          opacity: {activePoint ? 1 : 0};
+          width: {tipW.current > 0 ? `${tipW.current.toFixed(1)}px` : 'auto'};
+          height: {tipH.current > 0 ? `${tipH.current.toFixed(1)}px` : 'auto'};
+          transform: translate3d({tipLeftPx.toFixed(1)}px, {tipTopPx.toFixed(1)}px, 0);
+        "
+      >
+        {#if activePoint}
+          <div
+            bind:clientWidth={tipContentW}
+            bind:clientHeight={tipContentH}
+            class="w-max px-2.5 py-1.5"
+          >
+            <div class="text-[10px] opacity-80 leading-tight">
+              {activePoint.timestamp} · {activePoint.label}
+            </div>
+            <div class="text-xs font-bold tabular-nums leading-tight mt-0.5">
+              {activePoint.val.toFixed(1)}{unit ? ` ${unit}` : ''}{deltaText
+                ? ` (${deltaText})`
+                : ''}
+            </div>
+          </div>
+        {/if}
+      </div>
     {/if}
-  </svg>
+  </div>
 </div>
+
+<style>
+  .terra-line-stroke {
+    transition: stroke-dashoffset var(--terra-dur-chart) var(--terra-ease-out);
+  }
+
+  .terra-line-dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      transform var(--terra-dur-base) var(--terra-spring-snappy),
+      fill var(--terra-dur-fast) var(--terra-ease-out);
+  }
+
+  .terra-line-tooltip {
+    transition: opacity var(--terra-dur-fast) var(--terra-ease-out);
+  }
+
+  @keyframes terraPinPop {
+    from {
+      transform: scale(0.5);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .terra-pin-ring {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: terraPinPop var(--terra-dur-slow) var(--terra-spring-bouncy) both;
+    }
+  }
+</style>
