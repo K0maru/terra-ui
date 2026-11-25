@@ -1,24 +1,14 @@
 <script lang="ts">
   interface Props {
-    /** 走势数值序列 */
     data?: number[]
-    /** 宽度，支持像素数值或 CSS 长度字符串，默认 '100%' */
     width?: number | string
-    /** 高度（px），默认 32 */
     height?: number
-    /** 线条与高光颜色（覆盖 variant） */
     color?: string
-    /** 状态主题变体：'accent' | 'success' | 'warning' | 'danger' */
     variant?: 'accent' | 'success' | 'warning' | 'danger'
-    /** 线条宽度，默认 1.5 */
     strokeWidth?: number
-    /** 是否渲染半透明渐变底衬，默认 true */
     fill?: boolean
-    /** 是否启用贝塞尔平滑波形，默认 true */
     smooth?: boolean
-    /** 是否在最新数据点展示呼吸脉冲光点，默认 true */
     showPulse?: boolean
-    /** 自定义 CSS 类 */
     class?: string
   }
 
@@ -35,25 +25,25 @@
     class: className = ''
   }: Props = $props()
 
-  // 唯一渐变 ID
   const gradId = `spark-grad-${Math.random().toString(36).slice(2, 9)}`
 
-  // 解析颜色
   const strokeColor = $derived.by(() => {
     if (color) return color
     switch (variant) {
-      case 'success': return 'var(--terra-accent-success, #00f076)'
-      case 'warning': return 'var(--terra-accent-warning, #f59e0b)'
-      case 'danger': return 'var(--terra-accent-danger, #ef4444)'
-      default: return 'var(--terra-accent-primary, #00d8ff)'
+      case 'success':
+        return 'var(--terra-accent-success)'
+      case 'warning':
+        return 'var(--terra-accent-warning)'
+      case 'danger':
+        return 'var(--terra-accent-danger)'
+      default:
+        return 'var(--terra-accent-primary)'
     }
   })
 
-  // 内部 viewBox 坐标尺寸
   const vbWidth = 120
   const padY = 4
 
-  // 点集坐标映射
   const points = $derived.by(() => {
     if (!data || data.length === 0) return []
     if (data.length === 1) {
@@ -72,7 +62,6 @@
     })
   })
 
-  // 贝塞尔曲线算法
   function generateSmoothPath(pts: Array<{ x: number; y: number }>): string {
     if (pts.length <= 1) return ''
     if (pts.length === 2) {
@@ -96,19 +85,16 @@
     return d
   }
 
-  // 折线算法
   function generateLinearPath(pts: Array<{ x: number; y: number }>): string {
     if (pts.length <= 1) return ''
     return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ')
   }
 
-  // 曲线 Path
   const linePath = $derived.by(() => {
     if (points.length <= 1) return ''
     return smooth ? generateSmoothPath(points) : generateLinearPath(points)
   })
 
-  // 闭合区域 Path
   const areaPath = $derived.by(() => {
     if (!linePath || points.length <= 1) return ''
     const first = points[0]
@@ -116,12 +102,11 @@
     return `${linePath} L ${last.x.toFixed(1)} ${height} L ${first.x.toFixed(1)} ${height} Z`
   })
 
-  // 最后一个数据点
   const lastPoint = $derived(points.length > 0 ? points[points.length - 1] : null)
 </script>
 
 <div
-  class="relative inline-flex items-center select-none overflow-visible {className}"
+  class="isolate relative inline-flex items-center select-none overflow-visible {className}"
   style="width: {typeof width === 'number' ? `${width}px` : width}; height: {height}px;"
 >
   <svg
@@ -130,25 +115,18 @@
     class="w-full h-full overflow-visible"
   >
     <defs>
-      <!-- 渐变阴影 -->
       {#if fill}
         <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color={strokeColor} stop-opacity="0.35" />
+          <stop offset="0%" stop-color={strokeColor} stop-opacity="0.32" />
           <stop offset="100%" stop-color={strokeColor} stop-opacity="0.0" />
         </linearGradient>
       {/if}
     </defs>
 
-    <!-- 渐变底衬 -->
     {#if fill && areaPath}
-      <path
-        d={areaPath}
-        fill="url(#{gradId})"
-        class="transition-all duration-300"
-      />
+      <path d={areaPath} fill="url(#{gradId})" class="terra-t-opacity" />
     {/if}
 
-    <!-- 主线条 -->
     {#if linePath}
       <path
         d={linePath}
@@ -157,29 +135,43 @@
         stroke-width={strokeWidth}
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="transition-all duration-300"
+        class="terra-t-color"
       />
     {/if}
 
-    <!-- 末端实时脉冲点 -->
     {#if showPulse && lastPoint}
-      <!-- 扩散外环 -->
       <circle
         cx={lastPoint.x}
         cy={lastPoint.y}
-        r="4.5"
-        fill={strokeColor}
-        opacity="0.4"
-        class="animate-ping"
+        r="5"
+        fill="none"
+        stroke={strokeColor}
+        stroke-width="1"
+        class="terra-spark-halo"
       />
-      <!-- 中心实心光点 -->
-      <circle
-        cx={lastPoint.x}
-        cy={lastPoint.y}
-        r="2.5"
-        fill={strokeColor}
-        class="shadow-xs"
-      />
+      <circle cx={lastPoint.x} cy={lastPoint.y} r="2.5" fill={strokeColor} />
     {/if}
   </svg>
 </div>
+
+<style>
+  @keyframes terraSparkHalo {
+    0%,
+    100% {
+      opacity: 0.22;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 0.78;
+      transform: scale(1.25);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .terra-spark-halo {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: terraSparkHalo 2.6s var(--terra-ease-in-out) infinite;
+    }
+  }
+</style>

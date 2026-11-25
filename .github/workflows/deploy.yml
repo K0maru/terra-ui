@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
   workflow_dispatch:
 
 permissions:
@@ -35,8 +34,17 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Lint and Format Check
+        run: npm run lint
+
+      - name: Type Check
+        run: npm run check
+
       - name: Build Production Assets
         run: npm run build
+
+      - name: Verify Package Build
+        run: npm run package
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

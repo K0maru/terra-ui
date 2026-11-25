@@ -1,1471 +1,1075 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { Spring } from 'svelte/motion'
+  import { ArrowUpRight, Check, Crosshair, Moon, Pause, Play, RotateCcw, Sun } from 'lucide-svelte'
   import {
-    TerraButton,
-    TerraPanel,
+    TerraAmbientField,
+    TerraAsciiStage,
     TerraBadge,
-    TerraStatusBeacon,
-    TerraBarcode,
-    TerraRollingNumber,
-    TerraInput,
-    TerraSegmentBar,
-    TerraContourLines,
-    TerraCurtainTransition,
-    TerraInitialBootScreen,
-    TerraCadPattern,
-    TerraCornerBrackets,
-    TerraVerticalSlider,
-    TerraVerticalTabs,
-    type TerraTabItem,
-    TerraProfileCard,
-    TerraSpatialCard,
-    TerraDonutChart,
-    TerraLineChart,
     TerraBarChart,
-    TerraSparkline,
+    TerraButton,
+    TerraInput,
+    TerraLineChart,
+    TerraPanel,
+    TerraRollingNumber,
+    TerraStatusBeacon,
     TerraStatusStrip,
-    TerraActivityHeatmap,
     TerraVernierMeter,
-    TerraTelemetryBox
+    TerraVerticalTabs,
+    TERRA_THEMES,
+    i18n,
+    magnetic,
+    scrollReveal,
+    stepSpring,
+    withThemeSwitch,
+    withViewTransition,
+    type SpringState,
+    type TerraColorMode,
+    type TerraThemeId
   } from './lib'
   import TerraDocsView from './docs/TerraDocsView.svelte'
-  import { i18n } from './lib/i18n'
 
   const t = $derived(i18n.t)
+  const isZh = $derived(i18n.locale === 'zh')
 
-  // View Mode: 'demo' (Long-scroll operational showcase) | 'docs' (GitBook-style interactive documentation)
   let viewMode = $state<'demo' | 'docs'>('demo')
+  let currentTheme = $state<TerraThemeId>('vermilion')
+  let currentMode = $state<TerraColorMode>('dark')
+  let headlineKey = $state(0)
+  let marqueeRunning = $state(true)
+  let crosshairEnabled = $state(true)
 
-  // Functional Color Spectrum Themes: 'cyan' (Blueprint) | 'amber' (Industrial) | 'emerald' (Telemetry)
-  let currentTheme = $state<'cyan' | 'amber' | 'emerald'>('cyan')
-  // Modes: 'dark' | 'light'
-  let currentMode = $state<'dark' | 'light'>('dark')
-
-  // Section Tracking for Vertical Snap Scroll: '01' | '02' | '03'
-  let activeSection = $state<'01' | '02' | '03'>('01')
-
-  // Curtain Transition for theme/mode hot-swaps
-  let curtainActive = $state(false)
-  let transitionLabel = $state('TERRA UI // SYSTEM SYNC')
-
-  // Initial Boot Screen state
-  let bootScreenActive = $state(false)
-
-  // Interactive controls
-  let contourEnabled = $state(true)
-  let cutSize = $state(10)
-  let zoomFactor = $state(100)
-  let labPanelDecoration = $state<'endfield' | 'rhodes' | 'industrial' | 'brackets' | 'clean'>('endfield')
-  let labChamferBorder = $state(true)
-  let commandInput = $state('QUERY_CLUSTER_METRICS')
-  let customMatrixInput = $state('TELEMETRY_SAMPLE_RATE')
-
-  // Operations Terminal Logs
-  let dispatchLogs = $state<string[]>([
-    'SYS//KERNEL_INIT: SVELTE 5 RUNES COMPOSITOR READY.',
-    'NETWORK: BLUEPRINT / INDUSTRIAL DUAL-AXIS SYNCED.',
-    'SECURITY: AUTHORIZED SESSION GRANTED TO OPERATIONS DESK.'
-  ])
-
-  function logDispatch(action: string) {
-    const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false })
-    dispatchLogs = [
-      `[${timeStr}] ${action}`,
-      ...dispatchLogs.slice(0, 4)
-    ]
-  }
-
-  function handleCommandExecute() {
-    if (!commandInput.trim()) return
-    logDispatch(`EXEC: QUERY [${commandInput.toUpperCase()}] TRANSMITTED THROUGH CORE BUS.`)
-  }
-
-  function handleSyncCluster() {
-    logDispatch('CLUSTER: DISTRIBUTED NODES SYNCHRONIZED ACROSS REGIONS.')
-  }
-
-  function handleResetBuffer() {
-    logDispatch('BUFFER: TELEMETRY AND SHARD CACHE BUFFER RESET.')
-  }
-
-  // Clusters for Vertical Tabs derived from i18n
-  const sectorTabs: TerraTabItem[] = $derived(t.sectorTabs)
-  let selectedSector = $state('us-east')
-
-  const sectorTelemetry = $derived(
-    t.sectors[selectedSector] || t.sectors['us-east'] || {
-      name: 'US-EAST-01 DATA CLUSTER',
-      coord: 'LAT: 39°02\'N // LNG: 77°28\'W // DC-VA',
-      status: 'OPTIMAL // 99.99%',
-      density: 'THROUGHPUT: 42.8 Tbps // 0.8ms'
-    }
+  const currentThemeMeta = $derived(
+    TERRA_THEMES.find((item) => item.id === currentTheme) ?? TERRA_THEMES[0]
   )
 
-  // Live telemetry simulation metrics
-  let metricEfficiency = $state(99.14)
-  let metricLatency = $state(1.2)
-  let metricThroughput = $state(9240)
-  let energyBusValue = $state(8)
-  let fps = $state(120)
+  let throughput = $state(42.8)
+  let latency = $state(1.4)
+  let uptime = $state(99.98)
 
-  // Chart Data: Subsystem Allocation Bar Chart (Section 01)
-  const subsystemBarData = $state([
-    { label: 'CPU-CORE', value: 64, max: 100, status: 'normal' as const },
-    { label: 'MEM-POOL', value: 88, max: 100, status: 'warning' as const },
-    { label: 'GPU-SHAD', value: 94, max: 100, status: 'critical' as const },
-    { label: 'NET-IO', value: 52, max: 100, status: 'normal' as const },
-    { label: 'DISK-BUS', value: 78, max: 100, status: 'warning' as const },
-    { label: 'CACHE-L3', value: 45, max: 100, status: 'normal' as const }
-  ])
+  function sampleMetrics() {
+    throughput = +(36 + Math.random() * 18).toFixed(1)
+    latency = +(0.9 + Math.random() * 1.4).toFixed(1)
+    uptime = +(99.88 + Math.random() * 0.11).toFixed(2)
+  }
 
-  // Chart Data: Telemetry Waveform Line Chart (Section 01)
-  const signalTelemetryData = $state([
-    { timestamp: '18:00:12', value: 38, label: 'NODE-01' },
-    { timestamp: '18:15:30', value: 52, label: 'NODE-03' },
-    { timestamp: '18:30:45', value: 86, label: 'PEAK-05' },
-    { timestamp: '18:45:10', value: 68, label: 'BAL-07' },
-    { timestamp: '18:57:56', value: 92, label: 'NODE-10' },
-    { timestamp: '19:12:35', value: 74, label: 'DAMP-12' },
-    { timestamp: '19:28:40', value: 59, label: 'STEADY-15' }
-  ])
+  let scrollFallbackRatio = $state(0)
+  let supportsScrollTimeline = $state(true)
 
-  // Chart Data: Spatial Donut Chart (Section 02)
-  const spatialDonutData = $derived([
-    { label: t.sec02.donutItems.pwr, value: 42, color: 'var(--terra-accent-primary)', code: 'PWR-01' },
-    { label: t.sec02.donutItems.def, value: 28, color: 'var(--terra-accent-secondary)', code: 'DEF-02' },
-    { label: t.sec02.donutItems.bus, value: 18, color: 'var(--terra-accent-warning)', code: 'BUS-03' },
-    { label: t.sec02.donutItems.env, value: 12, color: 'var(--terra-accent-success)', code: 'ENV-04' }
-  ])
+  let crosshairEl: HTMLDivElement | undefined = $state()
+  let pointerHoverInteractive = $state(false)
 
-  // Section reveal visibility tracking
-  let visibleSections = $state<Record<string, boolean>>({
-    '01': true,
-    '02': true,
-    '03': true
-  })
+  let targetMouseX = -200
+  let targetMouseY = -200
+  const crosshairX: SpringState = { x: -200, v: 0 }
+  const crosshairY: SpringState = { x: -200, v: 0 }
+  let crosshairRaf = 0
+  let lastCrosshairNow = 0
 
-  // Real FPS meter & IntersectionObserver
-  onMount(() => {
-    let frameCount = 0
-    let lastTime = performance.now()
-    let handle: number
-
-    function updateFps(now: number) {
-      frameCount++
-      if (now - lastTime >= 1000) {
-        fps = Math.round((frameCount * 1000) / (now - lastTime))
-        frameCount = 0
-        lastTime = now
-      }
-      handle = requestAnimationFrame(updateFps)
+  function stepCrosshair(now: number) {
+    crosshairRaf = 0
+    if (!crosshairEnabled || viewMode !== 'demo' || document.hidden || !crosshairEl) {
+      return
     }
-    handle = requestAnimationFrame(updateFps)
+    const dt = lastCrosshairNow ? (now - lastCrosshairNow) / 1000 : 1 / 60
+    lastCrosshairNow = now
 
-    document.documentElement.setAttribute('data-theme', currentTheme)
-    document.documentElement.setAttribute('data-mode', currentMode)
+    const sx = stepSpring(crosshairX, targetMouseX, dt, 420, 30)
+    const sy = stepSpring(crosshairY, targetMouseY, dt, 420, 30)
+    crosshairEl.style.transform = `translate3d(${crosshairX.x.toFixed(1)}px, ${crosshairY.x.toFixed(1)}px, 0)`
+    crosshairEl.style.opacity = '1'
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          const sec = entry.target.getAttribute('data-section') as '01' | '02' | '03' | null
-          if (entry.isIntersecting && sec) {
-            activeSection = sec
-            visibleSections[sec] = true
-          }
-        }
-      },
-      { threshold: 0.05, rootMargin: '-10% 0px -10% 0px' }
+    if (!sx || !sy) {
+      crosshairRaf = requestAnimationFrame(stepCrosshair)
+    }
+  }
+
+  function handleWindowPointerMove(e: PointerEvent) {
+    if (e.pointerType === 'touch' || !crosshairEnabled || viewMode !== 'demo') return
+    if (crosshairX.x < -100) {
+      crosshairX.x = e.clientX
+      crosshairY.x = e.clientY
+      crosshairX.v = 0
+      crosshairY.v = 0
+    }
+    targetMouseX = e.clientX
+    targetMouseY = e.clientY
+    const el = e.target as HTMLElement | null
+    pointerHoverInteractive = Boolean(
+      el?.closest('button, a, input, [role="tab"], [role="slider"]')
     )
-
-    function attachObserver() {
-      const sections = document.querySelectorAll<HTMLElement>('section[data-section]')
-      sections.forEach((sec) => observer.observe(sec))
-    }
-    attachObserver()
-
-    function checkHashMode() {
-      if (window.location.hash.startsWith('#/docs')) {
-        viewMode = 'docs'
-      } else if (window.location.hash === '#/demo' || !window.location.hash) {
-        viewMode = 'demo'
-        setTimeout(attachObserver, 50)
-      }
-    }
-    checkHashMode()
-    window.addEventListener('hashchange', checkHashMode)
-
-    return () => {
-      cancelAnimationFrame(handle)
-      observer.disconnect()
-      window.removeEventListener('hashchange', checkHashMode)
-    }
-  })
-
-  function scrollToSection(sectionId: string) {
-    const el = document.getElementById(sectionId)
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' })
+    if (crosshairRaf === 0) {
+      lastCrosshairNow = performance.now()
+      crosshairRaf = requestAnimationFrame(stepCrosshair)
     }
   }
 
-  function switchTheme(theme: 'cyan' | 'amber' | 'emerald') {
-    if (currentTheme === theme) return
-    transitionLabel = theme === 'cyan' ? 'BLUEPRINT // CYAN_SPECTRUM' :
-                      theme === 'amber' ? 'INDUSTRIAL // AMBER_SPECTRUM' :
-                      'TELEMETRY // EMERALD_SPECTRUM'
-    triggerCurtain()
-    currentTheme = theme
-    document.documentElement.setAttribute('data-theme', theme)
+  function handleWindowPointerLeave() {
+    if (crosshairEl) {
+      crosshairEl.style.opacity = '0'
+    }
+    if (crosshairRaf !== 0) {
+      cancelAnimationFrame(crosshairRaf)
+      crosshairRaf = 0
+    }
   }
 
-  function toggleMode() {
-    transitionLabel = currentMode === 'dark' ? 'SYSTEM // LIGHT_MODE_INIT' : 'SYSTEM // DARK_MODE_INIT'
-    triggerCurtain()
-    currentMode = currentMode === 'dark' ? 'light' : 'dark'
-    document.documentElement.setAttribute('data-mode', currentMode)
+  function handleWindowMouseOut(e: MouseEvent) {
+    if (e.relatedTarget === null) {
+      handleWindowPointerLeave()
+    }
   }
 
-  function triggerCurtain() {
-    curtainActive = false
-    setTimeout(() => {
-      curtainActive = true
-    }, 10)
+  function applyTheme(next: TerraThemeId) {
+    if (next === currentTheme) return
+    withThemeSwitch(() => {
+      currentTheme = next
+      document.documentElement.setAttribute('data-theme', next)
+    })
   }
 
-  function replayBootSequence() {
-    bootScreenActive = true
+  function toggleMode(origin?: { x: number; y: number }) {
+    const next: TerraColorMode = currentMode === 'dark' ? 'light' : 'dark'
+    withViewTransition(
+      () => {
+        currentMode = next
+        document.documentElement.setAttribute('data-mode', next)
+      },
+      origin,
+      'sweep'
+    )
+  }
+
+  function switchView(next: 'demo' | 'docs') {
+    if (next === viewMode) return
+    withViewTransition(
+      () => {
+        viewMode = next
+        window.location.hash = next === 'docs' ? '#/docs/overview' : ''
+      },
+      undefined,
+      'fade'
+    )
+  }
+
+  type SpecimenId = 'button' | 'tabs' | 'meter' | 'input' | 'surface'
+  let highlightedSpecimen = $state<SpecimenId>('button')
+  let activeSpecimen = $state<SpecimenId>('button')
+  const currentSpecimen = $derived(
+    t.editorial.specimens.find((s) => s.id === activeSpecimen) ?? t.editorial.specimens[0]
+  )
+
+  let indexListEl: HTMLDivElement | undefined = $state()
+  let rowEls: Array<HTMLButtonElement | null> = $state([null, null, null, null, null])
+  const lensTop = new Spring(0, { stiffness: 0.14, damping: 0.78 })
+  const lensBottom = new Spring(360, { stiffness: 0.14, damping: 0.78 })
+  let lensInitialized = false
+
+  function syncLens(instant = false) {
+    if (!indexListEl) return
+    const listH = indexListEl.clientHeight
+    const idx = Math.max(
+      0,
+      t.editorial.specimens.findIndex((s) => s.id === highlightedSpecimen)
+    )
+    const el = rowEls[idx]
+    if (!el || listH <= 0) return
+    const nextTop = el.offsetTop
+    const nextBottom = Math.max(0, listH - (el.offsetTop + el.offsetHeight))
+    if (!lensInitialized || instant) {
+      lensTop.set(nextTop, { instant: true })
+      lensBottom.set(nextBottom, { instant: true })
+      lensInitialized = true
+    } else {
+      lensTop.target = nextTop
+      lensBottom.target = nextBottom
+    }
   }
 
   $effect(() => {
-    document.documentElement.style.setProperty('--terra-cut-size', `${cutSize}px`)
+    void highlightedSpecimen
+    void isZh
+    syncLens(false)
   })
 
-  function cycleMetrics() {
-    metricEfficiency = +(94 + Math.random() * 5.9).toFixed(2)
-    metricLatency = +(0.6 + Math.random() * 1.8).toFixed(1)
-    metricThroughput = Math.floor(7500 + Math.random() * 4000)
-    energyBusValue = Math.floor(4 + Math.random() * 7)
-    logDispatch(`SIMULATION: TELEMETRY CYCLE ENGAGED [${metricEfficiency}% / ${metricLatency}ms].`)
+  let hoverIntentTimer: ReturnType<typeof setTimeout> | null = null
+
+  function cancelHoverIntent() {
+    if (hoverIntentTimer !== null) {
+      clearTimeout(hoverIntentTimer)
+      hoverIntentTimer = null
+    }
   }
+
+  function handleSpecimenEnter(id: SpecimenId, e: PointerEvent) {
+    if (e.pointerType === 'touch') return
+    highlightedSpecimen = id
+    if (id === activeSpecimen) {
+      cancelHoverIntent()
+      return
+    }
+    cancelHoverIntent()
+    hoverIntentTimer = setTimeout(() => {
+      activeSpecimen = id
+      hoverIntentTimer = null
+    }, 75)
+  }
+
+  function handleIndexListLeave() {
+    cancelHoverIntent()
+    highlightedSpecimen = activeSpecimen
+  }
+
+  function selectSpecimenImmediate(id: SpecimenId) {
+    cancelHoverIntent()
+    highlightedSpecimen = id
+    activeSpecimen = id
+  }
+
+  let clickCount = $state(0)
+  let selectedSector = $state('us-east')
+  let meterValue = $state(72)
+  let commandInput = $state('deploy --env=production')
+  let toastMessage = $state<string | null>(null)
+
+  const currentSector = $derived(t.sectors[selectedSector] ?? t.sectors['us-east'])
+
+  function submitCommand() {
+    if (!commandInput.trim()) return
+    toastMessage = isZh
+      ? `已下发指令: ${commandInput.trim()}`
+      : `Dispatched: ${commandInput.trim()}`
+    setTimeout(() => {
+      toastMessage = null
+    }, 2800)
+  }
+
+  const subsystemBarData = [
+    { label: 'CPU-CORE', value: 64, max: 100, status: 'normal' as const },
+    { label: 'MEM-POOL', value: 84, max: 100, status: 'warning' as const },
+    { label: 'GPU-COMP', value: 92, max: 100, status: 'critical' as const },
+    { label: 'NET-IO', value: 52, max: 100, status: 'normal' as const },
+    { label: 'DISK-BUS', value: 74, max: 100, status: 'warning' as const }
+  ]
+
+  const signalTelemetryData = [
+    { timestamp: '18:00', value: 38, label: 'NODE-01' },
+    { timestamp: '18:15', value: 52, label: 'NODE-03' },
+    { timestamp: '18:30', value: 86, label: 'PEAK-05' },
+    { timestamp: '18:45', value: 68, label: 'BAL-07' },
+    { timestamp: '19:00', value: 92, label: 'NODE-10' },
+    { timestamp: '19:15', value: 74, label: 'DAMP-12' },
+    { timestamp: '19:30', value: 61, label: 'STEADY-15' }
+  ]
+
+  const brandLetters = 'TERRA'.split('')
+
+  $effect(() => {
+    if (typeof document === 'undefined') return
+    if (marqueeRunning) {
+      delete document.documentElement.dataset.motion
+    } else {
+      document.documentElement.dataset.motion = 'paused'
+    }
+  })
+
+  onMount(() => {
+    document.documentElement.setAttribute('data-theme', currentTheme)
+    document.documentElement.setAttribute('data-mode', currentMode)
+
+    supportsScrollTimeline = CSS.supports('animation-timeline: scroll()')
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) {
+      marqueeRunning = false
+      crosshairEnabled = false
+    }
+
+    function checkHashMode() {
+      viewMode = window.location.hash.startsWith('#/docs') ? 'docs' : 'demo'
+    }
+    checkHashMode()
+    window.addEventListener('hashchange', checkHashMode)
+    document.addEventListener('pointerleave', handleWindowPointerLeave)
+
+    function onScroll() {
+      if (supportsScrollTimeline) return
+      const doc = document.documentElement
+      const max = doc.scrollHeight - window.innerHeight
+      scrollFallbackRatio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+
+    const indexResizeObserver = new ResizeObserver(() => {
+      syncLens(true)
+    })
+    if (indexListEl) {
+      indexResizeObserver.observe(indexListEl)
+      syncLens(true)
+    }
+
+    return () => {
+      cancelHoverIntent()
+      indexResizeObserver.disconnect()
+      window.removeEventListener('hashchange', checkHashMode)
+      window.removeEventListener('scroll', onScroll)
+      document.removeEventListener('pointerleave', handleWindowPointerLeave)
+      if (crosshairRaf !== 0) cancelAnimationFrame(crosshairRaf)
+    }
+  })
 </script>
 
-<!-- ======================================================================
-     0. AUTHENTIC INITIAL BOOT / LOADING SCREEN
-     ====================================================================== -->
-<TerraInitialBootScreen bind:active={bootScreenActive} />
-
-<!-- Industrial Curtain Wipe Transition -->
-<TerraCurtainTransition
-  active={curtainActive}
-  label={transitionLabel}
-  oncomplete={() => curtainActive = false}
+<svelte:window
+  onpointermove={handleWindowPointerMove}
+  onblur={handleWindowPointerLeave}
+  onmouseout={handleWindowMouseOut}
 />
 
-<!-- ======================================================================
-     0. BACKGROUND OVERLAYS
-     ====================================================================== -->
-{#if (currentTheme === 'amber' || currentTheme === 'emerald') && contourEnabled}
-  <TerraContourLines
-    elevation="+2680m"
-    zone={currentTheme === 'emerald' ? 'TELEMETRY // GREEN_RIDGE' : 'INDUSTRIAL // HIGH_LOAD_ZONE'}
-    opacity={currentMode === 'dark' ? 0.32 : 0.18}
-    class="fixed inset-0 z-0"
-  />
-{/if}
-
-{#if currentTheme === 'cyan'}
-  <div class="pointer-events-none fixed inset-0 z-0 opacity-15 overflow-hidden">
-    <div class="w-full h-full border-r border-b border-[var(--terra-accent-primary)] grid grid-cols-6 grid-rows-6">
-      {#each Array(36) as _, i}
-        <div class="border-t border-l border-[var(--terra-accent-primary)] flex items-start justify-start p-1 text-[8px] font-mono text-[var(--terra-accent-primary)]">
-          {#if i % 7 === 0}
-            <span>[{String(i).padStart(2, '0')}]</span>
-          {/if}
-        </div>
-      {/each}
-    </div>
-  </div>
-{/if}
-
-<!-- ======================================================================
-     1. STICKY TOP COMMAND BAR // BRANDING RESTRUCTURED (TICKET-03 & 04)
-     ====================================================================== -->
-<header class="sticky top-0 z-40 bg-[var(--terra-bg-base)]/90 backdrop-blur-md border-b border-[var(--terra-border)] transition-colors duration-200">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-    
-    <!-- Brand Title & Subtitle -->
-    <div class="flex items-center gap-3">
-      <div class="w-2.5 h-8 bg-[var(--terra-accent-primary)] terra-cut-tr shadow-md"></div>
-      <div>
-        <h1 class="font-mono font-bold tracking-widest text-sm sm:text-base uppercase text-[var(--terra-text-primary)] flex items-center gap-2">
-          <span>{t.nav.brandTitle}</span>
-          <span class="text-[10px] px-1.5 py-0.2 bg-[var(--terra-accent-primary-dim)] text-[var(--terra-accent-primary)] border border-[var(--terra-border-strong)] font-semibold">v0.8.0</span>
-        </h1>
-        <p class="font-mono text-[10px] text-[var(--terra-text-muted)] tracking-wider">
-          {t.nav.brandSubtitle}
-        </p>
-      </div>
-    </div>
-
-    <!-- View Mode Switcher: [LIVE DEMO | DOCS // PLAYPEN] -->
-    <div class="flex items-center p-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border-strong)] terra-cut-tr shadow-sm">
-      <button
-        type="button"
-        onclick={() => { viewMode = 'demo'; if (window.location.hash.startsWith('#/docs')) window.location.hash = '' }}
-        class="px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all {viewMode === 'demo' ? 'bg-[var(--terra-accent-primary)] text-black shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-      >
-        {i18n.locale === 'zh' ? '实机展台' : 'LIVE DEMO'}
-      </button>
-      <button
-        type="button"
-        onclick={() => { viewMode = 'docs'; window.location.hash = '#/docs/overview' }}
-        class="px-2.5 py-1 text-xs font-mono font-bold tracking-wider transition-all {viewMode === 'docs' ? 'bg-[var(--terra-accent-primary)] text-black shadow-xs' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-      >
-        {i18n.locale === 'zh' ? '交互文档' : 'DOCS // PLAYPEN'}
-      </button>
-    </div>
-
-    <!-- Quick Jump Section Navigation Links (Only in Demo Mode) -->
-    {#if viewMode === 'demo'}
-      <nav class="hidden md:flex items-center gap-1 bg-[var(--terra-bg-surface)] p-1 border border-[var(--terra-border)] terra-cut-tr">
-        <button
-          type="button"
-          onclick={() => scrollToSection('section-01')}
-          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '01' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          {t.nav.sec01}
-        </button>
-        <button
-          type="button"
-          onclick={() => scrollToSection('section-02')}
-          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '02' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          {t.nav.sec02}
-        </button>
-        <button
-          type="button"
-          onclick={() => scrollToSection('section-03')}
-          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all {activeSection === '03' ? 'bg-[var(--terra-accent-primary)] text-black' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          {t.nav.sec03}
-        </button>
-        <button
-          type="button"
-          onclick={() => scrollToSection('section-legal')}
-          class="px-2.5 py-1 font-mono text-[11px] font-bold tracking-wider transition-all text-[var(--terra-accent-primary)] hover:bg-[var(--terra-accent-primary)] hover:text-black border-l border-[var(--terra-border)] ml-1 pl-2"
-          title="View Legal Disclaimer & Attribution"
-        >
-          [{t.nav.legal}]
-        </button>
-      </nav>
-    {/if}
-
-    <!-- Theme, Mode, Language & Replay Controls -->
-    <div class="flex flex-wrap items-center gap-2">
-      
-      <!-- Legal Disclaimer Quick Jump Button -->
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-legal')}
-        title="View Legal Disclaimer & Attribution"
-        class="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] hover:border-[var(--terra-accent-primary)] font-mono text-xs font-bold text-[var(--terra-accent-primary)] terra-cut-tr shadow-sm transition-all active:scale-95"
-      >
-        <span class="text-xs">📜</span>
-        <span class="hidden xl:inline">{t.nav.legal}</span>
-        <span class="xl:hidden">LEGAL</span>
-      </button>
-
-      <!-- Replay Boot Button -->
-      <button
-        type="button"
-        onclick={replayBootSequence}
-        title="Replay authentic 2.2s initial boot sequence"
-        class="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] hover:border-[var(--terra-border-accent)] font-mono text-xs font-bold text-[var(--terra-text-primary)] terra-cut-tr shadow-sm transition-all active:scale-95"
-      >
-        <span class="text-[var(--terra-accent-primary)] text-sm">↺</span>
-        <span class="hidden sm:inline">{t.nav.replayBoot}</span>
-      </button>
-
-      <!-- Language Switcher [EN | 中文] (TICKET-02) -->
-      <div class="flex items-center p-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] terra-cut-tr shadow-sm">
-        <button
-          type="button"
-          onclick={() => i18n.setLocale('en')}
-          class="px-2 py-0.5 text-xs font-mono font-bold transition-all {i18n.locale === 'en' ? 'bg-[var(--terra-accent-primary)] text-black shadow-sm' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          EN
-        </button>
-        <button
-          type="button"
-          onclick={() => i18n.setLocale('zh')}
-          class="px-2 py-0.5 text-xs font-mono font-bold transition-all {i18n.locale === 'zh' ? 'bg-[var(--terra-accent-primary)] text-black shadow-sm' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          中文
-        </button>
-      </div>
-
-      <!-- Color Spectrum Switcher -->
-      <div class="flex items-center p-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] terra-cut-tr shadow-sm">
-        <button
-          type="button"
-          onclick={() => switchTheme('cyan')}
-          class="px-2 py-0.5 text-xs font-mono font-bold transition-all {currentTheme === 'cyan' ? 'bg-[var(--terra-accent-primary)] text-black shadow-sm' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          CYAN // {t.nav.themes.cyan}
-        </button>
-        <button
-          type="button"
-          onclick={() => switchTheme('amber')}
-          class="px-2 py-0.5 text-xs font-mono font-bold transition-all {currentTheme === 'amber' ? 'bg-[var(--terra-accent-primary)] text-black shadow-sm' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          AMBER // {t.nav.themes.amber}
-        </button>
-        <button
-          type="button"
-          onclick={() => switchTheme('emerald')}
-          class="px-2 py-0.5 text-xs font-mono font-bold transition-all {currentTheme === 'emerald' ? 'bg-[var(--terra-accent-primary)] text-black shadow-sm' : 'text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)]'}"
-        >
-          EMERALD // {t.nav.themes.emerald}
-        </button>
-      </div>
-
-      <!-- Dark / Light Mode Toggle -->
-      <button
-        type="button"
-        onclick={toggleMode}
-        class="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] font-mono text-xs font-bold text-[var(--terra-text-primary)] hover:border-[var(--terra-border-accent)] terra-cut-tr shadow-sm transition-all active:scale-95"
-      >
-        {#if currentMode === 'dark'}
-          <span>{t.nav.dark}</span>
-        {:else}
-          <span>{t.nav.light}</span>
-        {/if}
-      </button>
-
-      <!-- Real-time Performance Indicator -->
-      <div class="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] font-mono text-[11px] terra-cut-tr shadow-sm">
-        <TerraStatusBeacon status="online" label={t.nav.nominal} />
-        <span class="text-[var(--terra-text-muted)]">|</span>
-        <span class="text-[var(--terra-text-secondary)]">{t.nav.fps}: <strong class="text-[var(--terra-accent-primary)]">{fps}</strong></span>
-      </div>
-    </div>
-
-  </div>
-</header>
-
-{#if viewMode === 'docs'}
-  <TerraDocsView
-    locale={i18n.locale}
-    onSwitchToDemo={() => {
-      viewMode = 'demo'
-      if (window.location.hash.startsWith('#/docs')) {
-        window.location.hash = ''
-      }
-    }}
-  />
-{:else}
-<!-- ======================================================================
-     2. RIGHT-SIDE FIXED VERTICAL INDICATOR TRACK (Snap Scroll Rail)
-     ====================================================================== -->
-<aside class="fixed right-4 sm:right-6 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-center gap-8 font-mono select-none">
-  <div class="text-[10px] text-[var(--terra-text-muted)] font-bold">⊕</div>
-
-  <div class="relative flex flex-col items-center gap-7">
-    <div class="absolute top-2 bottom-2 w-[1px] bg-[var(--terra-border)] z-0"></div>
-
-    <!-- 01 Marker -->
-    <button
-      type="button"
-      onclick={() => scrollToSection('section-01')}
-      class="group relative z-10 flex items-center gap-2 transition-all"
+<div
+  class="terra-editorial-canvas relative z-10 min-h-[100dvh] text-[var(--terra-text-primary)] overflow-x-clip"
+>
+  <TerraAmbientField />
+  {#if crosshairEnabled && viewMode === 'demo'}
+    <div
+      bind:this={crosshairEl}
+      class="terra-t-opacity pointer-events-none fixed top-0 left-0 z-[var(--terra-z-cursor)] hidden md:block opacity-0"
+      aria-hidden="true"
     >
-      <div class="px-2 py-1 bg-[var(--terra-bg-surface)] border text-[11px] font-bold terra-cut-tr transition-all {activeSection === '01' ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] shadow-[0_0_8px_var(--terra-accent-primary-dim)] scale-110' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}">
-        [ 01 ]
-      </div>
-      <span class="absolute right-full mr-3 px-2 py-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] text-[10px] tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-        {t.nav.sec01}
-      </span>
-    </button>
+      <div
+        class="terra-t-snappy -translate-x-1/2 -translate-y-1/2 w-[20px] h-[20px] rounded-full border border-[var(--terra-accent-primary)]"
+        style="
+          transform: scale({pointerHoverInteractive ? 1.7 : 1});
+          opacity: {pointerHoverInteractive ? 0.9 : 0.45};
+        "
+      ></div>
+    </div>
+  {/if}
 
-    <!-- 02 Marker -->
-    <button
-      type="button"
-      onclick={() => scrollToSection('section-02')}
-      class="group relative z-10 flex items-center gap-2 transition-all"
-    >
-      <div class="px-2 py-1 bg-[var(--terra-bg-surface)] border text-[11px] font-bold terra-cut-tr transition-all {activeSection === '02' ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] shadow-[0_0_8px_var(--terra-accent-primary-dim)] scale-110' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}">
-        [ 02 ]
-      </div>
-      <span class="absolute right-full mr-3 px-2 py-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] text-[10px] tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-        {t.nav.sec02}
-      </span>
-    </button>
+  {#if supportsScrollTimeline}
+    <div
+      class="terra-scroll-progress fixed top-0 left-0 right-0 h-[3px] z-[var(--terra-z-progress)] pointer-events-none bg-[var(--terra-accent-primary)]"
+      aria-hidden="true"
+    ></div>
+  {:else}
+    <div
+      class="fixed top-0 left-0 right-0 h-[3px] z-[var(--terra-z-progress)] pointer-events-none origin-left bg-[var(--terra-accent-primary)]"
+      style="transform: scaleX({scrollFallbackRatio});"
+      aria-hidden="true"
+    ></div>
+  {/if}
 
-    <!-- 03 Marker -->
-    <button
-      type="button"
-      onclick={() => scrollToSection('section-03')}
-      class="group relative z-10 flex items-center gap-2 transition-all"
-    >
-      <div class="px-2 py-1 bg-[var(--terra-bg-surface)] border text-[11px] font-bold terra-cut-tr transition-all {activeSection === '03' ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] shadow-[0_0_8px_var(--terra-accent-primary-dim)] scale-110' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}">
-        [ 03 ]
-      </div>
-      <span class="absolute right-full mr-3 px-2 py-0.5 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] text-[10px] tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-        {t.nav.sec03}
-      </span>
-    </button>
-  </div>
-
-  <div class="text-[9px] text-[var(--terra-text-muted)] tracking-tighter">NAV</div>
-</aside>
-
-<!-- ======================================================================
-     3. VERTICAL SNAP-SCROLL MAIN CONTAINER
-     ====================================================================== -->
-<main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 snap-y snap-proximity">
-
-  <!-- ====================================================================
-       SECTION 01: 2D FLAT TACTICAL SYSTEM
-       ==================================================================== -->
-  <section
-    id="section-01"
-    data-section="01"
-    class="min-h-[calc(100vh-4rem)] snap-start flex flex-col justify-center py-12 space-y-8 scroll-mt-16"
+  <header
+    class="sticky top-0 z-[var(--terra-z-sticky-app)] h-[var(--terra-header-h)] border-b border-[var(--terra-border)] bg-[var(--terra-bg-base)]/90 backdrop-blur-md"
   >
-    <!-- 0. Tactical Telemetry Ticker Ribbon (Endfield / Rhodes Island Live Ribbon) -->
-    <div class="relative overflow-hidden bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] p-2.5 sm:p-3 terra-cut-tr flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow-sm">
-      <!-- Left: Core System Status & Protocol Specs -->
-      <div class="flex flex-wrap items-center gap-2.5">
-        <div class="flex items-center gap-1.5 px-2 py-0.5 bg-[var(--terra-accent-primary)] text-black font-mono text-[10px] font-extrabold tracking-widest uppercase">
-          <span class="w-1.5 h-1.5 bg-black animate-ping"></span>
-          <span>SYS.ONLINE</span>
-        </div>
-        <div class="flex items-center gap-2 font-mono text-xs">
-          <span class="terra-text-dim">STATION:</span>
-          <span class="font-telemetry font-bold text-[var(--terra-text-primary)]">CORE-PRTS-01</span>
-          <span class="terra-text-dim">// CLK:</span>
-          <span class="font-telemetry font-bold text-[var(--terra-accent-primary)]">{fps * 2}Hz</span>
-          <span class="terra-text-dim">// HEX:</span>
-          <span class="font-telemetry font-bold text-[var(--terra-text-primary)]">0x9F4C</span>
-        </div>
-      </div>
-
-      <!-- Center: Embedded Precision Vernier Meter -->
-      <div class="flex-1 max-w-md flex items-center gap-3 px-1 sm:px-3">
-        <span class="font-tactical text-[10px] terra-text-dim tracking-wider uppercase whitespace-nowrap hidden sm:inline">
-          FREQUENCY METER:
-        </span>
-        <div class="flex-1">
-          <TerraVernierMeter value={fps} min={30} max={120} ticks={12} hazard={fps < 45} />
-        </div>
-        <span class="font-telemetry text-xs font-bold text-[var(--terra-accent-primary)] whitespace-nowrap">
-          {fps} FPS
-        </span>
-      </div>
-
-      <!-- Right: Real-time Latency & Re-cycle Action -->
-      <div class="flex items-center justify-between md:justify-end gap-3">
-        <span class="font-telemetry text-xs terra-text-dim">
-          LATENCY: <strong class="text-[var(--terra-text-primary)] font-bold">{metricLatency}ms</strong>
-        </span>
-        <TerraButton variant="outline" size="sm" cut="tr" onclick={cycleMetrics}>
-          ⚡ {i18n.locale === 'zh' ? '刷新遥测' : 'CYCLE TELEMETRY'}
-        </TerraButton>
-      </div>
-    </div>
-
-    <!-- Section Header Tagline -->
-    <div class="flex items-center gap-2 font-mono text-xs text-[var(--terra-accent-primary)] tracking-widest uppercase">
-      <span class="px-2 py-0.5 bg-[var(--terra-accent-primary)] text-black font-bold">SECTION 01</span>
-      <span>//</span>
-      <span>{t.sec01.tag}</span>
-    </div>
-
-    <!-- Hero Display Title -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-[var(--terra-border)]">
-      <div class="space-y-2">
-        <div class="flex items-center gap-2 font-mono text-xs text-[var(--terra-accent-primary)] tracking-widest uppercase">
-          <span class="px-1.5 py-0.5 bg-[var(--terra-accent-primary-dim)] border border-[var(--terra-accent-primary)] font-bold">[ SEC_01 // SYS.OPS ]</span>
-          <span>•</span>
-          <span>{t.sec01.deskTag}</span>
-          <span>•</span>
-          <span class="font-bold">[{currentMode.toUpperCase()}]</span>
-        </div>
-        
-        <h2 class="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight uppercase leading-[0.9] text-[var(--terra-text-primary)]">
-          {t.sec01.title}
-        </h2>
-        <p class="font-mono text-xs text-[var(--terra-text-secondary)] tracking-wide">
-          {t.sec01.sub}
-        </p>
-      </div>
-
-      <div class="flex flex-col items-start md:items-end gap-2">
-        <TerraBarcode
-          code="TERRA-SYS-01"
-          serial="K0MARU-ARCH"
-          height={28}
-        />
-        <div class="flex gap-2">
-          <TerraBadge label={t.sec01.badgeFlat} code="GRID" variant="primary" />
-          <TerraBadge label={t.sec01.badgeZeroClutter} code="MIN" variant="outline" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Developer & Engineering Info Bar -->
-    <div class="flex flex-wrap items-center justify-between gap-4 p-3 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] terra-cut-tr">
-      <div class="flex items-center gap-2 font-mono text-xs">
-        <span class="text-[var(--terra-accent-primary)] font-bold">{t.sec01.unitsTitle}</span>
-        <span class="text-[var(--terra-text-muted)]">{t.sec01.unitsSub}</span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="px-3 py-1 font-mono text-xs font-bold bg-[var(--terra-accent-primary)] text-black border border-[var(--terra-accent-primary)] shadow-sm">
-          [K0maru] <span class="text-[10px] opacity-80">// Lead Maintainer</span>
-        </span>
-        <span class="px-2.5 py-1 font-mono text-xs text-[var(--terra-text-muted)] border border-[var(--terra-border)]">
-          9 Repositories // Open Source
-        </span>
-      </div>
-    </div>
-
-    <!-- High-Density Telemetry Matrix in Section 01 (Immediate Visual Shock) -->
-    <div class="space-y-2">
-      <div class="flex items-center justify-between text-xs font-mono">
-        <span class="text-[var(--terra-text-secondary)] font-bold flex items-center gap-2">
-          <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)] animate-pulse"></span>
-          {i18n.locale === 'zh' ? '战术核心实时遥测仪表阵列' : 'TACTICAL CORE TELEMETRY MATRIX'}
-        </span>
-        <span class="font-telemetry text-[10px] text-[var(--terra-accent-primary)]">AIC.SPEC-0022 // LIVE READOUT</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <TerraTelemetryBox
-          stationId="ALPHA-01"
-          protocolTag="AIC.09"
-          label={i18n.locale === 'zh' ? '涡轮主核心效率' : 'TURBINE_CORE_EFFICIENCY'}
-          value={metricEfficiency}
-          min={80}
-          max={100}
-          unit="%"
-          frequencyHz={fps}
-          hazardThreshold={0.98}
-        />
-        <TerraTelemetryBox
-          stationId="BETA-02"
-          protocolTag="BUS.48"
-          label={i18n.locale === 'zh' ? '工业母线电荷状态' : 'INDUSTRIAL_BUS_CHARGE'}
-          value={energyBusValue * 10}
-          min={0}
-          max={100}
-          unit="%"
-          frequencyHz={50}
-          hazardThreshold={0.80}
-        />
-        <TerraTelemetryBox
-          stationId="GAMMA-03"
-          protocolTag="LAT.02"
-          label={i18n.locale === 'zh' ? '神经总线遥测延迟' : 'NEURAL_BUS_LATENCY'}
-          value={metricLatency}
-          min={0}
-          max={3}
-          unit="ms"
-          frequencyHz={120}
-          hazardThreshold={0.70}
-        />
-      </div>
-    </div>
-
-    <!-- 2D Operations Command Main Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Developer Profile Card (6 cols) -->
-      <div class="lg:col-span-6 flex flex-col justify-between">
-        <TerraProfileCard class="h-full" />
-      </div>
-
-      <!-- Swiss Operations Command Bay (6 cols) -->
-      <div class="lg:col-span-6 flex flex-col justify-between space-y-6">
-        <TerraPanel title={t.sec01.profileTitle} tag="// SYS.OPS" cut="tr-bl" decoration="rhodes">
-          <div class="space-y-4">
-            
-            <!-- Directive Input & Execution -->
-            <div class="space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec01.directiveDispatch}
-              </span>
-              <div class="flex flex-col sm:flex-row gap-2">
-                <div class="flex-1">
-                  <TerraInput
-                    bind:value={commandInput}
-                    placeholder={t.sec01.queryPlaceholder}
-                    prefix="SYS//OPS>"
-                  />
-                </div>
-                <TerraButton variant="primary" size="md" cut="tr" onclick={handleCommandExecute}>
-                  {t.sec01.executeCmd}
-                </TerraButton>
-              </div>
-            </div>
-
-            <!-- Clearance & Security Badges Matrix -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec01.clearanceTitle}
-              </span>
-              <div class="flex flex-wrap items-center gap-2">
-                <TerraBadge label={t.sec01.clearAuthorized} code="ADM" variant="primary" />
-                <TerraBadge label={t.sec01.clearHighVolt} code="SYS" variant="warning" />
-                <TerraBadge label={t.sec01.clearCorrosion} code="SEC" variant="danger" />
-                <TerraBadge label={t.sec01.clearLinked} code="API" variant="success" />
-                <TerraBadge label={t.sec01.clearV2} code="VER" variant="outline" />
-              </div>
-            </div>
-
-            <!-- System Operations Actions -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec01.actuatorsTitle}
-              </span>
-              <div class="flex flex-wrap items-center gap-2">
-                <TerraButton variant="primary" size="sm" cut="tr-bl" onclick={handleCommandExecute}>
-                  {t.sec01.executeFull}
-                </TerraButton>
-                <TerraButton variant="outline" size="sm" cut="tl-br" onclick={handleSyncCluster}>
-                  {t.sec01.overrideLink}
-                </TerraButton>
-                <TerraButton variant="danger" size="sm" cut="tr" onclick={handleResetBuffer}>
-                  {t.sec01.purgeCorrosion}
-                </TerraButton>
-              </div>
-            </div>
-
-            <!-- Status Beacon Diagnostics -->
-            <div class="pt-3 border-t border-[var(--terra-border)] grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <TerraStatusBeacon status="online" label={t.sec01.nominal} />
-              <TerraStatusBeacon status="standby" label={t.sec01.idle} />
-              <TerraStatusBeacon status="alert" label={t.sec01.alert} />
-              <TerraStatusBeacon status="offline" label={t.sec01.offline} pulse={false} />
-            </div>
-
-            <!-- Terminal Output Log Stream -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-1 bg-black/30 p-2.5 font-mono text-[10px] border border-[var(--terra-border)]">
-              <div class="text-[var(--terra-accent-primary)] font-bold flex items-center justify-between pb-1 border-b border-[var(--terra-border)]">
-                <span>{t.sec01.logTitle}</span>
-                <span class="text-[8px] text-[var(--terra-text-muted)]">{t.sec01.logStream}</span>
-              </div>
-              <div class="space-y-1 pt-1 h-24 overflow-y-auto">
-                {#each dispatchLogs as log}
-                  <div class="text-[var(--terra-text-secondary)] tracking-tight">
-                    {log}
-                  </div>
-                {/each}
-              </div>
-            </div>
-
-          </div>
-        </TerraPanel>
-      </div>
-
-    </div>
-
-    <!-- 2D Tactical Native Charts Display (TICKET-02 in Section 01) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
-      <!-- 2D Histogram Bar Chart (6 cols) -->
-      <div class="lg:col-span-6">
-        <TerraPanel title={t.sec01.chart1Title} tag={t.sec01.chart1Sub} cut="tr-bl" decoration="rhodes">
-          <TerraBarChart
-            data={subsystemBarData}
-            height={160}
-            unit="%"
-          />
-        </TerraPanel>
-      </div>
-
-      <!-- 2D Waveform Line Chart (6 cols) -->
-      <div class="lg:col-span-6">
-        <TerraPanel title={t.sec01.chart2Title} tag={t.sec01.chart2Sub} cut="tl-br" decoration="rhodes">
-          <TerraLineChart
-            data={signalTelemetryData}
-            height={160}
-            unit="MB/s"
-          />
-        </TerraPanel>
-      </div>
-    </div>
-
-    <!-- 2D Developer & Observability Suite Display -->
-    <div class="space-y-6 pt-2">
-      <!-- Service SLA & Health Strip -->
-      <TerraPanel title="SYSTEM SLA & UPTIME MONITOR // 60-DAY RUNTIME" tag="// CLUSTER.SLA" cut="tr-bl" decoration="industrial">
-        <TerraStatusStrip serviceName="GLOBAL_DATA_ROUTER_CLUSTER" days={60} />
-      </TerraPanel>
-
-      <!-- Annual Activity Heatmap -->
-      <TerraPanel title="ANNUAL DISPATCH & COMMIT ACTIVITY MATRIX" tag="// OPS.HEATMAP" cut="tl-br" decoration="industrial">
-        <TerraActivityHeatmap weeks={48} title="ANNUAL SYSTEM OPERATIONS & COMMIT ACTIVITY" />
-      </TerraPanel>
-    </div>
-
-    <!-- Scroll Down Prompt -->
-    <div class="flex items-center justify-center pt-4">
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-02')}
-        class="flex flex-col items-center gap-1 font-mono text-[11px] text-[var(--terra-text-muted)] hover:text-[var(--terra-accent-primary)] transition-colors"
-      >
-        <span>{t.sec01.scrollDown}</span>
-        <span class="animate-bounce">↓</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- ====================================================================
-       SECTION 02: 3D SPATIAL & INDUSTRIAL COMPLEX
-       ==================================================================== -->
-  <section
-    id="section-02"
-    data-section="02"
-    class="min-h-[calc(100vh-4rem)] snap-start flex flex-col justify-center py-12 space-y-8 scroll-mt-16"
-  >
-    <!-- Section Header Tagline -->
-    <div class="flex items-center gap-2 font-mono text-xs text-[var(--terra-accent-primary)] tracking-widest uppercase">
-      <span class="px-2 py-0.5 bg-[var(--terra-accent-primary)] text-black font-bold">SECTION 02</span>
-      <span>//</span>
-      <span>{t.sec02.tag}</span>
-    </div>
-
-    <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 pb-4 border-b border-[var(--terra-border)]">
-      <div>
-        <h3 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-wide text-[var(--terra-text-primary)]">
-          {t.sec02.title}
-        </h3>
-        <p class="font-mono text-xs text-[var(--terra-text-muted)] mt-1">
-          {t.sec02.sub}
-        </p>
-      </div>
-      <TerraButton variant="outline" size="sm" onclick={cycleMetrics}>
-        {t.sec02.cycleBtn}
-      </TerraButton>
-    </div>
-
-    <!-- 3D Spatial Cards Grid: Prominently Showcasing TerraSpatialCard -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Card A: 3D Tactical Donut Radar Chart in Spatial Card (7 cols) -->
-      <div class="lg:col-span-7">
-        <TerraSpatialCard
-          cut="tr-bl"
-          maxRotation={16}
-          perspective={1000}
-          sheen={true}
-          class="h-full"
+    <div class="max-w-7xl mx-auto h-full px-4 sm:px-8 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-4 min-w-0">
+        <a
+          href="#top"
+          onclick={(e) => {
+            e.preventDefault()
+            switchView('demo')
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+          class="ed-roll-word inline-flex overflow-hidden font-display text-base font-bold tracking-[-0.04em] uppercase shrink-0 focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-[var(--terra-accent-primary)]"
         >
-          <!-- Floating Title Header in 3D Space -->
-          <div class="flex items-center justify-between pb-3 mb-4 border-b border-[var(--terra-border)]" style="transform: translateZ(30px);">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 bg-[var(--terra-accent-primary)] animate-pulse"></span>
-              <h4 class="font-mono text-xs font-bold tracking-widest uppercase text-[var(--terra-text-primary)]">
-                {t.sec02.radarTitle}
-              </h4>
-            </div>
-            <TerraBadge label={t.sec02.radarBadge} code="Z-DEPTH" variant="primary" />
-          </div>
-
-          <!-- Donut Chart component with interactive hover & center readout -->
-          <div class="py-2" style="transform: translateZ(40px);">
-            <TerraDonutChart
-              data={spatialDonutData}
-              size={220}
-              thickness={22}
-              title={t.sec02.donutTitle}
-              unit="%"
-            />
-          </div>
-
-          <!-- Bottom Micro-specifications Floating in 3D Space -->
-          <div class="pt-3 mt-4 border-t border-[var(--terra-border)] flex items-center justify-between font-mono text-[9px] text-[var(--terra-text-muted)]" style="transform: translateZ(20px);">
-            <span>{t.sec02.radarTilt}</span>
-            <span class="text-[var(--terra-accent-primary)] font-semibold">{t.sec02.radarSheen}</span>
-          </div>
-        </TerraSpatialCard>
-      </div>
-
-      <!-- Card B: 3D Industrial Telemetry & Rolling Dials (5 cols) -->
-      <div class="lg:col-span-5 flex flex-col justify-between gap-6">
-        <TerraSpatialCard
-          cut="tl-br"
-          maxRotation={18}
-          perspective={950}
-          sheen={true}
-          class="h-full flex flex-col justify-between"
-        >
-          <div style="transform: translateZ(32px);">
-            <div class="flex items-center justify-between pb-2 mb-3 border-b border-[var(--terra-border)]">
-              <span class="font-mono text-xs font-bold tracking-wider text-[var(--terra-text-primary)] uppercase">
-                {t.sec02.dialsTitle}
-              </span>
-              <TerraStatusBeacon status="online" label={t.sec02.dialsActive} />
-            </div>
-
-            <!-- Rolling Numbers in 3D Space -->
-            <div class="space-y-4 my-2">
-              <div class="p-3 bg-[var(--terra-bg-base)]/60 border border-[var(--terra-border)]">
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] block">{t.sec02.flowTitle}</span>
-                <div class="flex items-baseline justify-between mt-1">
-                  <TerraRollingNumber value={metricEfficiency} decimals={2} suffix="%" class="text-3xl font-black text-[var(--terra-accent-primary)]" />
-                  <TerraBadge label={t.sec02.flowBadge} variant="primary" />
-                </div>
-                <div class="mt-2 pt-1 border-t border-[var(--terra-border-subtle,rgba(255,255,255,0.06))]">
-                  <TerraSparkline data={[82, 85, 88, 86, 92, 90, 96, 94]} height={22} variant="accent" />
-                </div>
-              </div>
-
-              <div class="p-3 bg-[var(--terra-bg-base)]/60 border border-[var(--terra-border)]">
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] block">{t.sec02.latencyTitle}</span>
-                <div class="flex items-baseline justify-between mt-1">
-                  <TerraRollingNumber value={metricLatency} decimals={1} suffix="ms" class="text-3xl font-black text-[var(--terra-accent-secondary)]" />
-                  <TerraBadge label={t.sec02.latencyBadge} variant="success" />
-                </div>
-                <div class="mt-2 pt-1 border-t border-[var(--terra-border-subtle,rgba(255,255,255,0.06))]">
-                  <TerraSparkline data={[1.8, 1.4, 1.6, 1.2, 1.1, 0.9, 0.8, 0.7]} height={22} variant="success" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom floating action trigger -->
-          <div class="pt-3 border-t border-[var(--terra-border)] flex items-center justify-between" style="transform: translateZ(38px);">
-            <TerraBarcode code="SPATIAL-BUS-3D" serial="Z40-SHEEN" height={18} />
-            <TerraButton variant="primary" size="sm" cut="tr" onclick={cycleMetrics}>
-              {t.sec02.refreshTelemetry}
-            </TerraButton>
-          </div>
-        </TerraSpatialCard>
-      </div>
-
-    </div>
-
-    <!-- High-Density Tactical Telemetry Matrix (SPEC-0021) -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between font-mono text-xs text-[var(--terra-text-muted)] border-b border-[var(--terra-border)] pb-2">
-        <span class="flex items-center gap-2 text-[var(--terra-text-primary)] font-bold uppercase tracking-wider">
-          <span class="w-1.5 h-1.5 bg-[var(--terra-accent-primary)] animate-pulse"></span>
-          HIGH-DENSITY TACTICAL TELEMETRY MATRIX // 战术遥测仪表箱
-        </span>
-        <span class="font-telemetry text-[10px] text-[var(--terra-accent-primary)]">AIC.SPEC-0021 // LIVE</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <TerraTelemetryBox
-          stationId="ALPHA-01"
-          protocolTag="AIC.09"
-          label="TURBINE_CORE_EFFICIENCY"
-          value={metricEfficiency}
-          min={80}
-          max={100}
-          unit="%"
-          frequencyHz={fps}
-          hazardThreshold={0.98}
-        />
-        <TerraTelemetryBox
-          stationId="BETA-02"
-          protocolTag="BUS.48"
-          label="INDUSTRIAL_BUS_CHARGE"
-          value={energyBusValue * 10}
-          min={0}
-          max={100}
-          unit="%"
-          frequencyHz={50}
-          hazardThreshold={0.80}
-        />
-        <TerraTelemetryBox
-          stationId="GAMMA-03"
-          protocolTag="LAT.02"
-          label="NEURAL_BUS_LATENCY"
-          value={metricLatency}
-          min={0}
-          max={3}
-          unit="ms"
-          frequencyHz={120}
-          hazardThreshold={0.70}
-        />
-      </div>
-    </div>
-
-    <!-- Energy Bus Section (Recessed Industrial Chassis) -->
-    <div>
-      <TerraPanel title={t.sec02.busTitle} tag="// BUS.POWER" cut="tr-bl" decoration="endfield" warning={true}>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          <div class="space-y-4">
-            <TerraSegmentBar
-              bind:value={energyBusValue}
-              total={10}
-              label={t.sec02.busMain}
-              sublabel={`⚡ 480V THREE-PHASE // MAIN BUS LOAD ${Math.round((energyBusValue / 10) * 100)}% // NOMINAL`}
-            />
-            <TerraSegmentBar
-              value={9}
-              total={12}
-              label={t.sec02.busBurst}
-              sublabel={t.sec02.busBurstSub}
-            />
-
-            <!-- Micro Vernier Precision Scale Track -->
-            <div class="p-2.5 bg-[var(--terra-bg-base)]/50 border border-[var(--terra-border)] space-y-1.5">
-              <div class="flex items-center justify-between text-[10px] font-mono text-[var(--terra-text-muted)]">
-                <span class="font-tactical tracking-wider uppercase">VERNIER_SCALE // BUS_VOLTAGE_RATIO</span>
-                <span class="text-[var(--terra-accent-primary)] font-bold font-telemetry">{energyBusValue * 10}%</span>
-              </div>
-              <TerraVernierMeter value={energyBusValue * 10} min={0} max={100} ticks={10} hazard={energyBusValue >= 9} />
-            </div>
-          </div>
-          <div class="font-mono text-xs text-[var(--terra-text-muted)] space-y-1">
-            {#each t.sec02.busNotes as note}
-              <p>{note}</p>
-            {/each}
-          </div>
-        </div>
-      </TerraPanel>
-    </div>
-
-    <!-- Scroll Down Prompt -->
-    <div class="flex items-center justify-center pt-4">
-      <button
-        type="button"
-        onclick={() => scrollToSection('section-03')}
-        class="flex flex-col items-center gap-1 font-mono text-[11px] text-[var(--terra-text-muted)] hover:text-[var(--terra-accent-primary)] transition-colors"
-      >
-        <span>{t.sec02.scrollDown}</span>
-        <span class="animate-bounce">↓</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- ====================================================================
-       SECTION 03: UNIVERSAL COMPONENT MATRIX & PARAMETRIC LAB
-       ==================================================================== -->
-  <section
-    id="section-03"
-    data-section="03"
-    class="min-h-[calc(100vh-4rem)] snap-start flex flex-col justify-center py-12 space-y-8 scroll-mt-16"
-  >
-    <!-- Section Header Tagline -->
-    <div class="flex items-center gap-2 font-mono text-xs text-[var(--terra-accent-primary)] tracking-widest uppercase">
-      <span class="px-2 py-0.5 bg-[var(--terra-accent-primary)] text-black font-bold">SECTION 03</span>
-      <span>//</span>
-      <span>{t.sec03.tag}</span>
-    </div>
-
-    <div class="pb-4 border-b border-[var(--terra-border)]">
-      <h3 class="font-display text-3xl sm:text-4xl font-bold uppercase tracking-wide text-[var(--terra-text-primary)]">
-        {t.sec03.title}
-      </h3>
-      <p class="font-mono text-xs text-[var(--terra-text-muted)] mt-1">
-        {t.sec03.sub}
-      </p>
-    </div>
-
-    <!-- Dual-Track Primitives Matrix (Left: 2D Flat / Right: 3D Spatial) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Track A: 2D Graphic Primitives & Charts (6 cols) -->
-      <div class="lg:col-span-6 space-y-6">
-        <TerraPanel title={t.sec03.panel2DTitle} tag="// AXIS-2D" cut="tr-bl" decoration="rhodes">
-          <div class="space-y-5">
-            
-            <!-- 1. Buttons Matrix -->
-            <div class="space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.btnMatrixTitle}
-              </span>
-              <div class="flex flex-wrap items-center gap-2">
-                <TerraButton variant="primary" cut="tr-bl" size="sm">{t.sec03.btnPrimary}</TerraButton>
-                <TerraButton variant="outline" cut="tl-br" size="sm">{t.sec03.btnOutline}</TerraButton>
-                <TerraButton variant="ghost" cut="none" size="sm">{t.sec03.btnGhost}</TerraButton>
-                <TerraButton variant="danger" cut="tr" size="sm">{t.sec03.btnDanger}</TerraButton>
-                <TerraButton variant="primary" size="md">{t.sec03.btnMedium}</TerraButton>
-                <TerraButton variant="outline" size="lg" cut="tr">{t.sec03.btnLarge}</TerraButton>
-                <TerraButton variant="outline" size="sm" disabled>{t.sec03.btnDisabled}</TerraButton>
-              </div>
-            </div>
-
-            <!-- 2. Badges Matrix -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.badgeMatrixTitle}
-              </span>
-              <div class="flex flex-wrap items-center gap-2">
-                <TerraBadge label={t.sec03.badgePrimary} code="PRM" variant="primary" />
-                <TerraBadge label={t.sec03.badgeWarning} code="WRN" variant="warning" />
-                <TerraBadge label={t.sec03.badgeDanger} code="DNG" variant="danger" />
-                <TerraBadge label={t.sec03.badgeSuccess} code="SUC" variant="success" />
-                <TerraBadge label={t.sec03.badgeOutline} code="OUT" variant="outline" />
-              </div>
-            </div>
-
-            <!-- 3. Status Beacons -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.beaconMatrixTitle}
-              </span>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <TerraStatusBeacon status="online" label={t.sec03.beaconOnline} />
-                <TerraStatusBeacon status="standby" label={t.sec03.beaconStandby} />
-                <TerraStatusBeacon status="alert" label={t.sec03.beaconAlert} />
-                <TerraStatusBeacon status="offline" label={t.sec03.beaconOffline} pulse={false} />
-              </div>
-            </div>
-
-            <!-- 4. Barcodes -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.barcodeMatrixTitle}
-              </span>
-              <div class="flex flex-wrap items-center justify-between gap-4">
-                <TerraBarcode code="TERRA-2D-STD" serial="SER-8492" height={22} />
-                <TerraBarcode code="SYSTEM-SECURITY" serial="LV-04" height={22} />
-              </div>
-            </div>
-
-            <!-- 5. Inputs -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.inputMatrixTitle}
-              </span>
-              <TerraInput bind:value={customMatrixInput} prefix="AXIS-2D//>" placeholder={t.sec03.inputPlaceholder} />
-            </div>
-
-            <!-- 6. Compact Line Chart -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.oscTitle}
-              </span>
-              <TerraLineChart
-                data={signalTelemetryData.slice(0, 5)}
-                height={120}
-              />
-            </div>
-
-          </div>
-        </TerraPanel>
-      </div>
-
-      <!-- Track B: 3D Spatial & Industrial Primitives (6 cols) -->
-      <div class="lg:col-span-6 space-y-6">
-        <TerraPanel title={t.sec03.panel3DTitle} tag="// AXIS-3D" cut="tl-br" decoration="endfield">
-          <div class="space-y-5">
-            
-            <!-- 1. Mini Spatial Card Demonstration -->
-            <div class="space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.spatialCardTitle}
-              </span>
-              <TerraSpatialCard cut="tr-bl" maxRotation={15} perspective={800} class="p-1">
-                <div class="flex items-center justify-between" style="transform: translateZ(25px);">
-                  <div>
-                    <span class="font-mono text-xs font-bold text-[var(--terra-text-primary)] block">
-                      {t.sec03.tiltChassis}
-                    </span>
-                    <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">
-                      {t.sec03.parallaxDesc}
-                    </span>
-                  </div>
-                  <TerraBadge label="3D HOVER" code="ACT" variant="primary" />
-                </div>
-              </TerraSpatialCard>
-            </div>
-
-            <!-- 2. Recessed Energy Segment Bar -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.segBarTitle}
-              </span>
-              <TerraSegmentBar
-                value={energyBusValue}
-                total={10}
-                label={t.sec03.segBarLabel}
-                sublabel={t.sec03.segBarSub}
-              />
-            </div>
-
-            <!-- 3. Vertical Tabs & Floating Cursor -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.vtabsTitle}
-              </span>
-              <TerraVerticalTabs
-                items={sectorTabs}
-                bind:selectedKey={selectedSector}
-                itemHeight="2.4rem"
-                itemGap="0.3rem"
-              />
-            </div>
-
-            <!-- 4. Corner Brackets & Cad Pattern Preview -->
-            <div class="pt-3 border-t border-[var(--terra-border)] space-y-2">
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider block">
-                {t.sec03.bracketsTitle}
-              </span>
-              <TerraCornerBrackets label="[HUD.CAD // TARGET_GRID]" size="sm" active={true}>
-                <TerraCadPattern patternSize={40} opacity={0.25} hoverHighlight={true}>
-                  <div class="p-3 bg-black/40 text-center font-mono text-[10px] text-[var(--terra-text-secondary)]">
-                    {t.sec03.bracketsHud}
-                  </div>
-                </TerraCadPattern>
-              </TerraCornerBrackets>
-            </div>
-
-          </div>
-        </TerraPanel>
-      </div>
-
-    </div>
-
-    <!-- Interactive Parametric Calibration Lab -->
-    <div>
-      <TerraCadPattern patternSize={110} opacity={0.14}>
-        <TerraPanel
-          title={t.sec03.labTitle}
-          tag="// HUD.DEBUG"
-          cut="tr-bl"
-          cutSize={cutSize}
-          decoration={labPanelDecoration}
-          chamferBorder={labChamferBorder}
-        >
-          {#snippet actions()}
-            <div class="flex items-center gap-2">
-              <!-- Preset Selector -->
-              <div class="flex items-center gap-1 bg-black/30 p-1 border border-[var(--terra-border)] rounded-xs">
-                <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mr-1 hidden sm:inline">PANEL:</span>
-                {#each (['endfield', 'rhodes', 'industrial', 'brackets', 'clean'] as const) as preset}
-                  <button
-                    type="button"
-                    class="px-1.5 py-0.5 font-mono text-[9px] uppercase border transition-colors {labPanelDecoration === preset ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-transparent text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
-                    onclick={() => labPanelDecoration = preset}
-                  >
-                    {preset}
-                  </button>
-                {/each}
-              </div>
-
-              <!-- Sealed vs Open Chamfer Border Toggle -->
-              <button
-                type="button"
-                class="px-2 py-1 font-mono text-[9px] uppercase border transition-colors {labChamferBorder ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)] font-bold' : 'border-[var(--terra-border)] text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
-                onclick={() => labChamferBorder = !labChamferBorder}
-                title="Toggle 45° Chamfer Border (Sealed vs Open Cut)"
+          {#each brandLetters as ch, idx (idx)}
+            <span class="ed-roll-char relative inline-block" style="--ci: {idx};">
+              <span class="block">{ch}</span>
+              <span class="block absolute left-0 top-full text-[var(--terra-accent-primary)]"
+                >{ch}</span
               >
-                {labChamferBorder ? '🛡️ SEALED' : '⚡ OPEN CUT'}
-              </button>
-            </div>
-          {/snippet}
+            </span>
+          {/each}
+        </a>
 
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-              
-              <!-- Sector Navigation: 4 cols -->
-              <div class="md:col-span-4 space-y-4">
-                <div class="flex items-center justify-between font-mono text-xs">
-                  <span class="text-[var(--terra-text-muted)]">{t.sec03.sectorsTitle}</span>
-                  <span class="text-[var(--terra-accent-primary)] font-bold">[{selectedSector.toUpperCase()}]</span>
+        <span class="hidden xl:inline font-mono text-xs text-[var(--terra-text-muted)] truncate">
+          {isZh ? currentThemeMeta.subtitleZh : currentThemeMeta.subtitleEn}
+        </span>
+
+        <div
+          class="flex items-center border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] p-0.5 shrink-0"
+        >
+          <button
+            type="button"
+            onclick={() => switchView('demo')}
+            class="terra-t-color px-2.5 py-0.5 font-mono text-[11px] font-medium cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {viewMode ===
+            'demo'
+              ? 'bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)]'
+              : 'text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
+          >
+            {t.nav.showcase}
+          </button>
+          <button
+            type="button"
+            onclick={() => switchView('docs')}
+            class="terra-t-color px-2.5 py-0.5 font-mono text-[11px] font-medium cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {viewMode ===
+            'docs'
+              ? 'bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)]'
+              : 'text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
+          >
+            {t.nav.docs}
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0">
+        <div
+          class="flex items-center gap-0.5 p-0.5 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)]"
+        >
+          {#each TERRA_THEMES as theme (theme.id)}
+            {@const isCurrent = currentTheme === theme.id}
+            <button
+              type="button"
+              onclick={() => applyTheme(theme.id)}
+              title={isZh ? theme.subtitleZh : theme.subtitleEn}
+              class="terra-t-color inline-flex items-center gap-1.5 px-2 py-0.5 font-mono text-[11px] font-medium cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {isCurrent
+                ? 'bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)]'
+                : 'text-[var(--terra-text-muted)] hover:text-[var(--terra-text-primary)]'}"
+            >
+              <span
+                class="w-2 h-2 rounded-full shrink-0"
+                style="background-color: {currentMode === 'dark'
+                  ? theme.darkSwatch
+                  : theme.lightSwatch};"
+              ></span>
+              <span class="hidden lg:inline">{isZh ? theme.labelZh : theme.labelEn}</span>
+            </button>
+          {/each}
+        </div>
+
+        <div
+          class="flex items-center border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] p-0.5"
+        >
+          <button
+            type="button"
+            onclick={() => i18n.setLocale('zh')}
+            class="terra-t-color px-1.5 py-0.5 font-mono text-[11px] font-medium cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {isZh
+              ? 'bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)]'
+              : 'text-[var(--terra-text-muted)]'}"
+          >
+            中文
+          </button>
+          <button
+            type="button"
+            onclick={() => i18n.setLocale('en')}
+            class="terra-t-color px-1.5 py-0.5 font-mono text-[11px] font-medium cursor-pointer focus-visible:outline-1 focus-visible:outline-[var(--terra-accent-primary)] {!isZh
+              ? 'bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)]'
+              : 'text-[var(--terra-text-muted)]'}"
+          >
+            EN
+          </button>
+        </div>
+
+        {#if viewMode === 'demo'}
+          <button
+            type="button"
+            onclick={() => (crosshairEnabled = !crosshairEnabled)}
+            title={isZh ? '切换跟随准星' : 'Toggle pointer crosshair'}
+            aria-label="Toggle crosshair"
+            class="terra-pressable hidden md:inline-flex items-center p-1.5 border border-[var(--terra-border)] cursor-pointer {crosshairEnabled
+              ? 'text-[var(--terra-accent-primary)]'
+              : 'text-[var(--terra-text-muted)]'}"
+          >
+            <Crosshair class="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onclick={() => (headlineKey += 1)}
+            title={t.nav.replayType}
+            class="terra-pressable hidden sm:inline-flex items-center gap-1 px-2 py-1 border border-[var(--terra-border)] text-xs font-medium text-[var(--terra-text-secondary)] hover:text-[var(--terra-text-primary)] cursor-pointer"
+          >
+            <RotateCcw class="w-3.5 h-3.5" />
+            <span class="hidden xl:inline">{t.nav.replayType}</span>
+          </button>
+        {/if}
+
+        <button
+          type="button"
+          onclick={(e) => toggleMode({ x: e.clientX, y: e.clientY })}
+          class="terra-pressable inline-flex items-center gap-1.5 px-2.5 py-1 border border-[var(--terra-border)] text-xs font-medium cursor-pointer hover:border-[var(--terra-border-strong)]"
+        >
+          {#if currentMode === 'dark'}
+            <Sun class="w-3.5 h-3.5" />
+            <span class="hidden sm:inline">{t.nav.paper}</span>
+          {:else}
+            <Moon class="w-3.5 h-3.5" />
+            <span class="hidden sm:inline">{t.nav.ink}</span>
+          {/if}
+        </button>
+      </div>
+    </div>
+  </header>
+
+  {#if viewMode === 'docs'}
+    <TerraDocsView locale={i18n.locale} onSwitchToDemo={() => switchView('demo')} />
+  {:else}
+    <main id="top">
+      <section class="border-b border-[var(--terra-border)]">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12">
+          {#key headlineKey}
+            <div
+              class="lg:col-span-6 flex flex-col justify-between lg:border-r border-[var(--terra-border)]"
+            >
+              <div class="px-4 sm:px-8 py-10 sm:py-14 space-y-7">
+                <div
+                  class="terra-stage-enter flex items-center gap-2 font-mono text-xs font-medium tracking-wider uppercase text-[var(--terra-text-muted)]"
+                >
+                  <span class="w-2 h-2 rounded-full bg-[var(--terra-accent-primary)]"></span>
+                  <span>{t.editorial.eyebrow}</span>
                 </div>
-                <TerraVerticalTabs
-                  items={sectorTabs}
-                  bind:selectedKey={selectedSector}
-                  itemHeight="2.6rem"
-                  itemGap="0.4rem"
-                />
 
-                <div class="flex items-center justify-between pt-4 border-t border-[var(--terra-border)]">
-                  <div>
-                    <span class="font-mono text-xs text-[var(--terra-text-primary)] block">{t.sec03.contourLabel}</span>
-                    <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">{t.sec03.contourSub}</span>
-                  </div>
+                <h1
+                  class="font-display text-4xl sm:text-5xl xl:text-6xl font-bold tracking-[-0.04em] leading-[1.04]"
+                >
+                  <span class="block overflow-hidden pb-1">
+                    <span class="ed-line-reveal inline-block" style="--d: 0ms;"
+                      >{t.editorial.line1}</span
+                    >
+                  </span>
+                  <span class="block overflow-hidden pb-1">
+                    <span class="ed-line-reveal inline-block" style="--d: 90ms;"
+                      >{t.editorial.line2}</span
+                    >
+                  </span>
+                  <span class="block overflow-hidden pb-1">
+                    <span
+                      class="ed-line-reveal inline-block text-[var(--terra-accent-primary)]"
+                      style="--d: 180ms;"
+                    >
+                      {t.editorial.line3}
+                    </span>
+                  </span>
+                </h1>
+
+                <p
+                  class="text-sm sm:text-base max-w-[46ch] leading-relaxed text-[var(--terra-text-secondary)]"
+                >
+                  {t.editorial.lead}
+                </p>
+
+                <div class="flex flex-wrap items-center gap-3 pt-1">
                   <TerraButton
-                    size="sm"
-                    variant={contourEnabled ? 'primary' : 'outline'}
-                    onclick={() => contourEnabled = !contourEnabled}
+                    variant="primary"
+                    size="md"
+                    magneticPull={true}
+                    onclick={() =>
+                      document.getElementById('ed-index')?.scrollIntoView({ behavior: 'smooth' })}
                   >
-                    {contourEnabled ? t.sec03.visible : t.sec03.hidden}
+                    <span>{t.editorial.ctaExplore}</span>
+                    <ArrowUpRight class="w-4 h-4" />
+                  </TerraButton>
+
+                  <TerraButton variant="outline" size="md" onclick={sampleMetrics}>
+                    {t.editorial.ctaSample}
                   </TerraButton>
                 </div>
               </div>
 
-              <!-- Vertical Tactical Sliders Bay: 3 cols -->
-              <div class="md:col-span-3 flex flex-col items-center justify-between p-5 bg-[var(--terra-bg-surface-active)]/30 border border-[var(--terra-border)] rounded-xs self-stretch min-h-[19rem]">
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] uppercase tracking-wider mb-2 text-center">
-                  {t.sec03.sliderTitle}
-                </span>
-                <div class="flex items-center justify-around w-full gap-6 px-3 my-auto">
-                  <!-- Chamfer Cut Slider -->
-                  <TerraVerticalSlider
-                    bind:value={cutSize}
-                    min={4}
-                    max={24}
-                    step={1}
-                    height="10.5rem"
-                    width="1.6rem"
-                    label={t.sec03.chamferLabel}
-                    unit="px"
-                    fluidDecorations={true}
-                  />
-
-                  <!-- Zoom Factor Slider -->
-                  <TerraVerticalSlider
-                    bind:value={zoomFactor}
-                    min={50}
-                    max={150}
-                    step={5}
-                    height="10.5rem"
-                    width="1.6rem"
-                    label={t.sec03.zoomLabel}
-                    unit="%"
-                    fluidDecorations={true}
-                  />
+              <div
+                class="grid grid-cols-3 border-t border-[var(--terra-border)] divide-x divide-[var(--terra-border)]"
+              >
+                <div class="px-4 sm:px-6 py-4">
+                  <div
+                    class="font-mono text-[10px] uppercase tracking-wider text-[var(--terra-text-muted)]"
+                  >
+                    {t.editorial.kpiThroughput}
+                  </div>
+                  <div class="mt-0.5 flex items-baseline gap-1">
+                    <TerraRollingNumber
+                      value={throughput}
+                      decimals={1}
+                      class="text-xl sm:text-2xl"
+                    />
+                    <span class="font-mono text-xs text-[var(--terra-text-muted)]">GB/s</span>
+                  </div>
                 </div>
-                <span class="font-mono text-[9px] text-[var(--terra-text-muted)] mt-2 text-center">
-                  {t.sec03.gpuHint}
-                </span>
+
+                <div class="px-4 sm:px-6 py-4">
+                  <div
+                    class="font-mono text-[10px] uppercase tracking-wider text-[var(--terra-text-muted)]"
+                  >
+                    {t.editorial.kpiLatency}
+                  </div>
+                  <div class="mt-0.5 flex items-baseline gap-1">
+                    <TerraRollingNumber value={latency} decimals={1} class="text-xl sm:text-2xl" />
+                    <span class="font-mono text-xs text-[var(--terra-accent-primary)]">ms</span>
+                  </div>
+                </div>
+
+                <div class="px-4 sm:px-6 py-4">
+                  <div
+                    class="font-mono text-[10px] uppercase tracking-wider text-[var(--terra-text-muted)]"
+                  >
+                    {t.editorial.kpiUptime}
+                  </div>
+                  <div class="mt-0.5">
+                    <TerraRollingNumber
+                      value={uptime}
+                      decimals={2}
+                      suffix="%"
+                      class="text-xl sm:text-2xl"
+                    />
+                  </div>
+                </div>
               </div>
+            </div>
+          {/key}
 
-              <!-- Live Morphing Viewport Card: 5 cols -->
-              <div class="md:col-span-5">
-                <TerraCornerBrackets label="[{selectedSector.toUpperCase()} // REALTIME VIEWPORT]" size="sm" active={true}>
-                  <TerraCadPattern patternSize={60} opacity={0.25} hoverHighlight={true}>
-                    <div
-                      class="p-6 bg-[var(--terra-bg-surface-hover)] border border-[var(--terra-border-strong)] terra-cut-tl-br flex flex-col justify-between min-h-[16rem] shadow-xl overflow-hidden transition-all duration-200"
+          <div
+            class="lg:col-span-6 flex flex-col border-t lg:border-t-0 border-[var(--terra-border)]"
+          >
+            <div
+              class="px-4 py-2 border-b border-[var(--terra-border)] bg-[var(--terra-bg-surface)] flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-[var(--terra-text-muted)]"
+            >
+              <span>{t.editorial.plateHeaderLeft}</span>
+              <span>{t.editorial.plateHeaderRight}</span>
+            </div>
+            <div class="flex-1">
+              <TerraAsciiStage />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ed-index" class="border-b border-[var(--terra-border)]">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12">
+          <div class="lg:col-span-7 lg:border-r border-[var(--terra-border)] flex flex-col">
+            <div
+              class="px-4 sm:px-8 py-4 border-b border-[var(--terra-border)] flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[var(--terra-text-muted)]"
+            >
+              <span>{t.editorial.indexTitle}</span>
+              <span>{t.editorial.indexCount}</span>
+            </div>
+
+            <div
+              bind:this={indexListEl}
+              role="region"
+              aria-label={t.editorial.indexTitle}
+              onpointerleave={handleIndexListLeave}
+              class="relative divide-y divide-[var(--terra-border)]"
+            >
+              {#each t.editorial.specimens as item, idx (item.id)}
+                {@const selected = activeSpecimen === item.id}
+                <button
+                  bind:this={rowEls[idx]}
+                  type="button"
+                  onpointerenter={(e) => handleSpecimenEnter(item.id, e)}
+                  onfocus={() => selectSpecimenImmediate(item.id)}
+                  onclick={() => selectSpecimenImmediate(item.id)}
+                  class="w-full text-left px-4 sm:px-8 py-6 cursor-pointer flex items-center justify-between gap-4 focus-visible:outline-1 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--terra-accent-primary)]"
+                  aria-current={selected ? 'true' : undefined}
+                >
+                  <div class="flex items-baseline gap-5 min-w-0">
+                    <span
+                      class="font-mono text-xs font-medium tabular-nums shrink-0 text-[var(--terra-text-muted)]"
                     >
-                      <div class="flex justify-between items-start">
-                        <div class="space-y-0.5">
-                          <span class="font-mono text-xs text-[var(--terra-accent-primary)] font-bold block">
-                            // {sectorTelemetry.name}
-                          </span>
-                          <span class="font-mono text-[9px] text-[var(--terra-text-muted)] tracking-wider">
-                            {t.sec03.statusLabel} <strong class="text-[var(--terra-text-primary)]">{sectorTelemetry.status}</strong>
-                          </span>
-                        </div>
-                        <TerraBarcode code={selectedSector.toUpperCase()} serial={`${cutSize}PX-${zoomFactor}%`} height={18} />
-                      </div>
-
-                      <!-- Interactive Zoomed Inner Frame -->
+                      {item.num}
+                    </span>
+                    <div class="min-w-0">
                       <div
-                        class="my-3 p-3 bg-black/30 border border-dashed border-[var(--terra-border)] flex flex-col items-center justify-center transition-transform duration-150 origin-center"
-                        style="transform: scale({zoomFactor / 100});"
+                        class="font-display text-xl sm:text-2xl font-bold tracking-tight truncate text-[var(--terra-text-primary)]"
                       >
-                        <div class="font-display text-xl font-bold tracking-widest text-[var(--terra-text-primary)] uppercase text-center">
-                          {sectorTelemetry.name}
-                        </div>
-                        <div class="font-mono text-[10px] text-[var(--terra-accent-primary)] tracking-tight mt-1 text-center">
-                          {sectorTelemetry.coord}
-                        </div>
-                        <div class="font-mono text-[9px] text-[var(--terra-text-secondary)] mt-0.5 text-center">
-                          FIELD: {sectorTelemetry.density}
-                        </div>
+                        {item.name}
                       </div>
+                      <div class="text-xs mt-0.5 truncate text-[var(--terra-text-muted)]">
+                        {item.category} · {item.summary}
+                      </div>
+                    </div>
+                  </div>
 
-                      <div class="flex justify-between items-end border-t border-[var(--terra-border)] pt-2 font-mono text-[10px] text-[var(--terra-text-secondary)]">
-                        <div>
-                          {t.sec03.chamferVal} <span class="text-[var(--terra-accent-primary)] font-bold">{cutSize}px</span> |
-                          {t.sec03.zoomVal} <span class="text-[var(--terra-accent-primary)] font-bold">{zoomFactor}%</span>
+                  <ArrowUpRight class="w-5 h-5 shrink-0 text-[var(--terra-text-muted)]" />
+                </button>
+              {/each}
+
+              <div
+                aria-hidden="true"
+                class="ed-lens-overlay pointer-events-none absolute inset-0 z-[2] divide-y divide-transparent bg-[var(--terra-text-primary)] text-[var(--terra-text-inverse)]"
+                style="clip-path: inset({lensTop.current.toFixed(
+                  2
+                )}px 0 {lensBottom.current.toFixed(2)}px 0);"
+              >
+                {#each t.editorial.specimens as item (item.id)}
+                  <div
+                    class="w-full text-left px-4 sm:px-8 py-6 flex items-center justify-between gap-4"
+                  >
+                    <div class="flex items-baseline gap-5 min-w-0">
+                      <span
+                        class="font-mono text-xs font-medium tabular-nums shrink-0 text-[var(--terra-accent-primary)]"
+                      >
+                        {item.num}
+                      </span>
+                      <div class="min-w-0">
+                        <div
+                          class="font-display text-xl sm:text-2xl font-bold tracking-tight truncate"
+                        >
+                          {item.name}
                         </div>
-                        <div class="text-[var(--terra-text-muted)] uppercase">
-                          {t.sec03.themeVal} <span class="text-[var(--terra-text-primary)] font-bold">{currentTheme}</span>
+                        <div class="text-xs mt-0.5 truncate opacity-80">
+                          {item.category} · {item.summary}
                         </div>
                       </div>
                     </div>
-                  </TerraCadPattern>
-                </TerraCornerBrackets>
+
+                    <ArrowUpRight
+                      class="w-5 h-5 shrink-0 text-[var(--terra-accent-primary)] translate-x-0.5 -translate-y-0.5"
+                    />
+                  </div>
+                {/each}
               </div>
             </div>
-          </TerraPanel>
-        </TerraCadPattern>
-      </div>
+          </div>
 
-    <!-- ==================================================================
-         LEGAL DISCLAIMER & INSPIRATION ATTRIBUTION PANEL (TICKET-03)
-         ================================================================== -->
-    <div id="section-legal" class="pt-8 scroll-mt-24">
-      <TerraCornerBrackets label="[LEGAL & INSPIRATION ATTRIBUTION]" size="sm" active={true}>
-        <div class="p-6 bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] terra-cut-tl-br shadow-xl space-y-6">
-          
-          <!-- Top Tag & Clearance Level -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--terra-border)] pb-4">
-            <div class="flex items-center gap-3">
-              <span class="w-2.5 h-6 bg-[var(--terra-accent-primary)] terra-cut-tr"></span>
-              <div>
-                <h3 class="font-mono text-sm sm:text-base font-bold uppercase tracking-wider text-[var(--terra-text-primary)]">
-                  {t.footer.disclaimerTag}
-                </h3>
-                <span class="font-mono text-[10px] text-[var(--terra-text-muted)] tracking-wider">
-                  NON-COMMERCIAL // ACADEMIC RESEARCH & UI/UX EXPLORATION ONLY
+          <div class="lg:col-span-5 px-4 sm:px-8 py-8 flex flex-col justify-between">
+            <div class="lg:sticky lg:top-[calc(var(--terra-header-h)+24px)] space-y-6">
+              <div
+                class="flex items-center justify-between border-b border-[var(--terra-border)] pb-3"
+              >
+                <span
+                  class="font-mono text-xs uppercase tracking-wider text-[var(--terra-text-muted)]"
+                >
+                  {t.editorial.stageLabel} · {currentSpecimen.num}
+                </span>
+                <span class="text-xs font-semibold text-[var(--terra-accent-primary)]">
+                  {currentSpecimen.name}
                 </span>
               </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <TerraBadge variant="outline" label="ZERO RUNTIME CLUTTER" code="OK" />
-              <TerraBadge variant="primary" label="NO ASSET UNPACKING" code="SEC" />
-            </div>
-          </div>
 
-          <!-- Main Legal Disclaimer Text -->
-          <div class="bg-[var(--terra-bg-base)]/70 border-l-2 border-[var(--terra-accent-primary)] p-4 font-mono text-xs sm:text-sm text-[var(--terra-text-secondary)] leading-relaxed space-y-2">
-            <div class="text-[11px] font-bold text-[var(--terra-accent-primary)] uppercase tracking-wider">
-              ◤ NOTICE // INTELLECTUAL PROPERTY & ETHICAL BOUNDARY ◢
-            </div>
-            <p class="text-[var(--terra-text-primary)] leading-relaxed">
-              {t.footer.disclaimerText}
-            </p>
-          </div>
-
-          <!-- Primary References & Citation Links -->
-          <div class="space-y-3 pt-1">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-              <span class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--terra-accent-primary)] flex items-center gap-2">
-                <span>🔗</span>
-                <span>{t.footer.refTitle}</span>
-              </span>
-              <span class="font-mono text-[10px] text-[var(--terra-text-muted)]">
-                EXTERNAL VERIFICATION (OPENS NEW WINDOW)
-              </span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {#each t.footer.refLinks as ref}
-                <TerraButton
-                  variant="outline"
-                  size="sm"
-                  onclick={() => window.open(ref.url, '_blank', 'noopener,noreferrer')}
-                  class="w-full justify-between text-left py-2 hover:border-[var(--terra-accent-primary)]"
+              <div class="grid grid-cols-1 grid-rows-1 items-center min-h-[250px] py-2">
+                <div
+                  class="col-start-1 row-start-1 terra-stage-slot space-y-4"
+                  data-active={activeSpecimen === 'button'}
+                  inert={activeSpecimen !== 'button'}
                 >
-                  <span class="truncate font-mono text-xs font-semibold">{ref.label}</span>
-                  <span class="text-[9px] px-1.5 py-0.5 bg-[var(--terra-bg-base)] text-[var(--terra-accent-primary)] border border-[var(--terra-border)] shrink-0 ml-2">
-                    {ref.badge} ↗
-                  </span>
-                </TerraButton>
-              {/each}
+                  <div class="flex flex-wrap items-center gap-3">
+                    <TerraButton
+                      variant="primary"
+                      magneticPull={true}
+                      onclick={() => (clickCount += 1)}
+                    >
+                      {isZh ? `触发动作 (${clickCount})` : `Trigger (${clickCount})`}
+                    </TerraButton>
+                    <TerraButton variant="outline" onclick={() => (clickCount = 0)}>
+                      {isZh ? '重置' : 'Reset'}
+                    </TerraButton>
+                    <TerraButton variant="ghost" onclick={sampleMetrics}>
+                      {isZh ? '采样' : 'Sample'}
+                    </TerraButton>
+                  </div>
+                  <p class="text-xs text-[var(--terra-text-muted)]">
+                    {t.editorial.specimens[0]?.summary}
+                  </p>
+                </div>
+
+                <div
+                  class="col-start-1 row-start-1 terra-stage-slot space-y-4"
+                  data-active={activeSpecimen === 'tabs'}
+                  inert={activeSpecimen !== 'tabs'}
+                >
+                  <TerraVerticalTabs
+                    items={t.sectorTabs}
+                    bind:selectedKey={selectedSector}
+                    itemHeight="2.4rem"
+                  />
+                  <div
+                    class="p-3 border border-[var(--terra-border)] bg-[var(--terra-bg-surface)] space-y-1 text-xs"
+                  >
+                    <div class="font-semibold text-[var(--terra-text-primary)]">
+                      {currentSector.name}
+                    </div>
+                    <div class="font-mono text-[11px] text-[var(--terra-text-muted)]">
+                      {currentSector.coord} · {currentSector.density}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="col-start-1 row-start-1 terra-stage-slot space-y-4"
+                  data-active={activeSpecimen === 'meter'}
+                  inert={activeSpecimen !== 'meter'}
+                >
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-mono text-xs uppercase text-[var(--terra-text-muted)]">
+                      {isZh ? '游标卡尺刻度' : 'Vernier Caliper'}
+                    </span>
+                    <TerraRollingNumber
+                      value={meterValue}
+                      decimals={0}
+                      suffix="%"
+                      class="text-3xl"
+                    />
+                  </div>
+                  <TerraVernierMeter
+                    bind:value={meterValue}
+                    interactive={true}
+                    min={0}
+                    max={100}
+                    ticks={25}
+                    hazard={meterValue >= 88}
+                  />
+                  <p class="font-mono text-[11px] text-[var(--terra-text-muted)]">
+                    {isZh
+                      ? '直接拖拽卡尺刻度或使用左右方向键微调'
+                      : 'Drag caliper directly or nudge with arrow keys'}
+                  </p>
+                </div>
+
+                <form
+                  onsubmit={(e) => {
+                    e.preventDefault()
+                    submitCommand()
+                  }}
+                  class="col-start-1 row-start-1 terra-stage-slot space-y-4"
+                  data-active={activeSpecimen === 'input'}
+                  inert={activeSpecimen !== 'input'}
+                >
+                  <TerraInput bind:value={commandInput} prefix="CMD>" />
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono text-[11px] text-[var(--terra-text-muted)]">
+                      {commandInput.length} chars
+                    </span>
+                    <TerraButton type="submit" size="sm">
+                      {isZh ? '执行指令' : 'Execute'}
+                    </TerraButton>
+                  </div>
+                  {#if toastMessage}
+                    <div
+                      class="terra-toast-enter flex items-center gap-2 px-3 py-2 border border-[var(--terra-border-accent)] bg-[var(--terra-accent-primary-dim)] text-xs font-mono"
+                    >
+                      <Check class="w-3.5 h-3.5 text-[var(--terra-accent-primary)] shrink-0" />
+                      <span class="truncate">{toastMessage}</span>
+                    </div>
+                  {/if}
+                </form>
+
+                <div
+                  class="col-start-1 row-start-1 terra-stage-slot"
+                  data-active={activeSpecimen === 'surface'}
+                  inert={activeSpecimen !== 'surface'}
+                >
+                  <TerraPanel title={isZh ? '档案平版容器' : 'Editorial Plate'} tag="FLAT 2D">
+                    <div class="space-y-4">
+                      <div class="flex flex-wrap gap-2">
+                        <TerraBadge
+                          label={isZh ? '标称运行' : 'NOMINAL'}
+                          code="SYS"
+                          variant="primary"
+                        />
+                        <TerraBadge
+                          label={isZh ? '高负载' : 'ELEVATED'}
+                          code="CPU"
+                          variant="warning"
+                        />
+                        <TerraBadge
+                          label={isZh ? '已校验' : 'VERIFIED'}
+                          code="OK"
+                          variant="success"
+                        />
+                      </div>
+                      <div
+                        class="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--terra-border)]"
+                      >
+                        <TerraStatusBeacon status="online" label={isZh ? '在线' : 'Online'} />
+                        <TerraStatusBeacon status="standby" label={isZh ? '待机' : 'Standby'} />
+                        <TerraStatusBeacon status="alert" label={isZh ? '告警' : 'Alert'} />
+                      </div>
+                    </div>
+                  </TerraPanel>
+                </div>
+              </div>
+
+              <div
+                class="pt-4 border-t border-[var(--terra-border)] text-xs flex items-center justify-between text-[var(--terra-text-muted)]"
+              >
+                <span>{currentSpecimen.category}</span>
+                <span class="font-mono">{t.editorial.stageFooter}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="terra-deferred-section border-b border-[var(--terra-border)]">
+        <div use:scrollReveal class="max-w-7xl mx-auto px-4 sm:px-8 py-12 space-y-6">
+          <div
+            class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-[var(--terra-border)] pb-4"
+          >
+            <div>
+              <div
+                class="font-mono text-xs uppercase tracking-wider text-[var(--terra-accent-primary)]"
+              >
+                {t.editorial.chartsSectionEyebrow}
+              </div>
+              <h2 class="font-display text-2xl sm:text-3xl font-bold tracking-tight mt-1">
+                {t.editorial.chartsSectionTitle}
+              </h2>
+            </div>
+            <button
+              type="button"
+              use:magnetic={{ strength: 0.2 }}
+              onclick={() => switchView('docs')}
+              class="terra-pressable inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-[var(--terra-text-primary)] hover:text-[var(--terra-accent-primary)] cursor-pointer"
+            >
+              <span>{isZh ? '查看全量组件文档' : 'Open Full Docs'}</span>
+              <ArrowUpRight class="w-4 h-4" />
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="lg:col-span-6">
+              <TerraPanel title={t.editorial.chartLineTitle} tag="SVG // STREAM">
+                <TerraLineChart data={signalTelemetryData} height={170} unit="GB/s" />
+              </TerraPanel>
+            </div>
+            <div class="lg:col-span-6">
+              <TerraPanel title={t.editorial.chartBarTitle} tag="SVG // LOAD">
+                <TerraBarChart data={subsystemBarData} height={170} unit="%" />
+              </TerraPanel>
             </div>
           </div>
 
+          <TerraPanel title={t.editorial.stripTitle} tag="SLA // 60D">
+            <TerraStatusStrip serviceName="GLOBAL_EDGE_ROUTER" days={60} />
+          </TerraPanel>
         </div>
-      </TerraCornerBrackets>
-    </div>
+      </section>
 
-    <!-- ==================================================================
-         FOOTER
-         ================================================================== -->
-    <footer class="pt-8 border-t border-[var(--terra-border)] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-[var(--terra-text-muted)]">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-[var(--terra-accent-primary)]"></span>
-        <span>{t.footer.systemName}</span>
-      </div>
-      <div class="flex items-center gap-4">
-        <span>{t.footer.themes}</span>
-        <span>{t.footer.transition}</span>
-        <span>{t.footer.interaction}</span>
-      </div>
-    </footer>
-  </section>
+      <section class="py-10 border-b border-[var(--terra-border)] overflow-hidden">
+        <div use:scrollReveal>
+          <div class="max-w-7xl mx-auto px-4 sm:px-8 mb-4 flex items-center justify-between">
+            <span class="font-mono text-xs uppercase tracking-wider text-[var(--terra-text-muted)]">
+              {t.editorial.marqueeEyebrow}
+            </span>
+            <button
+              type="button"
+              onclick={() => (marqueeRunning = !marqueeRunning)}
+              aria-label={marqueeRunning ? t.editorial.marqueePause : t.editorial.marqueePlay}
+              class="terra-pressable inline-flex items-center gap-1.5 px-2.5 py-1 border border-[var(--terra-border)] text-xs font-medium cursor-pointer"
+            >
+              {#if marqueeRunning}
+                <Pause class="w-3 h-3" />
+                <span>{t.editorial.marqueePause}</span>
+              {:else}
+                <Play class="w-3 h-3" />
+                <span>{t.editorial.marqueePlay}</span>
+              {/if}
+            </button>
+          </div>
 
-</main>
-{/if}
+          <div
+            class="terra-marquee-track items-center gap-10 whitespace-nowrap"
+            data-running={marqueeRunning}
+          >
+            {#each [0, 1] as copyIdx (copyIdx)}
+              <div
+                class="flex items-center gap-10 font-display text-2xl sm:text-3xl font-bold tracking-tight pr-10"
+              >
+                {#each t.editorial.marqueeItems as label, idx (idx)}
+                  <span>{label}</span>
+                  <span class="text-[var(--terra-accent-primary)]">/</span>
+                {/each}
+              </div>
+            {/each}
+          </div>
+        </div>
+      </section>
+
+      <section class="max-w-7xl mx-auto px-4 sm:px-8 py-14 space-y-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {#each t.editorial.principles as col, i (col.code)}
+            <div
+              use:scrollReveal={{ index: i, delay: i * 90 }}
+              class="border-t border-[var(--terra-border)] pt-4 space-y-2"
+            >
+              <div class="font-mono text-xs font-semibold text-[var(--terra-accent-primary)]">
+                {col.code}
+              </div>
+              <h3 class="font-display text-lg font-bold tracking-tight">
+                {col.title}
+              </h3>
+              <p class="text-xs leading-relaxed text-[var(--terra-text-muted)]">
+                {col.body}
+              </p>
+            </div>
+          {/each}
+        </div>
+
+        <footer class="border-t border-[var(--terra-border)] pt-8 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <span
+              class="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--terra-text-primary)]"
+            >
+              {t.footer.disclaimerTag}
+            </span>
+            <span class="font-mono text-[11px] text-[var(--terra-text-muted)]">
+              {t.footer.systemName}
+            </span>
+          </div>
+
+          <p class="text-xs leading-relaxed text-[var(--terra-text-muted)] max-w-4xl">
+            {t.footer.disclaimerText}
+          </p>
+
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            {#each t.footer.refLinks as link (link.url)}
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="terra-t-color inline-flex items-center gap-1.5 px-2.5 py-1 border border-[var(--terra-border)] font-mono text-[11px] text-[var(--terra-text-secondary)] hover:border-[var(--terra-accent-primary)] hover:text-[var(--terra-accent-primary)]"
+              >
+                <span>{link.label}</span>
+                <span class="text-[10px] text-[var(--terra-text-muted)]">[{link.badge}]</span>
+              </a>
+            {/each}
+          </div>
+        </footer>
+      </section>
+    </main>
+  {/if}
+</div>
+
+<style>
+  @keyframes edLineReveal {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 105%, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ed-line-reveal {
+      animation: edLineReveal var(--terra-dur-slow) var(--terra-ease-out) var(--d, 0ms) both;
+    }
+
+    .ed-roll-word:hover .ed-roll-char {
+      transform: translateY(-100%);
+    }
+
+    .ed-roll-char {
+      transition: transform var(--terra-dur-base) var(--terra-spring-snappy)
+        calc(var(--ci, 0) * 20ms);
+    }
+  }
+
+  .terra-stage-slot {
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(0, 6px, 0);
+    transition:
+      opacity var(--terra-dur-fast) var(--terra-ease-exit),
+      transform var(--terra-dur-fast) var(--terra-ease-exit);
+  }
+
+  .terra-stage-slot[data-active='true'] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0);
+    transition:
+      opacity var(--terra-dur-base) var(--terra-ease-out),
+      transform var(--terra-dur-base) var(--terra-spring-smooth);
+  }
+</style>

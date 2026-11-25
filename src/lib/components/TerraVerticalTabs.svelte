@@ -11,17 +11,11 @@
 
 <script lang="ts">
   interface Props {
-    /** Tab items list */
     items: TerraTabItem[]
-    /** Currently selected key, supports 2-way binding bind:selectedKey */
     selectedKey?: string
-    /** Height of each item, default '2.5rem' */
     itemHeight?: string
-    /** Gap between items, default '0.5rem' */
     itemGap?: string
-    /** Change callback */
     onchange?: (key: string) => void
-    /** Custom class name */
     class?: string
   }
 
@@ -29,14 +23,24 @@
     items = [],
     selectedKey = $bindable(items[0]?.key ?? ''),
     itemHeight = '2.5rem',
-    itemGap = '0.5rem',
+    itemGap = '0.25rem',
     onchange,
     class: className = ''
   }: Props = $props()
 
-  const selectedIndex = $derived(
-    items.findIndex(item => item.key === selectedKey)
-  )
+  const selectedIndex = $derived(items.findIndex((item) => item.key === selectedKey))
+  let prevIndex = $state(0)
+  let travelDist = $state(1)
+
+  $effect(() => {
+    const cur = selectedIndex >= 0 ? selectedIndex : 0
+    if (cur !== prevIndex) {
+      travelDist = Math.abs(cur - prevIndex)
+      prevIndex = cur
+    }
+  })
+
+  const indicatorDurMs = $derived(260 + Math.round(40 * Math.sqrt(Math.max(1, travelDist))))
 
   function selectKey(key: string, disabled?: boolean) {
     if (disabled || key === selectedKey) return
@@ -56,7 +60,6 @@
         }
       }
       if (targetIndex === -1) {
-        // Wrap around
         for (let i = 0; i <= index; i++) {
           if (!items[i].disabled) {
             targetIndex = i
@@ -73,7 +76,6 @@
         }
       }
       if (targetIndex === -1) {
-        // Wrap around
         for (let i = items.length - 1; i >= index; i--) {
           if (!items[i].disabled) {
             targetIndex = i
@@ -83,7 +85,7 @@
       }
     } else if (e.key === 'Home') {
       e.preventDefault()
-      targetIndex = items.findIndex(item => !item.disabled)
+      targetIndex = items.findIndex((item) => !item.disabled)
     } else if (e.key === 'End') {
       e.preventDefault()
       for (let i = items.length - 1; i >= 0; i--) {
@@ -100,9 +102,7 @@
 
     if (targetIndex !== -1 && targetIndex !== index) {
       selectKey(items[targetIndex].key, items[targetIndex].disabled)
-      // Focus target element
-      const el = document.getElementById(`terra-tab-${items[targetIndex].key}`)
-      el?.focus()
+      document.getElementById(`terra-tab-${items[targetIndex].key}`)?.focus()
     }
   }
 </script>
@@ -110,25 +110,23 @@
 <div
   role="tablist"
   aria-orientation="vertical"
-  class="terra-vtabs-container relative flex flex-col p-1.5 select-none bg-[var(--terra-bg-surface,#12151b)]/70 backdrop-blur-md border border-[var(--terra-border,rgba(255,240,0,0.22))] shadow-lg rounded-sm {className}"
+  class="isolate relative flex flex-col p-1 select-none bg-[var(--terra-bg-surface)] border border-[var(--terra-border)] {className}"
   style="--item-h: {itemHeight}; --item-g: {itemGap}; gap: {itemGap};"
 >
-  <!-- Flying High-Visibility Floating Indicator -->
   {#if selectedIndex >= 0}
     <div
-      class="terra-vtabs-indicator absolute left-1.5 right-1.5 z-0 pointer-events-none"
+      class="terra-vtabs-indicator absolute left-1 right-1 z-0 pointer-events-none bg-[var(--terra-bg-surface-hover)] border border-[var(--terra-border-strong)]"
       style="
         height: var(--item-h);
-        transform: translateY(calc({selectedIndex} * (var(--item-h) + var(--item-g))));
+        transform: translate3d(0, calc({selectedIndex} * (var(--item-h) + var(--item-g))), 0);
+        --tab-dur: {indicatorDurMs}ms;
       "
       aria-hidden="true"
     >
-      <!-- Leading tactical notch -->
-      <span class="terra-vtabs-notch"></span>
+      <span class="absolute left-0 top-0 bottom-0 w-[2px] bg-[var(--terra-accent-primary)]"></span>
     </div>
   {/if}
 
-  <!-- Tab items -->
   {#each items as item, index (item.key)}
     {@const isSelected = item.key === selectedKey}
     <button
@@ -141,33 +139,36 @@
       title={item.tooltip || item.label}
       onclick={() => selectKey(item.key, item.disabled)}
       onkeydown={(e) => handleKeyDown(e, index)}
-      class="terra-vtab-item relative z-10 flex items-center justify-between px-3.5 w-full font-mono text-xs transition-colors duration-200 outline-none focus-visible:ring-1 focus-visible:ring-[var(--terra-accent-primary,#fff000)]"
-      class:terra-vtab-selected={isSelected}
-      class:terra-vtab-disabled={item.disabled}
+      class="terra-t-color relative z-[1] flex items-center justify-between px-3 w-full font-mono text-xs cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed focus-visible:outline-1 focus-visible:outline-offset-[-1px] focus-visible:outline-[var(--terra-accent-primary)] {isSelected
+        ? ''
+        : 'hover:bg-[var(--terra-bg-surface-hover)]/60'}"
       style="height: var(--item-h);"
     >
       <div class="flex items-center gap-2.5 min-w-0">
-        <!-- Sector Short Code Tag -->
         {#if item.shortCode}
           <span
-            class="px-1.5 py-0.5 text-[10px] font-bold tracking-wider rounded-xs transition-colors {isSelected ? 'bg-black text-[var(--terra-accent-primary,#fff000)] shadow-xs' : 'bg-[var(--terra-bg-surface-active)] text-[var(--terra-text-primary)] border border-[var(--terra-border)]'}"
+            class="terra-t-color px-1.5 py-0.5 text-[10px] font-semibold tracking-wider border {isSelected
+              ? 'border-[var(--terra-accent-primary)] text-[var(--terra-accent-primary)] bg-[var(--terra-accent-primary-dim)]'
+              : 'border-[var(--terra-border)] text-[var(--terra-text-muted)]'}"
           >
             {item.shortCode}
           </span>
         {/if}
 
-        <!-- Tab Label -->
         <span
-          class="font-display font-bold uppercase tracking-wider truncate text-sm transition-colors {isSelected ? 'text-black' : 'text-[var(--terra-text-primary,#ffffff)]'}"
+          class="terra-t-color font-sans font-semibold tracking-tight truncate text-xs {isSelected
+            ? 'text-[var(--terra-text-primary)]'
+            : 'text-[var(--terra-text-secondary)]'}"
         >
           {item.label}
         </span>
       </div>
 
-      <!-- Optional Status Badge -->
       {#if item.badge}
         <span
-          class="ml-2 px-1.5 py-0.2 border text-[9px] font-bold tracking-widest uppercase transition-colors {isSelected ? 'text-black border-black' : 'text-[var(--terra-accent-primary,#fff000)] border-[var(--terra-border,#fff000)]'}"
+          class="terra-t-color ml-2 px-1.5 py-0.5 border text-[10px] font-medium tracking-wider uppercase {isSelected
+            ? 'text-[var(--terra-accent-primary)] border-[var(--terra-accent-primary)]'
+            : 'text-[var(--terra-text-muted)] border-[var(--terra-border)]'}"
         >
           {item.badge}
         </span>
@@ -177,45 +178,9 @@
 </div>
 
 <style>
-  /* Atlos Official Easing for Floating Indicator */
   .terra-vtabs-indicator {
-    top: 0.375rem; /* Matches p-1.5 */
-    background-color: var(--terra-accent-primary, #fff000);
-    clip-path: polygon(
-      0 0,
-      calc(100% - 8px) 0,
-      100% 8px,
-      100% 100%,
-      0 100%
-    );
-    box-shadow: 0 0 12px var(--terra-accent-primary-dim, rgba(255, 240, 0, 0.35));
+    top: 0.25rem;
     will-change: transform;
-    transition: transform 0.32s cubic-bezier(0.8, 0.2, 0.35, 0.7);
-  }
-
-  .terra-vtabs-notch {
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 3px;
-    height: 60%;
-    background-color: #000000;
-  }
-
-  .terra-vtab-item {
-    cursor: pointer;
-    background: transparent;
-    border: 1px solid transparent;
-  }
-
-  .terra-vtab-item:not(.terra-vtab-selected):not(.terra-vtab-disabled):hover {
-    background-color: var(--terra-bg-surface-hover, rgba(255, 255, 255, 0.05));
-    border-color: var(--terra-border, rgba(255, 240, 0, 0.2));
-  }
-
-  .terra-vtab-disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
+    transition: transform var(--tab-dur, var(--terra-dur-base)) var(--terra-spring-snappy);
   }
 </style>

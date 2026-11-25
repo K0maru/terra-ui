@@ -1,186 +1,104 @@
-# 🛡️ TERRA UI // Functional Cybernetic Design System
+# Terra-UI
 
-> **Zero-VDOM // Svelte 5 Native Runes // GPU Hardware Composited // Industrial Telemetry Aesthetics**  
-> A high-performance Svelte 5 component library and design system for industrial telemetry, developer tools, observability dashboards, and cybernetic interfaces.
+Svelte 5 flat Swiss editorial and kinetic ASCII UI component library (`@k0maru/terra-ui`).
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-Online-00f076?style=flat&logo=githubpages&logoColor=white)](https://k0maru.github.io/terra-ui/)
-
-> 🔗 **Live Demo**: [https://k0maru.github.io/terra-ui/](https://k0maru.github.io/terra-ui/)
-
-[English](README.md) | [简体中文](README_zh.md)
+- [Live Demo & Docs](https://k0maru.github.io/terra-ui/)
+- [Agent Reference (`llms.txt`)](public/llms.txt)
+- Languages: [English](README.md) | [简体中文](README_zh.md)
 
 ---
 
-## 📜 Disclaimer & Design Inspiration Attribution
+## Core Design
 
-> **IMPORTANT NOTICE**:  
-> **Terra-UI** is an independent, non-commercial open-source engineering research and UI/UX design exploration project.  
-> The visual aesthetics, typography layout, geometric chamfers, and interaction paradigms of this design system are directly inspired by and reference **"Arknights" (明日方舟)** and **"Arknights: Endfield" (明日方舟：终末地)**, developed and published by **Shanghai HYPERGRYPH Network Technology Co., Ltd. (上海鹰角网络科技有限公司)**.
+- **Flat Editorial × Kinetic ASCII**: `1px` structural borders, `36px` open dot lattice background, and live 3D-to-ASCII rendering without frosted-glass clutter or chamfer cuts.
+- **Calibrated Pigment Matrix**: Four color themes (`vermilion` default, `viridian`, `cyanotype`, `citron`) paired with `dark` (ink) and `light` (paper) modes via CSS tokens and View Transitions.
+- **Spring Physics & Zero Idle Cost**: Frame-rate-independent `stepSpring` integrator, CSS `linear()` springs (`snappy`, `smooth`, `bouncy`), critical damping for bounded numbers, and `IntersectionObserver` / `visibilitychange` canvas sleep.
+- **Zero VDOM**: Native Svelte 5 Runes (`$state`, `$derived`, `$props`) compiled to direct DOM updates.
 
-- **Intellectual Property Rights**: All trademarks, logos, game titles, and original game art/worldview designs associated with *Arknights* and *Arknights: Endfield* remain the sole property of **Shanghai HYPERGRYPH Network Technology Co., Ltd.** and its affiliates.
-- **Independent Clean-Room Implementation**: Terra-UI is an original open-source UI component library (MIT License). All Svelte 5 components, CSS design tokens, and SVG graphics were authored independently from scratch as design references. **No proprietary game packages were unpacked, extracted, reverse-engineered, or distributed in this repository.**
-- **Non-Affiliation & Academic Purpose**: This project is an independent community project developed strictly for frontend architectural research, Svelte 5 reactive performance benchmarks, and open-source UI/UX showcase. It is not affiliated with, endorsed by, or sponsored by HYPERGRYPH, and is not intended for commercial monetization.
-
-### 🔗 Primary References & Design Credits
-
-1. [HYPERGRYPH Official Website](https://www.hypergryph.com/)
-2. [Arknights Official Website](https://ak.hypergryph.com/)
-3. [Arknights: Endfield Official Website](https://endfield.hypergryph.com/)
-4. [Bilibili @设计师深海: Endfield UI Design Analysis (BV142zkBbEL6)](https://www.bilibili.com/video/BV142zkBbEL6/)
-5. [GitHub Open Source: Terra-Online/Atlos (Endfield Map Interface Reference)](https://github.com/Terra-Online/Atlos)
-
----
-
-## 🎨 Dual-Axis Design Architecture
-
-Terra-UI synthesizes two distinct cybernetic visual philosophies into a unified design token system:
-
-| Design Axis | Visual Metaphor | Core Design Characteristics & Artifacts |
+| Theme ID | Mode Palette | Default Accent (Dark / Light) |
 | :--- | :--- | :--- |
-| **2D Flat Graphic Axis** | **PRTS Tactical Terminal** (`prts`) | Swiss International Style grid discipline, high typography density, asymmetric coordinate alignments, strict monochrome contrast, and zero 3D clutter. Tailored for data-dense developer tools and tactical feeds. |
-| **3D Spatial Topology Axis** | **Endfield Industrial Grid** (`dijiang` / `wuling`) | Real-time pointer-tracking 3D perspective cards (`<TerraSpatialCard />`), Talos-II topographic contour maps (`<TerraContourLines />`), -20° recessed AIC industrial power bus (`<TerraSegmentBar />`), and CAD vector reticles (`[ ]`, `+`). |
+| `vermilion` | Mineral Gray × Vermilion | `#ee4b2b` / `#c9341b` |
+| `viridian` | Stone Gray × Oxide Viridian | `#3fd1a0` / `#186a52` |
+| `cyanotype` | Silver Blueprint × Prussian Blue | `#5b86ff` / `#1b4dff` |
+| `citron` | Carbon Ink × Acid Citron | `#d2ff28` / `#4d6600` |
 
 ---
 
-## ⚡ Performance Architecture
+## Exported Components (19)
 
-1. **Zero Virtual DOM Overhead**: Built natively on Svelte 5 Runes (`$state`, `$derived`, `$props`). Updates execute directly through granular DOM operations without runtime component tree reconciliation.
-2. **GPU Compositor Acceleration**: All 3D rotations, tactical curtain sweeps (`scaleX` + `cubic-bezier(1, 0, 0.7, 1)`), 45° chamfers (`clip-path`), and shimmer waves run entirely on the hardware compositor thread, delivering rock-solid 120 FPS telemetry animations.
-3. **Orthogonal Theme & Mode System**: Native support for dark and light color modes (`[data-mode="dark"]`, `[data-mode="light"]`) across multi-faction industrial themes (`dijiang`, `wuling`, `prts`).
+| Category | Components | Highlights |
+| :--- | :--- | :--- |
+| **Kinetic & Spatial** | `TerraAsciiStage`, `TerraAmbientField`, `TerraSpatialCard` | 16-bucket chroma×luminance 3D ASCII butterfly, 36px viewport glyph field, damped 3D tilt |
+| **Charts** | `TerraLineChart`, `TerraBarChart`, `TerraStatusStrip`, `TerraDonutChart`, `TerraActivityHeatmap` (`TerraHeatmap`), `TerraSparkline` | Gap-free container pointer tracking, Spring crosshair & size-morphing tooltips, keyboard navigation |
+| **Controls & Numerics** | `TerraVernierMeter`, `TerraVerticalTabs`, `TerraRollingNumber` | Composite-layer caliper slider, distance-scaled tab rail, zero-overshoot numeric counter |
+| **Primitives & Identity** | `TerraButton`, `TerraPanel`, `TerraInput`, `TerraBadge`, `TerraStatusBeacon`, `TerraProfileCard`, `TerraBarcode` | Magnetic pull & synchronized `clip-path` ink wipe, `1px` surface panel, bilingual terminal input |
 
----
-
-## 🧩 Component Inventory
-
-### 1. 3D Spatial & Physical Interaction
-- `<TerraSpatialCard />`: Multi-axis 3D hover card with real-time pointer perspective tilt, Z-axis parallax depth, and GPU specular sheen.
-- `<TerraContourLines />`: Talos-II topographic contour overlay with dynamic elevation coordinates and CAD survey crosshairs.
-- `<TerraSegmentBar />`: -20° recessed industrial AIC energy bus and tactical skill capacity indicator with dynamic charge pulse.
-
-### 2. Native Telemetry SVG Charts
-- `<TerraDonutChart />`: Tactical circular resource breakdown chart with center focal readout and 4-channel allocation.
-- `<TerraLineChart />`: Zero-dependency SVG telemetry line chart with dual-stream waveforms, gradient fills, and dynamic peak callouts.
-- `<TerraBarChart />`: Segmented histogram bar chart with dual comparative metrics and smooth transitions.
-
-### 3. Developer & Observability Suite
-- `<TerraActivityHeatmap />` / `<TerraHeatmap />`: 2D calendar activity and commit frequency heatmap with 5-level energy grading and HUD tooltip pin box.
-- `<TerraStatusStrip />`: 1D horizontal SLA uptime and service health strip with 4 status levels and incident tooltips.
-- `<TerraSparkline />`: Zero-margin inline SVG waveform chart for KPI metrics, data tables, and headers with live pulse dot.
-
-### 4. Precision Controls & HUD
-- `<TerraVerticalSlider />`: Industrial precision vertical slider with calibration ticks and bidirectional setpoint adjustments.
-- `<TerraVerticalTabs />`: Tactical floating-cursor vertical tab navigation with fluid indicator tracking.
-- `<TerraCornerBrackets />`: Tactical wireframe corner framing with HUD status flags and extended corner guides.
-- `<TerraCadPattern />`: Interactive CAD coordinate grid layer with cursor proximity highlight.
-
-### 5. Identity & Dossier
-- `<TerraProfileCard />`: Swiss typographic developer and operator credential card.
-- `<TerraTacticalProfile />`: High-fidelity tactical dossier card with security clearance badges and operational serial tags.
-- `<TerraDossierCard />`: Multi-state intelligence dossier docket.
-
-### 6. Atomic Primitives & Systems
-- `<TerraButton />`: 45° chamfered industrial button with GPU shimmer wave and four semantic states.
-- `<TerraPanel />`: Tactical container panel with continuous 1px vector chamfer borders, hazard stripes, telemetry header tags, and 5 modular decoration presets (`endfield`, `rhodes`, `industrial`, `brackets`, `clean`).
-- `<TerraBadge />`: Industrial status badge with micro security clearance codes (`ADM`, `AIC`, `GRID`, `OK`).
-- `<TerraStatusBeacon />`: Multi-state breathing beacon with GPU pulse glow.
-- `<TerraRollingNumber />`: Spring-physics rolling odometer counter for high-frequency telemetry.
-- `<TerraBarcode />`: Pure vector industrial barcode with manufactured serial numbers.
-- `<TerraInput />`: Chamfered industrial terminal input with cursor indicators.
-- `<TerraInitialBootScreen />`: Game-accurate diagnostic POST kernel boot sequence (2.2s fast check).
-- `<TerraCurtainTransition />`: Solid industrial armor curtain wipe transition with high-speed 0-100% telemetry countdown.
+For component props, token names, and exported helpers, read [`public/llms.txt`](public/llms.txt) or [Tokens & Themes](src/lib/styles/tokens.css).
 
 ---
 
-## 🚀 Quick Start & Usage
+## Quick Start
 
-### 1. Install via npm
+Install the package:
 
 ```bash
 npm install @k0maru/terra-ui
 ```
 
-### 2. Component Usage (Svelte 5)
-
-Import components and styles directly in your Svelte application:
+Import styles and components in Svelte 5:
 
 ```svelte
 <script lang="ts">
   import {
-    TerraSpatialCard,
+    TerraPanel,
     TerraButton,
-    TerraSegmentBar,
-    TerraDonutChart,
-    TerraStatusBeacon
+    TerraStatusStrip,
+    TerraVernierMeter,
+    TerraRollingNumber
   } from '@k0maru/terra-ui'
   import '@k0maru/terra-ui/css'
 
-  let energyLevel = $state(76)
-  let status = $state<'online' | 'warning' | 'critical'>('online')
+  let load = $state(74)
 </script>
 
-<div class="p-8 bg-zinc-950 text-white min-h-screen">
-  <TerraSpatialCard glare={true} maxTilt={8} class="p-6 max-w-md">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="font-mono text-sm tracking-wider uppercase">AIC BUS 04 // MONITOR</h3>
-      <TerraStatusBeacon state={status} />
-    </div>
-
-    <!-- -20° Recessed Energy Bus -->
-    <TerraSegmentBar
-      totalSegments={24}
-      activeSegments={Math.round((energyLevel / 100) * 24)}
-      accentColor="var(--terra-amber)"
-    />
-
-    <!-- Telemetry Allocation Chart -->
-    <div class="mt-6 flex justify-center">
-      <TerraDonutChart
-        segments={[
-          { label: 'Core Load', value: 45, color: '#f59e0b' },
-          { label: 'Sub-Grid', value: 30, color: '#3b82f6' },
-          { label: 'Auxiliary', value: 25, color: '#10b981' }
-        ]}
-        centerValue="{energyLevel}%"
-        centerLabel="OUTPUT"
-      />
-    </div>
-
-    <div class="mt-6 flex justify-end gap-3">
-      <TerraButton variant="secondary" onclick={() => energyLevel = Math.max(0, energyLevel - 10)}>
-        DECREMENT
-      </TerraButton>
-      <TerraButton variant="primary" onclick={() => energyLevel = Math.min(100, energyLevel + 10)}>
-        RECHARGE
+<TerraPanel title="EDGE ROUTER // NODE-01" tag="SLA // 60D">
+  <div class="space-y-4">
+    <div class="flex items-baseline justify-between">
+      <TerraRollingNumber value={load} decimals={0} suffix="%" class="text-3xl" />
+      <TerraButton variant="primary" magneticPull={true} onclick={() => (load = 88)}>
+        CALIBRATE
       </TerraButton>
     </div>
-  </TerraSpatialCard>
-</div>
-```
 
-### 3. Repository Development & Packaging
-
-```bash
-# Clone the repository
-git clone https://github.com/K0maru/terra-ui.git
-cd terra-ui
-
-# Install dependencies
-npm install
-
-# Launch interactive showcase dev server
-npm run dev
-
-# Fast production SPA build (for GitHub Pages)
-npm run build
-
-# Package standalone library (outputs to dist-lib/)
-npm run package
+    <TerraVernierMeter bind:value={load} interactive={true} hazard={load >= 85} />
+    <TerraStatusStrip serviceName="GLOBAL_EDGE_ROUTER" days={60} />
+  </div>
+</TerraPanel>
 ```
 
 ---
 
-## 📄 License & Maintainer
+## Development & CI/CD
 
-- **License**: [MIT License](LICENSE)
-- **Maintainer**: [K0maru](https://github.com/K0maru) (Project Repository: [https://github.com/K0maru/terra-ui](https://github.com/K0maru/terra-ui))
-- **Design Inspiration**: [Shanghai HYPERGRYPH Network Technology Co., Ltd.](https://www.hypergryph.com/)
+```bash
+git clone https://github.com/K0maru/terra-ui.git
+cd terra-ui
+npm install
+npm run dev
+```
+
+| Workflow / Script | Trigger / Purpose | Target |
+| :--- | :--- | :--- |
+| `npm run lint && npm run check` | ESLint (`0` warnings), anti-slop rules (`scripts/lint-taste.mjs`), Prettier, `svelte-check` | Local & CI |
+| `npm run build && npm run package` | Build showcase site (`dist/`) and Svelte library package (`dist-lib/`) | Local & CI |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Run lint, type check, site build, and package build | Push to `dev` & PRs to `main` / `dev` |
+| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) | Verify all gates and deploy static site + `llms.txt` | Push to `main` |
+| [`.github/workflows/release.yml`](.github/workflows/release.yml) | Run gates, build tarball, and publish GitHub Release / Packages | Tags `v*` |
+
+---
+
+## License & Attribution
+
+- **License**: [MIT](LICENSE)
+- **Maintainer**: [K0maru](https://github.com/K0maru) (`UID-93422639`)
+- **Attribution**: Clean-room Svelte 5 implementation with zero proprietary game assets. Earlier visual explorations referenced *Arknights* and *Arknights: Endfield* by [HYPERGRYPH](https://www.hypergryph.com/) (trademarks belong to their respective owners) and [Terra-Online/Atlos](https://github.com/Terra-Online/Atlos).
