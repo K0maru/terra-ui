@@ -91,8 +91,8 @@ npm run dev
 | :--- | :--- | :--- |
 | `npm run lint && npm run check` | ESLint (`0` warnings), anti-slop rules (`scripts/lint-taste.mjs`), Prettier, `svelte-check` | Local & CI |
 | `npm run build && npm run package` | Build showcase site (`dist/`) and Svelte library package (`dist-lib/`) | Local & CI |
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Run lint, type check, site build, and package build | PRs to `main` / `dev` |
-| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) | Verify all gates and deploy static site + `llms.txt` | Push to `main` / `dev` |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Run lint, type check, site build, and package build | Push to `dev` & PRs to `main` / `dev` |
+| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) | Verify all gates and deploy static site + `llms.txt` | Push to `main` |
 | [`.github/workflows/release.yml`](.github/workflows/release.yml) | Run gates, build tarball, and publish GitHub Release / Packages | Tags `v*` |
 
 ---
