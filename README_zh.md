@@ -91,8 +91,8 @@ npm run dev
 | :--- | :--- | :--- |
 | `npm run lint && npm run check` | 运行 ESLint（零警告）、[`lint-taste.mjs`](scripts/lint-taste.mjs)、Prettier 与 `svelte-check` | 本地与 CI |
 | `npm run build && npm run package` | 构建演示站点（`dist/`）与独立组件库产物（`dist-lib/`） | 本地与 CI |
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | 自动校验 Lint、类型、站点构建与组件库打包 | PR 合入 `main` / `dev` |
-| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) | 全量校验通过后部署静态演示站与 `llms.txt` | 推送至 `main` / `dev` |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | 自动校验 Lint、类型、站点构建与组件库打包 | 推送 `dev` 与 PR 合入 `main` / `dev` |
+| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) | 全量校验通过后部署静态演示站与 `llms.txt` | 推送至 `main` |
 | [`.github/workflows/release.yml`](.github/workflows/release.yml) | 运行全量门禁、打包并发布 GitHub Release / Packages | 推送 `v*` 标签 |
 
 ---
